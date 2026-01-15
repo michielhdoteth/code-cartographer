@@ -1,0 +1,25 @@
+{
+  "name": "carto",
+  "version": "1.0.0",
+  "description": "Map codebases with AST parsing, infinite canvas visualization, and TOON-formatted output for Claude Code agents",
+  "author": {
+    "name": "Code Cartographer"
+  },
+  "homepage": "https://github.com/code-cartographer/code-cartographer",
+  "license": "MIT",
+  "keywords": ["code-analysis", "visualization", "ast-parser", "infinite-canvas", "llm-tools"],
+  "commands": [
+    "./commands/carto-init.md",
+    "./commands/carto-scan.md",
+    "./commands/carto-parse.md",
+    "./commands/carto-graph.md",
+    "./commands/carto-diff.md",
+    "./commands/carto-status.md",
+    "./commands/carto-canvas.md",
+    "./commands/carto-query.md",
+    "./commands/carto-search.md",
+    "./commands/carto-detect.md"
+  ],
+  "agents": ["./agents/carto.md"],
+  "skills": ["./skills/carto/SKILL.md"]
+}

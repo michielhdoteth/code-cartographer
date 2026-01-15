@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Web - Infinite Canvas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        #canvas-container.dragging {
+            cursor: grabbing;
+        }
+
+        #canvas {
+            position: absolute;
+            transform-origin: 0 0;
+        }
+
+        .block {
+            position: absolute;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            user-select: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .block:hover {
+            border-color: #666;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        .block.topic {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6f 100%);
+            border-color: #4a90e2;
+            border-width: 3px;
+        }
+
+        .block.concept {
+            background: linear-gradient(135deg, #2d4a22 0%, #3d5a32 100%);
+            border-color: #5cb85c;
+        }
+
+        .block.topic-level-0 {
+            background: linear-gradient(135deg, #3a1e5f 0%, #4a2e6f 100%);
+            border-color: #9b59b6;
+            border-width: 4px;
+        }
+
+        .block-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .block-summary {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .block-type-badge {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #444;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+
+        .block.topic .block-type-badge {
+            background: #4a90e2;
+        }
+
+        .block.concept .block-type-badge {
+            background: #5cb85c;
+        }
+
+        #connector-svg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        #controls button {
+            background: #444;
+            color: #e0e0e0;
+            border: none;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #controls button:hover {
+            background: #555;
+        }
+
+        .conn-mode-btn {
+            background: #333;
+            font-size: 11px;
+            padding: 6px 10px;
+        }
+
+        .conn-mode-btn.active {
+            background: #4a90e2;
+            color: #fff;
+            border-color: #5a9ff0;
+        }
+
+        .block.highlighted {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .block.dimmed {
+            opacity: 0.3;
+            border-color: #333;
+        }
+
+        .block.connected {
+            border-color: #4a90e2;
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+        }
+
+        #stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 12px;
+            z-index: 1000;
+            min-width: 180px;
+        }
+
+        #stats .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        #stats .stat-label {
+            color: #888;
+        }
+
+        #stats .stat-value {
+            color: #4a90e2;
+            font-weight: 600;
+        }
+
+        #stats .stat-divider {
+            border-top: 1px solid #444;
+            margin: 8px 0;
+        }
+
+        #minimap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        #minimap-canvas {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+        }
+
+        #loading-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #2a2a2a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            display: none;
+        }
+
+        #loading-indicator.visible {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #444;
+            border-top-color: #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button onclick="resetView()">Reset View</button>
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+        <button onclick="centerOnRoot()">Center on Root</button>
+        <button onclick="fitAll()">Fit All</button>
+        <hr style="margin: 8px 0; border: none; border-top: 1px solid #444;">
+        <div style="margin-bottom: 8px; font-size: 11px; color: #888;">Connection Modes:</div>
+        <button onclick="setConnectionMode('all')" id="conn-mode-all" class="conn-mode-btn active">All</button>
+        <button onclick="setConnectionMode('prerequisites')" id="conn-mode-prereq" class="conn-mode-btn">Prerequisites</button>
+        <button onclick="setConnectionMode('related')" id="conn-mode-related" class="conn-mode-btn">Related</button>
+        <button onclick="setConnectionMode('path')" id="conn-mode-path" class="conn-mode-btn">Learning Path</button>
+        <button onclick="clearHighlight()" id="conn-clear" class="conn-mode-btn">Clear</button>
+    </div>
+
+    <div id="stats">
+        <div class="stat-row">
+            <span class="stat-label">Topics:</span>
+            <span class="stat-value" id="topic-count">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Concepts:</span>
+            <span class="stat-value" id="concept-count">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Edges:</span>
+            <span class="stat-value" id="edge-count">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-row">
+            <span class="stat-label">Visible:</span>
+            <span class="stat-value" id="visible-count">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Rendered:</span>
+            <span class="stat-value" id="rendered-count">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-row">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value" id="fps-count">60</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Chunks:</span>
+            <span class="stat-value" id="chunk-count">0</span>
+        </div>
+    </div>
+
+    <div id="minimap">
+        <canvas id="minimap-canvas"></canvas>
+    </div>
+
+    <div id="loading-indicator">
+        <span class="loading-spinner"></span>
+        <span id="loading-text">Loading chunks...</span>
+    </div>
+
+    <div id="canvas-container">
+        <div id="canvas">
+            <svg id="connector-svg"></svg>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================
+        // QuadTree Implementation for Viewport Culling
+        // =====================================================
+        class QuadTree {
+            constructor(bounds, capacity = 10, maxDepth = 8, depth = 0) {
+                this.bounds = bounds;
+                this.capacity = capacity;
+                this.maxDepth = maxDepth;
+                this.depth = depth;
+                this.blocks = [];
+                this.divided = false;
+                this.nw = null;
+                this.ne = null;
+                this.sw = null;
+                this.se = null;
+            }
+
+            intersects(b1, b2) {
+                return !(b1.xMax < b2.xMin || b1.xMin > b2.xMax ||
+                         b1.yMax < b2.yMin || b1.yMin > b2.yMax);
+            }
+
+            getBlockBounds(block) {
+                return {
+                    xMin: block.x,
+                    xMax: block.x + block.width,
+                    yMin: block.y,
+                    yMax: block.y + block.height
+                };
+            }
+
+            insert(block) {
+                const blockBounds = this.getBlockBounds(block);
+                if (!this.intersects(this.bounds, blockBounds)) return false;
+
+                if (this.blocks.length < this.capacity || this.depth >= this.maxDepth) {
+                    this.blocks.push(block);
+                    return true;
+                }
+
+                if (!this.divided) this.subdivide();
+
+                let inserted = false;
+                if (this.nw.insert(block)) inserted = true;
+                if (this.ne.insert(block)) inserted = true;
+                if (this.sw.insert(block)) inserted = true;
+                if (this.se.insert(block)) inserted = true;
+
+                if (!inserted) {
+                    this.blocks.push(block);
+                    inserted = true;
+                }
+
+                return inserted;
+            }
+
+            subdivide() {
+                const { xMin, xMax, yMin, yMax } = this.bounds;
+                const midX = (xMin + xMax) / 2;
+                const midY = (yMin + yMax) / 2;
+
+                this.nw = new QuadTree({ xMin, xMax: midX, yMin, yMax: midY },
+                    this.capacity, this.maxDepth, this.depth + 1);
+                this.ne = new QuadTree({ xMin: midX, xMax, yMin, yMax: midY },
+                    this.capacity, this.maxDepth, this.depth + 1);
+                this.sw = new QuadTree({ xMin, xMax: midX, yMin: midY, yMax },
+                    this.capacity, this.maxDepth, this.depth + 1);
+                this.se = new QuadTree({ xMin: midX, xMax, yMin: midY, yMax },
+                    this.capacity, this.maxDepth, this.depth + 1);
+
+                this.divided = true;
+            }
+
+            queryRange(rangeBounds) {
+                const results = [];
+                if (!this.intersects(this.bounds, rangeBounds)) return results;
+
+                for (const block of this.blocks) {
+                    if (this.intersects(rangeBounds, this.getBlockBounds(block))) {
+                        results.push(block);
+                    }
+                }
+
+                if (this.divided) {
+                    results.push(...this.nw.queryRange(rangeBounds));
+                    results.push(...this.ne.queryRange(rangeBounds));
+                    results.push(...this.sw.queryRange(rangeBounds));
+                    results.push(...this.se.queryRange(rangeBounds));
+                }
+
+                return results;
+            }
+        }
+
+        // =====================================================
+        // Chunk Loader for Lazy Loading
+        // =====================================================
+        class ChunkLoader {
+            constructor() {
+                this.chunkIndex = null;
+                this.loadedChunks = new Map();
+                this.loadingChunks = new Set();
+                this.chunksDir = './chunks';
+            }
+
+            async initialize() {
+                try {
+                    const response = await fetch(`${this.chunksDir}/index.json`);
+                    if (response.ok) {
+                        this.chunkIndex = await response.json();
+                        await this.loadChunk('chunk-core');
+                        return true;
+                    }
+                } catch (e) {
+                    console.log('No chunk index found, using monolithic files');
+                }
+                return false;
+            }
+
+            async loadChunk(chunkId) {
+                if (this.loadedChunks.has(chunkId) || this.loadingChunks.has(chunkId)) {
+                    return this.loadedChunks.get(chunkId);
+                }
+
+                this.loadingChunks.add(chunkId);
+                showLoading(`Loading ${chunkId}...`);
+
+                try {
+                    const response = await fetch(`${this.chunksDir}/${chunkId}.json`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.loadedChunks.set(chunkId, data);
+                        this.loadingChunks.delete(chunkId);
+                        hideLoading();
+                        return data;
+                    }
+                } catch (e) {
+                    console.error(`Failed to load chunk ${chunkId}:`, e);
+                }
+
+                this.loadingChunks.delete(chunkId);
+                hideLoading();
+                return null;
+            }
+
+            async loadChunksForViewport(viewportBounds) {
+                if (!this.chunkIndex) return [];
+
+                const chunksToLoad = [];
+                for (const chunk of this.chunkIndex.chunks) {
+                    if (chunk.bounds) {
+                        const chunkBounds = {
+                            xMin: chunk.bounds.x_min,
+                            xMax: chunk.bounds.x_max,
+                            yMin: chunk.bounds.y_min,
+                            yMax: chunk.bounds.y_max
+                        };
+                        if (this.boundsIntersect(viewportBounds, chunkBounds)) {
+                            chunksToLoad.push(chunk.chunk_id);
+                        }
+                    }
+                }
+
+                await Promise.all(chunksToLoad.map(id => this.loadChunk(id)));
+                return chunksToLoad;
+            }
+
+            boundsIntersect(b1, b2) {
+                return !(b1.xMax < b2.xMin || b1.xMin > b2.xMax ||
+                         b1.yMax < b2.yMin || b1.yMin > b2.yMax);
+            }
+
+            getMergedData() {
+                const topics = [];
+                const concepts = [];
+                const edges = [];
+                const blocks = [];
+                const connectors = [];
+
+                const seenTopics = new Set();
+                const seenConcepts = new Set();
+                const seenBlocks = new Set();
+
+                for (const [_, chunkData] of this.loadedChunks) {
+                    if (chunkData.topics) {
+                        for (const t of chunkData.topics) {
+                            if (!seenTopics.has(t.id)) {
+                                topics.push(t);
+                                seenTopics.add(t.id);
+                            }
+                        }
+                    }
+                    if (chunkData.concepts) {
+                        for (const c of chunkData.concepts) {
+                            if (!seenConcepts.has(c.id)) {
+                                concepts.push(c);
+                                seenConcepts.add(c.id);
+                            }
+                        }
+                    }
+                    if (chunkData.edges) edges.push(...chunkData.edges);
+                    if (chunkData.blocks) {
+                        for (const b of chunkData.blocks) {
+                            if (!seenBlocks.has(b.id)) {
+                                blocks.push(b);
+                                seenBlocks.add(b.id);
+                            }
+                        }
+                    }
+                    if (chunkData.connectors) connectors.push(...chunkData.connectors);
+                }
+
+                return { topics, concepts, edges, blocks, connectors };
+            }
+
+            getLoadedChunkCount() {
+                return this.loadedChunks.size;
+            }
+        }
+
+        // =====================================================
+        // Incremental Renderer
+        // =====================================================
+        class IncrementalRenderer {
+            constructor(canvasEl, svgEl) {
+                this.canvas = canvasEl;
+                this.svg = svgEl;
+                this.renderedBlocks = new Map();
+                this.renderedConnectors = new Map();
+                this.quadTree = null;
+                this.allBlocks = [];
+                this.allConnectors = [];
+                this.blockToNode = new Map();
+            }
+
+            setData(blocks, connectors, topics, concepts) {
+                this.allBlocks = blocks;
+                this.allConnectors = connectors;
+
+                // Build block to node mapping
+                this.blockToNode.clear();
+                for (const topic of topics) {
+                    if (topic.board_refs) {
+                        for (const ref of topic.board_refs) {
+                            this.blockToNode.set(ref, { type: 'topic', node: topic });
+                        }
+                    }
+                }
+                for (const concept of concepts) {
+                    if (concept.board_refs) {
+                        for (const ref of concept.board_refs) {
+                            this.blockToNode.set(ref, { type: 'concept', node: concept });
+                        }
+                    }
+                }
+
+                // Build QuadTree
+                this.buildQuadTree();
+            }
+
+            buildQuadTree() {
+                if (this.allBlocks.length === 0) return;
+
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                for (const block of this.allBlocks) {
+                    minX = Math.min(minX, block.x);
+                    minY = Math.min(minY, block.y);
+                    maxX = Math.max(maxX, block.x + block.width);
+                    maxY = Math.max(maxY, block.y + block.height);
+                }
+
+                const padding = 1000;
+                const bounds = {
+                    xMin: minX - padding,
+                    xMax: maxX + padding,
+                    yMin: minY - padding,
+                    yMax: maxY + padding
+                };
+
+                this.quadTree = new QuadTree(bounds, 10, 8);
+                for (const block of this.allBlocks) {
+                    this.quadTree.insert(block);
+                }
+            }
+
+            getVisibleBlocks(viewportBounds, bufferFactor = 1.5) {
+                if (!this.quadTree) return this.allBlocks;
+
+                const width = viewportBounds.xMax - viewportBounds.xMin;
+                const height = viewportBounds.yMax - viewportBounds.yMin;
+                const expandX = width * (bufferFactor - 1) / 2;
+                const expandY = height * (bufferFactor - 1) / 2;
+
+                const expandedBounds = {
+                    xMin: viewportBounds.xMin - expandX,
+                    xMax: viewportBounds.xMax + expandX,
+                    yMin: viewportBounds.yMin - expandY,
+                    yMax: viewportBounds.yMax + expandY
+                };
+
+                return this.quadTree.queryRange(expandedBounds);
+            }
+
+            render(visibleBlocks) {
+                const visibleIds = new Set(visibleBlocks.map(b => b.id));
+
+                // Remove blocks no longer visible
+                for (const [id, element] of this.renderedBlocks) {
+                    if (!visibleIds.has(id)) {
+                        element.remove();
+                        this.renderedBlocks.delete(id);
+                    }
+                }
+
+                // Add newly visible blocks
+                for (const block of visibleBlocks) {
+                    if (!this.renderedBlocks.has(block.id)) {
+                        const element = this.createBlockElement(block);
+                        this.canvas.appendChild(element);
+                        this.renderedBlocks.set(block.id, element);
+                    }
+                }
+
+                // Update connectors
+                this.renderConnectors(visibleIds);
+
+                return this.renderedBlocks.size;
+            }
+
+            createBlockElement(block) {
+                const el = document.createElement('div');
+                const nodeInfo = this.blockToNode.get(block.id);
+
+                let nodeType = block.node_type || 'concept';
+                let title = '';
+                let summary = '';
+                let level = 0;
+
+                if (nodeInfo) {
+                    nodeType = nodeInfo.type;
+                    title = nodeInfo.node.title || '';
+                    summary = nodeInfo.node.summary || '';
+                    level = nodeInfo.node.level || 0;
+                } else if (block.content) {
+                    const parts = block.content.split('\n\n');
+                    title = parts[0] || '';
+                    summary = parts.slice(1).join('\n\n') || '';
+                }
+
+                el.className = `block ${nodeType}`;
+                if (nodeType === 'topic' && level === 0) {
+                    el.classList.add('topic-level-0');
+                }
+
+                el.style.left = `${block.x}px`;
+                el.style.top = `${block.y}px`;
+                el.style.width = `${block.width}px`;
+                el.style.minHeight = `${block.height}px`;
+
+                el.innerHTML = `
+                    <span class="block-type-badge">${nodeType}</span>
+                    <div class="block-title">${this.escapeHtml(title)}</div>
+                    <div class="block-summary">${this.escapeHtml(summary)}</div>
+                `;
+
+                el.dataset.blockId = block.id;
+                return el;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            renderConnectors(visibleBlockIds) {
+                // Clear existing connectors
+                while (this.svg.firstChild) {
+                    if (this.svg.firstChild.tagName !== 'defs') {
+                        this.svg.removeChild(this.svg.firstChild);
+                    } else {
+                        break;
+                    }
+                }
+                this.svg.innerHTML = '';
+
+                // Add marker definition
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', 'arrowhead');
+                marker.setAttribute('markerWidth', '10');
+                marker.setAttribute('markerHeight', '7');
+                marker.setAttribute('refX', '9');
+                marker.setAttribute('refY', '3.5');
+                marker.setAttribute('orient', 'auto');
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+                polygon.setAttribute('fill', '#4a90e2');
+                marker.appendChild(polygon);
+                defs.appendChild(marker);
+                this.svg.appendChild(defs);
+
+                // Build block lookup
+                const blockMap = new Map();
+                for (const block of this.allBlocks) {
+                    blockMap.set(block.id, block);
+                }
+
+                // Render connectors for visible blocks
+                for (const connector of this.allConnectors) {
+                    if (!visibleBlockIds.has(connector.from_id) && !visibleBlockIds.has(connector.to_id)) {
+                        continue;
+                    }
+
+                    const fromBlock = blockMap.get(connector.from_id);
+                    const toBlock = blockMap.get(connector.to_id);
+
+                    if (fromBlock && toBlock) {
+                        const x1 = fromBlock.x + fromBlock.width / 2;
+                        const y1 = fromBlock.y + fromBlock.height;
+                        const x2 = toBlock.x + toBlock.width / 2;
+                        const y2 = toBlock.y;
+
+                        const midY = (y1 + y2) / 2;
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+                        path.setAttribute('d', d);
+                        path.setAttribute('stroke', connector.edge_type === 'dashed' ? '#888' : '#4a90e2');
+                        path.setAttribute('stroke-width', '2');
+                        path.setAttribute('fill', 'none');
+                        if (connector.edge_type === 'dashed') {
+                            path.setAttribute('stroke-dasharray', '5,5');
+                        }
+                        path.setAttribute('marker-end', 'url(#arrowhead)');
+                        this.svg.appendChild(path);
+                    }
+                }
+            }
+
+            clear() {
+                for (const [_, element] of this.renderedBlocks) {
+                    element.remove();
+                }
+                this.renderedBlocks.clear();
+                this.svg.innerHTML = '';
+            }
+        }
+
+        // =====================================================
+        // Main Application
+        // =====================================================
+        let boardData = null;
+        let kgData = null;
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        let chunkLoader = null;
+        let renderer = null;
+        let useChunks = false;
+        let lastRenderTime = 0;
+        let frameCount = 0;
+        let fps = 60;
+
+        // Loading indicator helpers
+        function showLoading(text) {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-indicator').classList.add('visible');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-indicator').classList.remove('visible');
+        }
+
+        // Load data
+        async function loadData() {
+            const canvas = document.getElementById('canvas');
+            const svg = document.getElementById('connector-svg');
+            renderer = new IncrementalRenderer(canvas, svg);
+            chunkLoader = new ChunkLoader();
+
+            // Try chunked loading first
+            showLoading('Initializing...');
+            useChunks = await chunkLoader.initialize();
+
+            if (useChunks) {
+                console.log('Using chunked loading');
+                const mergedData = chunkLoader.getMergedData();
+                boardData = {
+                    blocks: mergedData.blocks,
+                    connectors: mergedData.connectors,
+                    canvas_width: 10000,
+                    canvas_height: 10000
+                };
+                kgData = {
+                    topics: mergedData.topics,
+                    concepts: mergedData.concepts,
+                    edges: mergedData.edges
+                };
+            } else {
+                // Fall back to monolithic files
+                try {
+                    const boardResponse = await fetch('./code-map-board.json');
+                    boardData = await boardResponse.json();
+
+                    const kgResponse = await fetch('./infinite.kg.json');
+                    kgData = await kgResponse.json();
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    createEmptyData();
+                }
+            }
+
+            hideLoading();
+
+            // Initialize renderer
+            renderer.setData(
+                boardData.blocks || [],
+                boardData.connectors || [],
+                kgData.topics || [],
+                kgData.concepts || []
+            );
+
+            // Set SVG size
+            svg.style.width = `${boardData.canvas_width || 10000}px`;
+            svg.style.height = `${boardData.canvas_height || 10000}px`;
+
+            updateStats();
+            updateMinimap();
+            centerOnRoot();
+            renderVisible();
+
+            // Start FPS counter
+            requestAnimationFrame(updateFPS);
+        }
+
+        function createEmptyData() {
+            boardData = {
+                blocks: [],
+                connectors: [],
+                groups: [],
+                meta: {},
+                canvas_width: 10000,
+                canvas_height: 10000
+            };
+
+            kgData = {
+                topics: [],
+                concepts: [],
+                edges: [],
+                scope_root: null,
+                scope_rules: {}
+            };
+        }
+
+        function getViewportBounds() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            return {
+                xMin: -offsetX / scale,
+                xMax: (-offsetX + width) / scale,
+                yMin: -offsetY / scale,
+                yMax: (-offsetY + height) / scale
+            };
+        }
+
+        async function renderVisible() {
+            const viewportBounds = getViewportBounds();
+
+            // Load chunks for viewport if using chunked loading
+            if (useChunks && chunkLoader.chunkIndex) {
+                await chunkLoader.loadChunksForViewport(viewportBounds);
+                const mergedData = chunkLoader.getMergedData();
+
+                // Update data if new chunks were loaded
+                if (mergedData.blocks.length !== boardData.blocks.length) {
+                    boardData.blocks = mergedData.blocks;
+                    boardData.connectors = mergedData.connectors;
+                    kgData.topics = mergedData.topics;
+                    kgData.concepts = mergedData.concepts;
+                    kgData.edges = mergedData.edges;
+
+                    renderer.setData(
+                        boardData.blocks,
+                        boardData.connectors,
+                        kgData.topics,
+                        kgData.concepts
+                    );
+                    updateStats();
+                }
+            }
+
+            const visibleBlocks = renderer.getVisibleBlocks(viewportBounds);
+            const renderedCount = renderer.render(visibleBlocks);
+
+            document.getElementById('visible-count').textContent = visibleBlocks.length;
+            document.getElementById('rendered-count').textContent = renderedCount;
+            document.getElementById('chunk-count').textContent = chunkLoader ? chunkLoader.getLoadedChunkCount() : 0;
+        }
+
+        function updateStats() {
+            const topicCount = (kgData.topics || []).length;
+            const conceptCount = (kgData.concepts || []).length;
+            const edgeCount = (kgData.edges || []).length;
+
+            document.getElementById('topic-count').textContent = topicCount;
+            document.getElementById('concept-count').textContent = conceptCount;
+            document.getElementById('edge-count').textContent = edgeCount;
+        }
+
+        function updateFPS(timestamp) {
+            frameCount++;
+            if (timestamp - lastRenderTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastRenderTime = timestamp;
+                document.getElementById('fps-count').textContent = fps;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+
+        function updateMinimap() {
+            const canvas = document.getElementById('minimap-canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 200;
+            canvas.height = 150;
+
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (!boardData || !boardData.blocks || boardData.blocks.length === 0) return;
+
+            const scaleX = canvas.width / (boardData.canvas_width || 10000);
+            const scaleY = canvas.height / (boardData.canvas_height || 10000);
+
+            // Draw topics as larger dots
+            ctx.fillStyle = '#4a90e2';
+            for (const block of boardData.blocks) {
+                const isTopic = block.node_type === 'topic';
+                ctx.fillStyle = isTopic ? '#9b59b6' : '#5cb85c';
+                const x = block.x * scaleX;
+                const y = block.y * scaleY;
+                const radius = isTopic ? 4 : 2;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Draw viewport rectangle
+            const viewportBounds = getViewportBounds();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(
+                viewportBounds.xMin * scaleX,
+                viewportBounds.yMin * scaleY,
+                (viewportBounds.xMax - viewportBounds.xMin) * scaleX,
+                (viewportBounds.yMax - viewportBounds.yMin) * scaleY
+            );
+        }
+
+        // Canvas interaction
+        const container = document.getElementById('canvas-container');
+        const canvasEl = document.getElementById('canvas');
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            container.classList.add('dragging');
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const deltaX = e.clientX - lastMouseX;
+            const deltaY = e.clientY - lastMouseY;
+
+            offsetX += deltaX;
+            offsetY += deltaY;
+
+            updateCanvasTransform();
+
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDragging = false;
+            container.classList.remove('dragging');
+            renderVisible();
+            updateMinimap();
+        });
+
+        container.addEventListener('mouseleave', () => {
+            if (isDragging) {
+                isDragging = false;
+                container.classList.remove('dragging');
+                renderVisible();
+                updateMinimap();
+            }
+        });
+
+        let wheelTimeout = null;
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = Math.max(0.1, Math.min(5, scale * zoomFactor));
+
+            // Zoom toward mouse position
+            const worldX = (mouseX - offsetX) / scale;
+            const worldY = (mouseY - offsetY) / scale;
+
+            scale = newScale;
+            offsetX = mouseX - worldX * scale;
+            offsetY = mouseY - worldY * scale;
+
+            updateCanvasTransform();
+
+            // Debounce render on zoom
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                renderVisible();
+                updateMinimap();
+            }, 100);
+        });
+
+        function updateCanvasTransform() {
+            canvasEl.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        }
+
+        // Control functions
+        function resetView() {
+            scale = 1;
+            offsetX = 0;
+            offsetY = 0;
+            updateCanvasTransform();
+            renderVisible();
+            updateMinimap();
+        }
+
+        function zoomIn() {
+            scale = Math.min(5, scale * 1.2);
+            updateCanvasTransform();
+            renderVisible();
+            updateMinimap();
+        }
+
+        function zoomOut() {
+            scale = Math.max(0.1, scale * 0.8);
+            updateCanvasTransform();
+            renderVisible();
+            updateMinimap();
+        }
+
+        function centerOnRoot() {
+            if (!boardData || !boardData.blocks || boardData.blocks.length === 0) return;
+
+            // Find root topic block
+            let rootBlock = null;
+            if (kgData.scope_root) {
+                rootBlock = boardData.blocks.find(b => b.node_id === kgData.scope_root);
+            }
+
+            if (!rootBlock) {
+                // Find first topic block or first block
+                rootBlock = boardData.blocks.find(b => b.node_type === 'topic') || boardData.blocks[0];
+            }
+
+            if (rootBlock) {
+                const container = document.getElementById('canvas-container');
+                const centerX = rootBlock.x + rootBlock.width / 2;
+                const centerY = rootBlock.y + rootBlock.height / 2;
+
+                offsetX = container.clientWidth / 2 - centerX * scale;
+                offsetY = container.clientHeight / 2 - centerY * scale;
+
+                updateCanvasTransform();
+                renderVisible();
+                updateMinimap();
+            }
+        }
+
+        function fitAll() {
+            if (!boardData || !boardData.blocks || boardData.blocks.length === 0) return;
+
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const block of boardData.blocks) {
+                minX = Math.min(minX, block.x);
+                minY = Math.min(minY, block.y);
+                maxX = Math.max(maxX, block.x + block.width);
+                maxY = Math.max(maxY, block.y + block.height);
+            }
+
+            const container = document.getElementById('canvas-container');
+            const contentWidth = maxX - minX + 100;
+            const contentHeight = maxY - minY + 100;
+            const contentCenterX = (minX + maxX) / 2;
+            const contentCenterY = (minY + maxY) / 2;
+
+            const scaleX = (container.clientWidth - 100) / contentWidth;
+            const scaleY = (container.clientHeight - 100) / contentHeight;
+            scale = Math.min(scaleX, scaleY, 1.0);
+
+            offsetX = container.clientWidth / 2 - contentCenterX * scale;
+            offsetY = container.clientHeight / 2 - contentCenterY * scale;
+
+            updateCanvasTransform();
+            renderVisible();
+            updateMinimap();
+        }
+
+        let currentConnectionMode = 'all';
+        let highlightedBlocks = new Set();
+
+        function setConnectionMode(mode) {
+            currentConnectionMode = mode;
+            updateConnectionModeButtons();
+            highlightConnections();
+            renderVisible();
+        }
+
+        function updateConnectionModeButtons() {
+            document.querySelectorAll('.conn-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (currentConnectionMode === 'all') {
+                document.getElementById('conn-mode-all').classList.add('active');
+            } else if (currentConnectionMode === 'prerequisites') {
+                document.getElementById('conn-mode-prereq').classList.add('active');
+            } else if (currentConnectionMode === 'related') {
+                document.getElementById('conn-mode-related').classList.add('active');
+            } else if (currentConnectionMode === 'path') {
+                document.getElementById('conn-mode-path').classList.add('active');
+            }
+        }
+
+        function highlightConnections() {
+            if (!boardData || !kgData || currentConnectionMode === 'all') {
+                clearAllHighlights();
+                return;
+            }
+
+            clearAllHighlights();
+
+            // Find blocks to highlight based on connection type
+            const blocksToHighlight = new Set();
+
+            if (currentConnectionMode === 'prerequisites') {
+                highlightPrerequisites(blocksToHighlight);
+            } else if (currentConnectionMode === 'related') {
+                highlightRelated(blocksToHighlight);
+            } else if (currentConnectionMode === 'path') {
+                highlightLearningPath(blocksToHighlight);
+            }
+
+            // Apply highlighting
+            highlightedBlocks = blocksToHighlight;
+            for (const blockId of blocksToHighlight) {
+                const el = document.querySelector(`[data-block-id="${blockId}"]`);
+                if (el) {
+                    el.classList.add('connected');
+                } else {
+                    const dimEl = boardData.blocks.find(b => b.id === blockId);
+                    if (dimEl) {
+                        const newEl = document.querySelector(`[data-block-id="${dimEl.id}"]`);
+                        if (newEl) newEl.classList.add('connected');
+                    }
+                }
+            }
+
+            // Dim non-connected blocks
+            for (const block of boardData.blocks) {
+                const el = document.querySelector(`[data-block-id="${block.id}"]`);
+                if (el && !blocksToHighlight.has(block.id)) {
+                    el.classList.add('dimmed');
+                }
+            }
+        }
+
+        function highlightPrerequisites(blocksToSet) {
+            // For each concept, find prerequisites
+            const edges = kgData.edges || [];
+            const conceptIds = new Set();
+
+            for (const edge of edges) {
+                if (edge.rel === 'requires') {
+                    conceptIds.add(edge.from_id);
+                    conceptIds.add(edge.to_id);
+                }
+            }
+
+            // Find blocks for these concepts
+            for (const block of boardData.blocks) {
+                if (conceptIds.has(block.node_id)) {
+                    blocksToSet.add(block.id);
+                }
+            }
+        }
+
+        function highlightRelated(blocksToSet) {
+            // Find related concept connections
+            const edges = kgData.edges || [];
+            const conceptIds = new Set();
+
+            for (const edge of edges) {
+                if (edge.rel === 'relates' || edge.rel === 'concept_relates') {
+                    conceptIds.add(edge.from_id);
+                    conceptIds.add(edge.to_id);
+                }
+            }
+
+            // Find blocks for these concepts
+            for (const block of boardData.blocks) {
+                if (conceptIds.has(block.node_id)) {
+                    blocksToSet.add(block.id);
+                }
+            }
+        }
+
+        function highlightLearningPath(blocksToSet) {
+            // Try to load progress data
+            try {
+                fetch('progress.json')
+                    .then(r => r.json())
+                    .then(progress => {
+                        // Highlight mastered concepts
+                        for (const masteredId of progress.mastered_concepts || []) {
+                            for (const block of boardData.blocks) {
+                                if (block.node_id === masteredId) {
+                                    blocksToSet.add(block.id);
+                                }
+                            }
+                        }
+                        renderVisible();
+                    })
+                    .catch(() => {
+                        // No progress file, skip
+                    });
+            } catch (e) {
+                // Progress not available
+            }
+        }
+
+        function clearHighlight() {
+            currentConnectionMode = 'all';
+            updateConnectionModeButtons();
+            clearAllHighlights();
+            renderVisible();
+        }
+
+        function clearAllHighlights() {
+            document.querySelectorAll('.block').forEach(el => {
+                el.classList.remove('connected', 'dimmed', 'highlighted');
+            });
+            highlightedBlocks.clear();
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

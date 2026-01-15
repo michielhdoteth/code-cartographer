@@ -1,0 +1,450 @@
+{
+  "version": "1.0",
+  "chunk_size": 1000,
+  "overlap": 200,
+  "total_chunks": 44,
+  "canvas_width": 3540.0,
+  "canvas_height": 21990.0,
+  "chunks": [
+    {
+      "chunk_id": "chunk_000_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -4995.0,
+        "y_max": -3995.0
+      },
+      "block_count": 9
+    },
+    {
+      "chunk_id": "chunk_000_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -4995.0,
+        "y_max": -3995.0
+      },
+      "block_count": 3
+    },
+    {
+      "chunk_id": "chunk_001_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -4195.0,
+        "y_max": -3195.0
+      },
+      "block_count": 9
+    },
+    {
+      "chunk_id": "chunk_001_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -4195.0,
+        "y_max": -3195.0
+      },
+      "block_count": 3
+    },
+    {
+      "chunk_id": "chunk_002_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -3395.0,
+        "y_max": -2395.0
+      },
+      "block_count": 12
+    },
+    {
+      "chunk_id": "chunk_002_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -3395.0,
+        "y_max": -2395.0
+      },
+      "block_count": 4
+    },
+    {
+      "chunk_id": "chunk_003_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -2595.0,
+        "y_max": -1595.0
+      },
+      "block_count": 9
+    },
+    {
+      "chunk_id": "chunk_003_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -2595.0,
+        "y_max": -1595.0
+      },
+      "block_count": 3
+    },
+    {
+      "chunk_id": "chunk_004_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -1795.0,
+        "y_max": -795.0
+      },
+      "block_count": 17
+    },
+    {
+      "chunk_id": "chunk_004_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -1795.0,
+        "y_max": -795.0
+      },
+      "block_count": 10
+    },
+    {
+      "chunk_id": "chunk_005_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -995.0,
+        "y_max": 5.0
+      },
+      "block_count": 37
+    },
+    {
+      "chunk_id": "chunk_005_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -995.0,
+        "y_max": 5.0
+      },
+      "block_count": 24
+    },
+    {
+      "chunk_id": "chunk_006_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": -195.0,
+        "y_max": 805.0
+      },
+      "block_count": 27
+    },
+    {
+      "chunk_id": "chunk_006_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": -195.0,
+        "y_max": 805.0
+      },
+      "block_count": 19
+    },
+    {
+      "chunk_id": "chunk_007_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 605.0,
+        "y_max": 1605.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_007_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 605.0,
+        "y_max": 1605.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_008_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 1405.0,
+        "y_max": 2405.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_008_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 1405.0,
+        "y_max": 2405.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_009_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 2205.0,
+        "y_max": 3205.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_009_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 2205.0,
+        "y_max": 3205.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_010_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 3005.0,
+        "y_max": 4005.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_010_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 3005.0,
+        "y_max": 4005.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_011_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 3805.0,
+        "y_max": 4805.0
+      },
+      "block_count": 24
+    },
+    {
+      "chunk_id": "chunk_011_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 3805.0,
+        "y_max": 4805.0
+      },
+      "block_count": 18
+    },
+    {
+      "chunk_id": "chunk_012_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 4605.0,
+        "y_max": 5605.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_012_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 4605.0,
+        "y_max": 5605.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_013_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 5405.0,
+        "y_max": 6405.0
+      },
+      "block_count": 24
+    },
+    {
+      "chunk_id": "chunk_013_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 5405.0,
+        "y_max": 6405.0
+      },
+      "block_count": 18
+    },
+    {
+      "chunk_id": "chunk_014_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 6205.0,
+        "y_max": 7205.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_014_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 6205.0,
+        "y_max": 7205.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_015_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 7005.0,
+        "y_max": 8005.0
+      },
+      "block_count": 24
+    },
+    {
+      "chunk_id": "chunk_015_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 7005.0,
+        "y_max": 8005.0
+      },
+      "block_count": 18
+    },
+    {
+      "chunk_id": "chunk_016_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 7805.0,
+        "y_max": 8805.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_016_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 7805.0,
+        "y_max": 8805.0
+      },
+      "block_count": 21
+    },
+    {
+      "chunk_id": "chunk_017_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 8605.0,
+        "y_max": 9605.0
+      },
+      "block_count": 13
+    },
+    {
+      "chunk_id": "chunk_017_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 8605.0,
+        "y_max": 9605.0
+      },
+      "block_count": 9
+    },
+    {
+      "chunk_id": "chunk_021_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 11805.0,
+        "y_max": 12805.0
+      },
+      "block_count": 6
+    },
+    {
+      "chunk_id": "chunk_021_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 11805.0,
+        "y_max": 12805.0
+      },
+      "block_count": 4
+    },
+    {
+      "chunk_id": "chunk_022_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 12605.0,
+        "y_max": 13605.0
+      },
+      "block_count": 22
+    },
+    {
+      "chunk_id": "chunk_022_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 12605.0,
+        "y_max": 13605.0
+      },
+      "block_count": 12
+    },
+    {
+      "chunk_id": "chunk_023_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 13405.0,
+        "y_max": 14405.0
+      },
+      "block_count": 28
+    },
+    {
+      "chunk_id": "chunk_023_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 13405.0,
+        "y_max": 14405.0
+      },
+      "block_count": 14
+    },
+    {
+      "chunk_id": "chunk_024_000",
+      "bounds": {
+        "x_min": 4230.0,
+        "x_max": 5230.0,
+        "y_min": 14205.0,
+        "y_max": 15205.0
+      },
+      "block_count": 24
+    },
+    {
+      "chunk_id": "chunk_024_001",
+      "bounds": {
+        "x_min": 5030.0,
+        "x_max": 6030.0,
+        "y_min": 14205.0,
+        "y_max": 15205.0
+      },
+      "block_count": 12
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Code Map Interactive Learning",
+  "version": "1.3.0",
+  "description": "Interactive personalized learning system with quizzes, learning paths, and knowledge connections visualization",
+  "author": {
+    "name": "Code Map Team"
+  },
+  "homepage": "https://github.com/code-map/code-map",
+  "license": "GPL-3.0",
+  "keywords": ["knowledge-graph", "learning", "quizzes", "personalized-learning", "infinite-canvas"],
+  "commands": [
+    "./commands/code-map-quiz.md",
+    "./commands/code-map-learn.md",
+    "./commands/code-map-connections.md"
+  ],
+  "agents": [
+    "./agents/code-map-learner.md"
+  ],
+  "skills": [
+    "./skills/quiz-master/SKILL.md",
+    "./skills/learning-path-guide/SKILL.md"
+  ]
+}

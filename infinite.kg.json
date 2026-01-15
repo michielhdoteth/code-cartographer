@@ -1,0 +1,890 @@
+{
+  "topics": [
+    {
+      "id": "995e6100691a1add",
+      "title": "CodeMapHandler",
+      "summary": "Class CodeMapHandler",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_995e6100691a1add"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "4a67ae3d4d8aa976",
+      "title": "FrameworkInfo",
+      "summary": "Class FrameworkInfo",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_4a67ae3d4d8aa976"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "a4bb986a128a1045",
+      "title": "ProjectFrameworks",
+      "summary": "Class ProjectFrameworks",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_a4bb986a128a1045"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "92dc017ae5c125b6",
+      "title": "FrameworkDetector",
+      "summary": "Class FrameworkDetector",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_92dc017ae5c125b6"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "4dfec66344daedd8",
+      "title": "GoNode",
+      "summary": "Class GoNode",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_4dfec66344daedd8"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "7c684648395c85ad",
+      "title": "GoParser",
+      "summary": "Class GoParser",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_7c684648395c85ad"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "2f603cbb655462e0",
+      "title": "JavaNode",
+      "summary": "Class JavaNode",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_2f603cbb655462e0"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "ef67c6d3267a0a02",
+      "title": "JavaParser",
+      "summary": "Class JavaParser",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_ef67c6d3267a0a02"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "bffad60c9d14d1e4",
+      "title": "RustNode",
+      "summary": "Class RustNode",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_bffad60c9d14d1e4"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "d4493b3630d7e25a",
+      "title": "RustParser",
+      "summary": "Class RustParser",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_d4493b3630d7e25a"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "cb1dae678d12d243",
+      "title": "TSNode",
+      "summary": "Class TSNode",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_cb1dae678d12d243"
+      ],
+      "type": "topic"
+    },
+    {
+      "id": "258c0abe4181e5c1",
+      "title": "TypeScriptParser",
+      "summary": "Class TypeScriptParser",
+      "depth": 0,
+      "chunk_ids": [],
+      "board_refs": [
+        "block_258c0abe4181e5c1"
+      ],
+      "type": "topic"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "e116c7b0cc7abda6",
+      "title": "main",
+      "summary": "Function in 7cd4ec83-ba42-48cc-a8ee-54fc0dc13fda",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_e116c7b0cc7abda6"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "125458a16b7a8008",
+      "title": "run_cmd",
+      "summary": "Function in 6629a1f7-a612-401f-9b62-58c5ced1d4a3",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_125458a16b7a8008"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "8e864cc8a82b0cec",
+      "title": "test_integration",
+      "summary": "Function in 6629a1f7-a612-401f-9b62-58c5ced1d4a3",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_8e864cc8a82b0cec"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "5599668f5322f436",
+      "title": "detect_frameworks",
+      "summary": "Function in 48e24faf-42fb-43f2-a5bd-26a3c2c55086",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_5599668f5322f436"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "a02ad022adb0f85a",
+      "title": "parse_go_code",
+      "summary": "Function in 89704862-3332-413d-9bdd-ed306eed2b28",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_a02ad022adb0f85a"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "ad7a47495c6cad43",
+      "title": "parse_java_code",
+      "summary": "Function in f8d8a346-5007-467e-bc27-d3ffd45324c3",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_ad7a47495c6cad43"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "7be85b880b6d8019",
+      "title": "parse_rust_code",
+      "summary": "Function in 5e76cead-99cf-4f28-a896-84c5223032fa",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_7be85b880b6d8019"
+      ],
+      "type": "concept"
+    },
+    {
+      "id": "5c05d717444e4658",
+      "title": "parse_typescript_code",
+      "summary": "Function in a71eeae3-139e-4e04-ac61-b78e6fd3cd37",
+      "prerequisites": [],
+      "parts": [],
+      "related": [],
+      "chunk_ids": [],
+      "board_refs": [
+        "block_5c05d717444e4658"
+      ],
+      "type": "concept"
+    }
+  ],
+  "edges": [
+    {
+      "id": "74d7656c-427a-48f4-8ed9-7dca3bc15b3b",
+      "type": "contains",
+      "source": "7cd4ec83-ba42-48cc-a8ee-54fc0dc13fda",
+      "target": "995e6100691a1add",
+      "label": ""
+    },
+    {
+      "id": "06683d48-ae97-425f-837e-9675622e0ade",
+      "type": "contains",
+      "source": "CodeMapHandler",
+      "target": "770c24c52beb13e6",
+      "label": ""
+    },
+    {
+      "id": "7df42e46-52f7-4b0a-887c-dda27d840564",
+      "type": "contains",
+      "source": "CodeMapHandler",
+      "target": "41b730ad724cef00",
+      "label": ""
+    },
+    {
+      "id": "6d9528da-7682-43c1-9dce-9acaba7dee89",
+      "type": "contains",
+      "source": "48e24faf-42fb-43f2-a5bd-26a3c2c55086",
+      "target": "4a67ae3d4d8aa976",
+      "label": ""
+    },
+    {
+      "id": "df95dd3d-f50c-4af8-9475-340102ff40bd",
+      "type": "contains",
+      "source": "48e24faf-42fb-43f2-a5bd-26a3c2c55086",
+      "target": "a4bb986a128a1045",
+      "label": ""
+    },
+    {
+      "id": "a43202e3-64fd-44b9-8dda-e197cc479cba",
+      "type": "contains",
+      "source": "48e24faf-42fb-43f2-a5bd-26a3c2c55086",
+      "target": "92dc017ae5c125b6",
+      "label": ""
+    },
+    {
+      "id": "8c843b0b-4eb0-4332-9f03-bff3f06cc7b0",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "d7139cea618c7dce",
+      "label": ""
+    },
+    {
+      "id": "67c6456a-10b2-42c3-bbc9-77664d71caea",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "0388b77a4c2bf9db",
+      "label": ""
+    },
+    {
+      "id": "3b9747e1-20d1-4280-8cca-9c3800ef02db",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "f6d48bea269aba4b",
+      "label": ""
+    },
+    {
+      "id": "fbba2f0f-ad34-42dc-b83f-afecdc44d290",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "b2288286e22b5d03",
+      "label": ""
+    },
+    {
+      "id": "c7cb8ae4-bdf9-4b24-81d4-2ef5081a9c4c",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "eddb9817430447d4",
+      "label": ""
+    },
+    {
+      "id": "e6b23c80-729c-46b5-89fa-f087df66e97a",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "1e888293e86e8c8c",
+      "label": ""
+    },
+    {
+      "id": "eb7606df-58de-42fb-883c-86783606585e",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "3f52bfc86d72aca0",
+      "label": ""
+    },
+    {
+      "id": "252a37c9-75e6-45a2-9329-f7335355c4bc",
+      "type": "contains",
+      "source": "FrameworkDetector",
+      "target": "b797c61d860ecdac",
+      "label": ""
+    },
+    {
+      "id": "668436b9-09b9-4d5d-a500-79e27942cae9",
+      "type": "contains",
+      "source": "89704862-3332-413d-9bdd-ed306eed2b28",
+      "target": "4dfec66344daedd8",
+      "label": ""
+    },
+    {
+      "id": "d9bf6d57-7556-4b9e-8b1d-cb2cc4739137",
+      "type": "contains",
+      "source": "89704862-3332-413d-9bdd-ed306eed2b28",
+      "target": "7c684648395c85ad",
+      "label": ""
+    },
+    {
+      "id": "c10e7405-52cf-460a-8d7b-f63d8acb9650",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "29bd918a48505b1d",
+      "label": ""
+    },
+    {
+      "id": "4e3772ed-8b0b-4819-b454-606ea64bb429",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "6a83e8ce16c029a2",
+      "label": ""
+    },
+    {
+      "id": "51931ea7-aee3-4997-b2f5-7d47349c7d9b",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "ac0700f584a38268",
+      "label": ""
+    },
+    {
+      "id": "db2379bc-1e79-4e5d-ab12-76ad879aff4a",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "9fac28173e586ae9",
+      "label": ""
+    },
+    {
+      "id": "db34ae54-3d66-4b94-89d4-84d6b70c1ee9",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "6502e9746a299880",
+      "label": ""
+    },
+    {
+      "id": "a2365079-6b67-4fdd-8ca8-2e5ba989b516",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "0980bbb0e3f262f0",
+      "label": ""
+    },
+    {
+      "id": "047efefb-bd89-48b8-8a0c-5bf79bf2782e",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "d1799c672a086ae9",
+      "label": ""
+    },
+    {
+      "id": "29ae95b7-06c6-45a8-b088-e54eeff951e8",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "47bd2e538c14779f",
+      "label": ""
+    },
+    {
+      "id": "70c6de0f-5602-4a73-8c6a-e527b2736bd2",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "d55acc3d5f09ff09",
+      "label": ""
+    },
+    {
+      "id": "3c3d0352-29cb-4587-8433-ac9438583e2b",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "398c9ae70e8a0636",
+      "label": ""
+    },
+    {
+      "id": "8a8aba35-523c-46ad-9b50-8998f2a35153",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "4e633bba6212e9c0",
+      "label": ""
+    },
+    {
+      "id": "882116e1-1c0a-4b46-8eb2-ba1e178688a7",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "9103b3507501a726",
+      "label": ""
+    },
+    {
+      "id": "a1ff237a-d922-4992-99b9-ac34339b24a5",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "9ada28555876f819",
+      "label": ""
+    },
+    {
+      "id": "5aae47e2-1f55-4f60-999c-9966a74176a2",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "b2f6a6d109cf3bdd",
+      "label": ""
+    },
+    {
+      "id": "222a474f-2bdf-4a30-b398-9f449f47ad06",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "5a8847b27471490c",
+      "label": ""
+    },
+    {
+      "id": "ef833b8b-a064-47cc-bccc-eecd76115142",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "7b274ec84e044189",
+      "label": ""
+    },
+    {
+      "id": "efa95021-96ea-4553-a246-904e08925d4c",
+      "type": "contains",
+      "source": "GoParser",
+      "target": "b197c3c30fa08596",
+      "label": ""
+    },
+    {
+      "id": "9bfb4c88-f69f-4c9c-8f47-9e20704a7330",
+      "type": "contains",
+      "source": "f8d8a346-5007-467e-bc27-d3ffd45324c3",
+      "target": "2f603cbb655462e0",
+      "label": ""
+    },
+    {
+      "id": "15b830ae-881e-4ae2-996d-c4b42ff4a775",
+      "type": "contains",
+      "source": "f8d8a346-5007-467e-bc27-d3ffd45324c3",
+      "target": "ef67c6d3267a0a02",
+      "label": ""
+    },
+    {
+      "id": "3b42f647-c4bd-4ce7-815a-83de04fa6079",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "bcb2f23af9b31895",
+      "label": ""
+    },
+    {
+      "id": "3ae4d729-e8fc-45b9-a9df-01ad3fe4c277",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "a31b2bb0cdc5687c",
+      "label": ""
+    },
+    {
+      "id": "2540aeb0-16b3-49f5-b4f5-11ed03565eee",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "b1fe0fdc51cba38f",
+      "label": ""
+    },
+    {
+      "id": "4002f08c-3913-4bd7-82c2-6f661fe7ef17",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "6262be6a4f26031e",
+      "label": ""
+    },
+    {
+      "id": "a183813b-a064-47af-98ce-3921e1c4ccde",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "0ad88282d4fd7da6",
+      "label": ""
+    },
+    {
+      "id": "334d9cf9-8f5c-4119-8851-46bfbda7a19d",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "217483be262f04cb",
+      "label": ""
+    },
+    {
+      "id": "664109d1-2a9f-4424-b502-192ad097f880",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "5747305a55fc3d71",
+      "label": ""
+    },
+    {
+      "id": "4e97590c-d213-4bb0-9672-7269e6b2dbe8",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "d0bcfba6a64d59fc",
+      "label": ""
+    },
+    {
+      "id": "be82ecee-f211-4d69-9df0-a43fe0cb8742",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "2b7482ac16961832",
+      "label": ""
+    },
+    {
+      "id": "81121001-14e5-4cc6-9676-b9ab0d5a4ff9",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "9e641e8199918e35",
+      "label": ""
+    },
+    {
+      "id": "5d410dce-bdfe-4c2b-8deb-92d00b655cd6",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "a3590b8c727332ed",
+      "label": ""
+    },
+    {
+      "id": "654edfdf-1666-4c94-9989-e0ff36130c9b",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "a81b5ad68161f2cd",
+      "label": ""
+    },
+    {
+      "id": "b7b3fc59-ff36-4fec-b260-06dd17c4e668",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "8851250d0554425c",
+      "label": ""
+    },
+    {
+      "id": "3d038060-310a-4bea-b0ab-849b7799a969",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "33f1efeb75fcd43d",
+      "label": ""
+    },
+    {
+      "id": "c2d448c8-fa57-4924-aca5-9af5a2714683",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "dd27cd0d8bcc45d6",
+      "label": ""
+    },
+    {
+      "id": "279cf26b-b284-4b7c-baec-6c6908afab1b",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "e99198313c356db2",
+      "label": ""
+    },
+    {
+      "id": "b61cb96d-97ef-4794-b2ec-361d1544b5c4",
+      "type": "contains",
+      "source": "JavaParser",
+      "target": "25a5f73d93a50e01",
+      "label": ""
+    },
+    {
+      "id": "2d019df7-7177-418f-86f3-e61ad0ced794",
+      "type": "contains",
+      "source": "5e76cead-99cf-4f28-a896-84c5223032fa",
+      "target": "bffad60c9d14d1e4",
+      "label": ""
+    },
+    {
+      "id": "58538612-497d-4def-9701-dad2ea06ad18",
+      "type": "contains",
+      "source": "5e76cead-99cf-4f28-a896-84c5223032fa",
+      "target": "d4493b3630d7e25a",
+      "label": ""
+    },
+    {
+      "id": "a20d7585-813b-4269-8348-3eaac720a464",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "ca40a3134496420a",
+      "label": ""
+    },
+    {
+      "id": "8ca8d85a-a0b6-4bf0-9e1f-5745e129b709",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "f95e800cdcc2239c",
+      "label": ""
+    },
+    {
+      "id": "3607ad17-dd85-4b1f-886d-d9155a8a07d6",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "2f810d83f470ad29",
+      "label": ""
+    },
+    {
+      "id": "757d2cdf-6620-4bd0-9f05-83227de7fce5",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "74852708fa19b9a1",
+      "label": ""
+    },
+    {
+      "id": "8ba4a638-229a-43cb-83f4-69cf53ab8aad",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "dcea01401681039a",
+      "label": ""
+    },
+    {
+      "id": "3b4c2cc1-1abe-48f7-a71f-b05132299891",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "d58f004915de494a",
+      "label": ""
+    },
+    {
+      "id": "d2b107fb-19a1-4e73-abe4-4f70a61af5fb",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "da9f5b429569e540",
+      "label": ""
+    },
+    {
+      "id": "5cc6d964-21ae-49cf-8238-a59e7c6cfa58",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "8642ae4f89f791f1",
+      "label": ""
+    },
+    {
+      "id": "2d70b344-bb76-4fb3-9f21-9322ab170582",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "4eff440cb3cfba4c",
+      "label": ""
+    },
+    {
+      "id": "e0c3f6bd-9271-4702-b638-a5b58f278ca0",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "6ea7bf408bc98aa3",
+      "label": ""
+    },
+    {
+      "id": "a72cebbe-0e58-4a40-a0ee-7a01b63f4e8c",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "b1b37ed19dc4b483",
+      "label": ""
+    },
+    {
+      "id": "922a45d6-1b28-43cc-affc-151099c1f7c1",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "fe3e6b85860d37d2",
+      "label": ""
+    },
+    {
+      "id": "6be57369-ce2e-4877-9203-2c4a851e490e",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "5145a5f39136014a",
+      "label": ""
+    },
+    {
+      "id": "dddd6966-588e-4b8f-8b89-b789ab21adbd",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "71c1a43266652dc1",
+      "label": ""
+    },
+    {
+      "id": "2ccb329b-43e5-4a4f-b36c-38b972f879e4",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "5b47c5d65ced20fc",
+      "label": ""
+    },
+    {
+      "id": "f4e3ad9f-4859-4ebe-9c6e-3d0db94d54ac",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "f616e2b80bcfbfb4",
+      "label": ""
+    },
+    {
+      "id": "c2586f0e-45f3-48b8-b493-a56aa8cb30fc",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "efeb85cfcbd636c5",
+      "label": ""
+    },
+    {
+      "id": "2e32f713-a72b-4669-8b97-8e2d8f937813",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "e92180b014e1811e",
+      "label": ""
+    },
+    {
+      "id": "8b63a46e-83f5-4a9d-8f32-a7cc0995c89a",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "c57048237f9d92c0",
+      "label": ""
+    },
+    {
+      "id": "b270f177-94f7-4b10-8119-ec84bdcb32f9",
+      "type": "contains",
+      "source": "RustParser",
+      "target": "ade95ad2c4908311",
+      "label": ""
+    },
+    {
+      "id": "294f0952-4638-4087-b119-f215e80f95c8",
+      "type": "contains",
+      "source": "a71eeae3-139e-4e04-ac61-b78e6fd3cd37",
+      "target": "cb1dae678d12d243",
+      "label": ""
+    },
+    {
+      "id": "d651245c-deae-4634-a28f-e186f844d71e",
+      "type": "contains",
+      "source": "a71eeae3-139e-4e04-ac61-b78e6fd3cd37",
+      "target": "258c0abe4181e5c1",
+      "label": ""
+    },
+    {
+      "id": "5121c7dd-e8db-464f-8e15-aa8eeaf0b8df",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "7a3960847b0df60a",
+      "label": ""
+    },
+    {
+      "id": "d2aec5ec-5877-44bf-b671-17ed46030c7c",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "65ab3629bffae6ac",
+      "label": ""
+    },
+    {
+      "id": "8dc36638-acbd-4fb0-abb6-a35916945c63",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "9fb227ebe74381f3",
+      "label": ""
+    },
+    {
+      "id": "fcf8ac0b-6efc-41fa-9fdd-4a846db1ac33",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "3086dbfb93835152",
+      "label": ""
+    },
+    {
+      "id": "214f37ab-ee63-413f-b44d-3cdccd1fe145",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "0109a1a74aef8126",
+      "label": ""
+    },
+    {
+      "id": "7ab490d2-7a3d-4ab2-bc03-4a28511b3b1f",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "54f6bce84e735e94",
+      "label": ""
+    },
+    {
+      "id": "a789c9ea-7aff-4759-8c31-bc69922f09da",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "dcb6461ef30be901",
+      "label": ""
+    },
+    {
+      "id": "020a19a2-b0c6-41dc-8d4f-ace1cca80c45",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "4a29027ebc4cfbbe",
+      "label": ""
+    },
+    {
+      "id": "938c0c9f-a9ce-4083-887b-d97955e39bf9",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "5618413962a7d620",
+      "label": ""
+    },
+    {
+      "id": "b8786da5-13c4-4356-942a-24628b78739b",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "ddde27b60f93b1ad",
+      "label": ""
+    },
+    {
+      "id": "60f18c81-7908-47ce-9af3-56400b3e8c53",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "c68e3b2bf1111f39",
+      "label": ""
+    },
+    {
+      "id": "f2f2bfe9-8cb4-4e97-8540-681138750d08",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "56b5bbda75062f6c",
+      "label": ""
+    },
+    {
+      "id": "4e09d89f-0231-47c3-82dd-8bac35a0a6bc",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "f95fc761663220c7",
+      "label": ""
+    },
+    {
+      "id": "5fc692a2-ffdb-4b94-a207-117be8172220",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "0e69f1e0c11700c4",
+      "label": ""
+    },
+    {
+      "id": "25ca6732-8f08-4e00-8794-921c3402c0ee",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "c1ba146e4997a2b6",
+      "label": ""
+    },
+    {
+      "id": "98a0f607-439d-458a-9270-389955de0c9c",
+      "type": "contains",
+      "source": "TypeScriptParser",
+      "target": "1933a5b17efa3bfe",
+      "label": ""
+    }
+  ],
+  "scope_root": null,
+  "scope_rules": {}
+}
