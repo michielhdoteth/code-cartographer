@@ -377,72 +377,76 @@ class Database:
           </div>
 
           <div className='main-content'>
-            <div className='visualization-tabs'>
-              <button
-                className={`viz-tab ${state.visualizationType === 'graph' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'graph' }))}
-              >
-                Graph
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'tree' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'tree' }))}
-              >
-                Tree
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'treemap' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'treemap' }))}
-              >
-                Treemap
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'flow' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'flow' }))}
-              >
-                Flow
-              </button>
-            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.75rem 1rem', backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  className={`viz-tab ${state.visualizationType === 'graph' ? 'active' : ''}`}
+                  onClick={() => setState((prev) => ({ ...prev, visualizationType: 'graph' }))}
+                >
+                  Graph
+                </button>
+                <button
+                  className={`viz-tab ${state.visualizationType === 'tree' ? 'active' : ''}`}
+                  onClick={() => setState((prev) => ({ ...prev, visualizationType: 'tree' }))}
+                >
+                  Tree
+                </button>
+                <button
+                  className={`viz-tab ${state.visualizationType === 'treemap' ? 'active' : ''}`}
+                  onClick={() => setState((prev) => ({ ...prev, visualizationType: 'treemap' }))}
+                >
+                  Treemap
+                </button>
+                <button
+                  className={`viz-tab ${state.visualizationType === 'flow' ? 'active' : ''}`}
+                  onClick={() => setState((prev) => ({ ...prev, visualizationType: 'flow' }))}
+                >
+                  Flow
+                </button>
+              </div>
 
-            <div className='visualization-controls'>
-              <div className='control-group'>
-                <label>Layout:</label>
-                <select
-                  value={state.visualizationConfig.layout}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      visualizationConfig: { ...prev.visualizationConfig, layout: e.target.value as 'force' | 'radial' | 'hierarchical' | 'grid' | 'metro' | 'treemap' | 'matrix' },
-                    }))
-                  }
-                >
-                  <option value='force'>Force-Directed</option>
-                  <option value='radial'>Radial</option>
-                  <option value='hierarchical'>Hierarchical</option>
-                  <option value='grid'>Grid</option>
-                  <option value='metro'>Metro</option>
-                  <option value='treemap'>Treemap</option>
-                  <option value='matrix'>Matrix</option>
-                </select>
-              </div>
-              <div className='control-group'>
-                <label>Node Size:</label>
-                <select
-                  value={state.visualizationConfig.nodeSize}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      visualizationConfig: { ...prev.visualizationConfig, nodeSize: e.target.value as 'size' | 'lines' | 'complexity' },
-                    }))
-                  }
-                >
-                  <option value='size'>Fixed</option>
-                  <option value='lines'>Lines of Code</option>
-                  <option value='complexity'>Complexity</option>
-                </select>
-              </div>
-              <div className='control-group'>
-                <label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginLeft: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-secondary)' }}>Layout:</label>
+                  <select
+                    value={state.visualizationConfig.layout}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        visualizationConfig: { ...prev.visualizationConfig, layout: e.target.value as 'force' | 'radial' | 'hierarchical' | 'grid' | 'metro' | 'treemap' | 'matrix' },
+                      }))
+                    }
+                    style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+                  >
+                    <option value='force'>Force-Directed</option>
+                    <option value='radial'>Radial</option>
+                    <option value='hierarchical'>Hierarchical</option>
+                    <option value='grid'>Grid</option>
+                    <option value='metro'>Metro</option>
+                    <option value='treemap'>Treemap</option>
+                    <option value='matrix'>Matrix</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-secondary)' }}>Node Size:</label>
+                  <select
+                    value={state.visualizationConfig.nodeSize}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        visualizationConfig: { ...prev.visualizationConfig, nodeSize: e.target.value as 'size' | 'lines' | 'complexity' },
+                      }))
+                    }
+                    style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+                  >
+                    <option value='size'>Fixed</option>
+                    <option value='lines'>Lines of Code</option>
+                    <option value='complexity'>Complexity</option>
+                  </select>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-secondary)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   <input
                     type='checkbox'
                     checked={state.visualizationConfig.showLabels}
@@ -452,6 +456,7 @@ class Database:
                         visualizationConfig: { ...prev.visualizationConfig, showLabels: e.target.checked },
                       }))
                     }
+                    style={{ cursor: 'pointer' }}
                   />
                   Show Labels
                 </label>
