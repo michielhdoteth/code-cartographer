@@ -135,19 +135,31 @@ export const LanguagePieChart: React.FC<LanguagePieChartProps> = ({ codeMap }) =
                 stroke='var(--bg-secondary)'
                 strokeWidth='0.5'
               />
-              {slice.percentage >= 8 && (
-                <text
-                  x={slice.labelX}
-                  y={slice.labelY}
-                  textAnchor='middle'
-                  dominantBaseline='middle'
-                  fill='white'
-                  fontSize='7'
-                  fontWeight='bold'
-                  pointerEvents='none'
-                >
-                  {slice.language.substring(0, 3).toUpperCase()}
-                </text>
+              {slice.percentage >= 10 && (
+                <g pointerEvents='none'>
+                  <text
+                    x={slice.labelX}
+                    y={slice.labelY}
+                    textAnchor='middle'
+                    dominantBaseline='middle'
+                    fill='white'
+                    fontSize='8'
+                    fontWeight='bold'
+                  >
+                    {slice.language.substring(0, 3).toUpperCase()}
+                  </text>
+                  <text
+                    x={slice.labelX}
+                    y={slice.labelY + 6}
+                    textAnchor='middle'
+                    dominantBaseline='middle'
+                    fill='white'
+                    fontSize='6'
+                    opacity='0.9'
+                  >
+                    {slice.percentage.toFixed(0)}%
+                  </text>
+                </g>
               )}
             </g>
           ))}
