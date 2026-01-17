@@ -3,90 +3,65 @@ description: Parse source files with AST and extract code structure
 parameters:
   languages:
     type: array
-    description: Programming languages to parse
+    description: Languages to parse (all if omitted)
     required: false
 ---
 
 # carto-parse
 
-Parse source files using AST and extract code structure (nodes and edges).
+Parse source files using AST to extract code structure.
 
-## Usage
+## Purpose
 
-```
-/carto:carto-parse
-/carto:carto-parse languages=["python", "javascript"]
-```
-
-## What Gets Extracted
-
+Extract code elements and relationships from all source files:
 - **Classes**: Name, inheritance, methods, decorators
-- **Functions**: Name, parameters, return type, decorators
-- **Methods**: Same as functions, plus class association
+- **Functions**: Name, parameters, return type
 - **Calls**: Function call relationships
 - **Imports**: Module dependencies
 
-## Output
+## Parameters
 
-Updates `code-map.toon` with:
-- `nodes`: All extracted code elements
-- `edges`: Relationships (contains, calls, inherits, imports)
-- `statistics`: Counts by type
+- **languages** (optional): Filter to specific languages (e.g., `["python", "javascript"]`). If omitted, parses all detected languages.
 
-## Statistics
+## Usage Examples
 
-```
-Classes: 23
-Functions: 156
-Methods: 29
-Edges: 342
-```
-
-## Example
-
-### Parse All Languages
+### Parse all languages
 ```
 /carto:carto-parse
 ```
 
-Output:
+### Parse specific languages only
 ```
-Parsing 3 files...
-✓ Extracted 23 nodes
-  - 3 classes
-  - 2 interfaces
-  - 18 methods/functions
-✓ Found 31 relationships
-  - 5 imports
-  - 12 calls
-  - 14 dependencies
-✓ Calculated metrics for all entities
-
-Code map ready for visualization!
+/carto:carto-parse languages=["python", "javascript"]
 ```
 
-### Parse Specific Languages
+### Parse TypeScript and Python
 ```
 /carto:carto-parse languages=["typescript", "python"]
 ```
 
-Output:
+## Output
+
 ```
-Parsing TypeScript and Python files...
-✓ Found 2 files (api.ts, database.py)
-✓ Extracted 19 nodes
-✓ Found 28 relationships
+Parsing 3 files...
+Extracted 23 nodes
+  - 3 classes
+  - 2 interfaces
+  - 18 methods/functions
+Found 31 relationships
+  - 5 imports
+  - 12 calls
+  - 14 dependencies
+
+Code map ready for visualization!
 ```
 
 ## Workflow
 
-This is **Step 2** of the optimized workflow:
-
-1. **Map** (`/carto:carto-map`) - Initialize and find files
-2. **Parse** (`/carto:carto-parse`) - Extract code structure
-3. **Analyze** (`/carto:carto-analyze`) - Assess code quality
-4. **Visualize** (`/carto:carto-visualize`) - Generate views and reports
-5. **Find** (`/carto:carto-find`) - Search code map or source
-6. **Info** (`/carto:carto-info`) - Check status and changes
-
-See `WORKFLOW.md` in examples for complete walkthrough.
+**Step 2** of the workflow:
+1. `carto-map` - Initialize and find files
+2. `carto-parse` - Extract code structure (this command)
+3. `carto-analyze` - Assess code quality
+4. `carto-visualize` - Generate views
+5. `carto-find` - Search code
+6. `carto-info` - Check status

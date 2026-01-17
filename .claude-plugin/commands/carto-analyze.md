@@ -15,37 +15,35 @@ parameters:
 
 # carto-analyze
 
-Analyze your codebase for frameworks, design patterns, code health, and metrics.
+Analyze codebase for frameworks, design patterns, code health, and metrics.
 
 ## Purpose
 
-One command to understand code quality and architecture:
+Run comprehensive code analysis to understand:
 - **Frameworks**: Detect Django, React, Spring, Express, etc.
 - **Patterns**: Design patterns and anti-patterns
-- **Health**: A-F grading, code quality scores
-- **Metrics**: Churn, complexity, blast radius
-- **All** (default): Run comprehensive analysis
+- **Health**: A-F grading and code quality scores
+- **Metrics**: Code churn, complexity, blast radius
 
-Replaces the old `carto-detect` command with expanded capabilities.
 
 ## Parameters
 
-- **type** (optional): Analysis type - `frameworks`, `patterns`, `health`, `metrics`, or `all` (default)
-- **focus** (optional): Focus on specific file or node for detailed analysis
+- **type** (optional): Analysis scope - `frameworks`, `patterns`, `health`, `metrics`, or `all` (default: `all`)
+- **focus** (optional): Focus analysis on specific file or node
 
 ## Usage Examples
 
-### Run all analyses
+### Full analysis (all types)
 ```
 /carto:carto-analyze
 ```
 
-### Detect frameworks and libraries
+### Framework detection only
 ```
 /carto:carto-analyze type=frameworks
 ```
 
-### Get code health report
+### Health report with grades
 ```
 /carto:carto-analyze type=health
 ```
@@ -55,74 +53,46 @@ Replaces the old `carto-detect` command with expanded capabilities.
 /carto:carto-analyze focus="src/auth/service.ts"
 ```
 
-### Get complexity metrics
-```
-/carto:carto-analyze type=metrics
-```
-
 ## Output
 
-**Frameworks Analysis**:
+**Frameworks**:
 ```
-Detected Frameworks & Libraries
-================================
-
 Backend:
   - Express 4.18.2
   - TypeScript 5.1.0
-  - PostgreSQL (via pg)
 
 Frontend:
   - React 18.2.0
-  - React Router 6.4.0
   - TailwindCSS 3.3.0
-
-Testing:
-  - Jest 29.5.0
-  - Vitest 1.0.0
 ```
 
-**Health Report**:
+**Health**:
 ```
-Code Health Report
-==================
-
 Overall Grade: B
 
 Metrics:
   - Complexity: 6.2/10 (Moderate)
   - Test Coverage: 78% (Good)
-  - Code Churn: 12 commits/file (Low)
-  - Dependency Health: 8.5/10 (Excellent)
 
 Top Issues:
   1. High complexity in src/services/auth.ts (CC=42)
-  2. No tests for src/utils/parser.ts
-  3. Circular dependency: UserService ↔ AuthService
+  2. Circular dependency: UserService <-> AuthService
 ```
 
-**Patterns Analysis**:
+**Patterns**:
 ```
-Design Patterns Detected
-========================
-
 Creational:
   - Factory Pattern: src/factories/serviceFactory.ts
   - Singleton Pattern: src/services/database.ts
 
-Structural:
-  - Adapter Pattern: src/adapters/jsonAdapter.ts
-
 Anti-Patterns:
   - God Object: UserService (1,200 lines)
-  - Callback Hell: src/handlers/upload.ts:45-78
 ```
 
 ## Workflow
 
-Use `carto-analyze` to assess code quality and architecture:
-- Understand tech stack → `type=frameworks`
-- Assess code quality → `type=health`
-- Find design patterns → `type=patterns`
-- Measure complexity → `type=metrics`
-- Full analysis → default (all types)
+Use `carto-analyze` to understand code quality:
+- `type=frameworks` - Know dependencies and tech stack
+- `type=health` - Get actionable quality metrics
+- `type=patterns` - Identify design issues early
+- `focus=file` - Deep dive on specific areas

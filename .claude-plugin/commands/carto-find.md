@@ -3,11 +3,11 @@ description: Search code map and source code
 parameters:
   pattern:
     type: string
-    description: Search pattern or query
+    description: Search pattern (literal or regex)
     required: true
   mode:
     type: string
-    description: Search mode (map, source, or both)
+    description: Where to search
     required: false
     default: all
     enum: [map, source, all]
@@ -25,23 +25,22 @@ parameters:
 
 # carto-find
 
-Unified search for both the parsed code map AND raw source code.
+Unified search across both the parsed code map AND raw source code.
 
 ## Purpose
 
-Search anywhere in your codebase:
-- **Map mode**: Search parsed code structure (functions, classes, imports)
+Find code anywhere in your codebase:
+- **Map mode**: Search parsed structure (functions, classes, imports)
 - **Source mode**: Search raw source code with regex (like ripgrep)
-- **All mode** (default): Search both simultaneously
+- **All mode**: Search both simultaneously (default)
 
-Replaces the old `carto-query` and `carto-search` commands with a single, more intuitive interface.
 
 ## Parameters
 
-- **pattern** (required): What to search for (literal or regex)
-- **mode** (optional): Where to search - `map`, `source`, or `all` (default)
+- **pattern** (required): What to search for (literal string or regex)
+- **mode** (optional): Search scope - `map`, `source`, or `all` (default: `all`)
 - **type** (optional): For map mode - `node`, `edge`, or `file`
-- **context** (optional): Number of context lines for source mode (default: 2)
+- **context** (optional): Context lines for source mode (default: 2)
 
 ## Usage Examples
 
@@ -49,25 +48,21 @@ Replaces the old `carto-query` and `carto-search` commands with a single, more i
 ```
 /carto:carto-find "UserController"
 ```
-Output: Finds class definition in map + all source mentions
 
 ### Search only parsed code map
 ```
 /carto:carto-find "UserController" mode=map type=node
 ```
-Output: Returns the node representing UserController class
 
-### Search only source code (regex)
+### Search only source code with regex
 ```
 /carto:carto-find "def.*main" mode=source context=5
 ```
-Output: All lines matching regex with 5 lines of context
 
-### Find all imports
+### Find all import edges
 ```
 /carto:carto-find "express" mode=map type=edge
 ```
-Output: All import edges involving 'express'
 
 ## Output
 
@@ -97,8 +92,8 @@ src/controllers/user.ts:12
 
 ## Workflow
 
-Use `carto-find` whenever you need to locate code:
-- Finding function definitions → `mode=map type=node`
+Use `carto-find` in your analysis workflow to locate specific code:
+- Finding definitions → `mode=map type=node`
 - Finding dependencies → `mode=map type=edge`
-- Finding regex patterns → `mode=source`
-- General search → `mode=all` (default)
+- Finding patterns → `mode=source` (regex)
+- Quick search → default `mode=all`
