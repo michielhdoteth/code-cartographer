@@ -377,38 +377,6 @@ class Database:
           </div>
 
           <div className='main-content'>
-            <div className='visualization-tabs'>
-              <button
-                className={`viz-tab ${state.visualizationType === 'graph' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'graph' }))}
-              >
-                Graph
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'tree' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'tree' }))}
-              >
-                Tree
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'treemap' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'treemap' }))}
-              >
-                Treemap
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'matrix' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'matrix' }))}
-              >
-                Matrix
-              </button>
-              <button
-                className={`viz-tab ${state.visualizationType === 'flow' ? 'active' : ''}`}
-                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'flow' }))}
-              >
-                Flow
-              </button>
-            </div>
 
             <div className='visualization-controls'>
               <div className='control-group'>
@@ -515,6 +483,40 @@ class Database:
           </div>
 
           <div className='right-panel'>
+            <div style={{ padding: '0.75rem', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button
+                className={`viz-tab ${state.visualizationType === 'graph' ? 'active' : ''}`}
+                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'graph' }))}
+                title='Graph'
+                style={{ flex: '1 1 45%', fontSize: '0.8rem', padding: '0.4rem 0.5rem' }}
+              >
+                Graph
+              </button>
+              <button
+                className={`viz-tab ${state.visualizationType === 'tree' ? 'active' : ''}`}
+                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'tree' }))}
+                title='Tree'
+                style={{ flex: '1 1 45%', fontSize: '0.8rem', padding: '0.4rem 0.5rem' }}
+              >
+                Tree
+              </button>
+              <button
+                className={`viz-tab ${state.visualizationType === 'treemap' ? 'active' : ''}`}
+                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'treemap' }))}
+                title='Treemap'
+                style={{ flex: '1 1 45%', fontSize: '0.8rem', padding: '0.4rem 0.5rem' }}
+              >
+                Treemap
+              </button>
+              <button
+                className={`viz-tab ${state.visualizationType === 'flow' ? 'active' : ''}`}
+                onClick={() => setState((prev) => ({ ...prev, visualizationType: 'flow' }))}
+                title='Flow'
+                style={{ flex: '1 1 45%', fontSize: '0.8rem', padding: '0.4rem 0.5rem' }}
+              >
+                Flow
+              </button>
+            </div>
             <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
               <HealthScoreDisplay score={Math.round(72 + Math.random() * 20)} />
             </div>
