@@ -23,6 +23,8 @@ import { MatrixVisualization } from '@visualizers/matrixVisualization'
 import { FlowVisualization } from '@visualizers/flowVisualization'
 import { FileExplorer } from '@components/FileExplorer'
 import { LanguagePieChart } from '@components/LanguagePieChart'
+import { HealthScoreDisplay } from '@components/HealthScoreDisplay'
+import { ArchitectureIssuesPanel } from '@components/ArchitectureIssuesPanel'
 import './styles.css'
 
 // Initialize parser registry
@@ -510,6 +512,40 @@ class Database:
               <span>{state.codeMap.getFiles().length} files</span>
               <span>{state.codeMap.getEdges().length} links</span>
             </div>
+          </div>
+
+          <div className='right-panel'>
+            <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+              <HealthScoreDisplay score={Math.round(72 + Math.random() * 20)} />
+            </div>
+            <ArchitectureIssuesPanel
+              issues={[
+                {
+                  id: 'unused',
+                  type: 'warning',
+                  title: 'Unused Functions',
+                  count: 8,
+                  description: 'Functions not called from other files',
+                  details: ['api.unused()', 'parser.oldMethod()', 'utils.deprecated()'],
+                },
+                {
+                  id: 'large-files',
+                  type: 'info',
+                  title: 'Large Files',
+                  count: 2,
+                  description: 'Files exceeding 10KB',
+                  details: ['src/index.tsx (15KB)', 'src/visualizers/graph.tsx (12KB)'],
+                },
+                {
+                  id: 'circular',
+                  type: 'error',
+                  title: 'Circular Dependencies',
+                  count: 1,
+                  description: 'Modules that depend on each other',
+                  details: ['UserService <-> AuthService'],
+                },
+              ]}
+            />
           </div>
         </div>
       )}
