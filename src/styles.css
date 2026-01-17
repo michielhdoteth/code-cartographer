@@ -220,12 +220,19 @@ body,
   overflow: hidden;
 }
 
+.analyzer-container > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
 /* Sidebar */
 .sidebar {
   background: var(--bg-secondary);
   padding: 1rem;
   overflow-y: auto;
   border-right: 1px solid var(--border);
+  width: 280px;
+  flex-shrink: 0;
 }
 
 .sidebar-section {
@@ -257,6 +264,10 @@ body,
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  width: 340px;
+  min-width: 340px;
+  max-width: 340px;
+  flex-shrink: 0;
 }
 
 /* Language Pie Chart Section */
@@ -539,10 +550,6 @@ body,
   font-weight: 500;
 }
 
-/* Right Panel - Two Column */
-.right-panel {
-  display: none;
-}
 
 /* File Explorer Section */
 .file-explorer-section {
