@@ -79,121 +79,283 @@ const App: React.FC = () => {
     try {
       const newCodeMap = new CodeMap('map_1', './examples/sample-project', './examples/sample-project')
 
-      // Mock data: Parse example files structure
+      // Mock data: Parse example files structure with proper folder hierarchy
       const exampleFiles = [
         {
-          name: 'api.js',
-          path: './examples/sample-project/src/api.js',
-          language: 'javascript',
-          content: `const AuthManager = require('./auth')
+          name: 'Button.tsx',
+          path: './examples/sample-project/src/components/Button.tsx',
+          language: 'typescript',
+          content: `import React from 'react'
 
-class APIHandler {
-  constructor(auth) {
-    this.auth = auth
-    this.routes = new Map()
-    this.initializeRoutes()
-  }
-
-  initializeRoutes() {
-    this.routes.set('GET /users', this.getUsers.bind(this))
-    this.routes.set('POST /users', this.createUser.bind(this))
-    this.routes.set('GET /profile', this.getProfile.bind(this))
-  }
-
-  async handle(request) {
-    if (!this.auth.isAuthenticated()) {
-      return { status: 401, data: { error: 'Unauthorized' } }
-    }
-
-    const routeKey = request.method + ' ' + request.path
-    const handler = this.routes.get(routeKey)
-
-    if (handler) {
-      return await handler(request)
-    }
-
-    return { status: 404, data: { error: 'Not found' } }
-  }
-
-  async getUsers(request) {
-    return { status: 200, data: { users: [] } }
-  }
-
-  async createUser(request) {
-    return { status: 201, data: { id: 1, ...request.body } }
-  }
-
-  async getProfile(request) {
-    return { status: 200, data: { profile: this.auth.getToken() } }
-  }
+interface ButtonProps {
+  label: string
+  onClick: () => void
+  variant?: 'primary' | 'secondary'
 }
 
-module.exports = APIHandler`,
-        },
-        {
-          name: 'auth.js',
-          path: './examples/sample-project/src/auth.js',
-          language: 'javascript',
-          content: `class AuthManager {
-  constructor(config) {
-    this.config = config
-    this.token = null
-    this.user = null
-  }
+export const Button: React.FC<ButtonProps> = ({ label, onClick, variant = 'primary' }) => {
+  return (
+    <button onClick={onClick} className={\`btn btn-\${variant}\`}>
+      {label}
+    </button>
+  )
+}
 
-  async login(email, password) {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
-    if (response.ok) {
-      const data = await response.json()
-      this.token = data.token
-      this.user = data.user
-      return { success: true, user: this.user }
-    }
-  }
+function handleClick() {
+  console.log('Button clicked')
+}
 
-  logout() {
-    this.token = null
-    this.user = null
-  }
-
-  isAuthenticated() {
-    return this.token !== null
-  }
+export function getButtonStyles() {
+  return { padding: '8px 16px', borderRadius: '4px' }
 }`,
         },
         {
-          name: 'database.py',
-          path: './examples/sample-project/src/database.py',
-          language: 'python',
-          content: `import sqlite3
+          name: 'Card.tsx',
+          path: './examples/sample-project/src/components/Card.tsx',
+          language: 'typescript',
+          content: `import React from 'react'
 
-class Database:
-  def __init__(self, db_path: str):
-    self.db_path = db_path
-    self.connection = None
+interface CardProps {
+  title: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+}
 
-  def connect(self):
-    self.connection = sqlite3.connect(self.db_path)
-    self.create_tables()
+export const Card: React.FC<CardProps> = ({ title, children, footer }) => {
+  return (
+    <div className="card">
+      <div className="card-header">
+        <h2>{title}</h2>
+      </div>
+      <div className="card-body">{children}</div>
+      {footer && <div className="card-footer">{footer}</div>}
+    </div>
+  )
+}
 
-  def create_tables(self):
-    cursor = self.connection.cursor()
-    cursor.execute('''
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        email TEXT UNIQUE,
-        password TEXT
-      )
-    ''')
-    self.connection.commit()
+function renderCardContent() {
+  return <div>Card content here</div>
+}`,
+        },
+        {
+          name: 'useAuth.ts',
+          path: './examples/sample-project/src/hooks/useAuth.ts',
+          language: 'typescript',
+          content: `import { useState, useCallback } from 'react'
 
-  def get_user(self, user_id: int):
-    cursor = self.connection.cursor()
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    return cursor.fetchone()`,
+interface User {
+  id: string
+  email: string
+  name: string
+}
+
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const login = useCallback(async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await response.json()
+      setUser(data.user)
+      return data
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const logout = useCallback(() => {
+    setUser(null)
+  }, [])
+
+  return { user, loading, login, logout }
+}`,
+        },
+        {
+          name: 'useForm.ts',
+          path: './examples/sample-project/src/hooks/useForm.ts',
+          language: 'typescript',
+          content: `import { useState, useCallback } from 'react'
+
+export function useForm<T>(initialValues: T) {
+  const [values, setValues] = useState<T>(initialValues)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setValues((prev) => ({ ...prev, [name]: value }))
+  }, [])
+
+  const handleSubmit = useCallback((onSubmit: (values: T) => void) => {
+    return (e: React.FormEvent) => {
+      e.preventDefault()
+      onSubmit(values)
+    }
+  }, [values])
+
+  return { values, errors, handleChange, handleSubmit }
+}`,
+        },
+        {
+          name: 'api.ts',
+          path: './examples/sample-project/src/services/api.ts',
+          language: 'typescript',
+          content: `interface APIResponse<T> {
+  data?: T
+  error?: string
+  status: number
+}
+
+export class APIClient {
+  private baseURL: string
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL
+  }
+
+  async get<T>(endpoint: string): Promise<APIResponse<T>> {
+    try {
+      const response = await fetch(\`\${this.baseURL}\${endpoint}\`)
+      const data = await response.json()
+      return { data, status: response.status }
+    } catch (error) {
+      return { error: String(error), status: 500 }
+    }
+  }
+
+  async post<T>(endpoint: string, payload: unknown): Promise<APIResponse<T>> {
+    try {
+      const response = await fetch(\`\${this.baseURL}\${endpoint}\`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      const data = await response.json()
+      return { data, status: response.status }
+    } catch (error) {
+      return { error: String(error), status: 500 }
+    }
+  }
+}
+
+export const apiClient = new APIClient(process.env.REACT_APP_API_URL || 'http://localhost:3000')`,
+        },
+        {
+          name: 'auth.ts',
+          path: './examples/sample-project/src/services/auth.ts',
+          language: 'typescript',
+          content: `import { apiClient } from './api'
+
+export class AuthService {
+  async login(email: string, password: string) {
+    return apiClient.post('/auth/login', { email, password })
+  }
+
+  async logout() {
+    return apiClient.post('/auth/logout', {})
+  }
+
+  async register(email: string, password: string, name: string) {
+    return apiClient.post('/auth/register', { email, password, name })
+  }
+
+  async getProfile() {
+    return apiClient.get('/auth/profile')
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token')
+  }
+
+  setToken(token: string): void {
+    localStorage.setItem('token', token)
+  }
+}
+
+export const authService = new AuthService()`,
+        },
+        {
+          name: 'helpers.ts',
+          path: './examples/sample-project/src/utils/helpers.ts',
+          language: 'typescript',
+          content: `export function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-US')
+}
+
+export function parseJSON(json: string) {
+  try {
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+export function debounce(fn: Function, delay: number) {
+  let timeout: NodeJS.Timeout
+  return function (...args: any[]) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => fn(...args), delay)
+  }
+}
+
+export function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}`,
+        },
+        {
+          name: 'constants.ts',
+          path: './examples/sample-project/config/constants.ts',
+          language: 'typescript',
+          content: `export const API_TIMEOUT = 5000
+export const MAX_RETRIES = 3
+export const CACHE_DURATION = 3600
+
+export enum UserRole {
+  Admin = 'admin',
+  User = 'user',
+  Guest = 'guest',
+}
+
+export const DEFAULT_PAGINATION = {
+  page: 1,
+  pageSize: 20,
+}
+
+export const ERROR_MESSAGES = {
+  NETWORK_ERROR: 'Network connection failed',
+  TIMEOUT: 'Request timeout',
+  UNAUTHORIZED: 'Unauthorized access',
+}`,
+        },
+        {
+          name: 'helpers.test.ts',
+          path: './examples/sample-project/tests/unit/helpers.test.ts',
+          language: 'typescript',
+          content: `import { formatDate, capitalize, debounce } from '../../src/utils/helpers'
+
+describe('Helpers', () => {
+  test('formatDate returns correct format', () => {
+    const date = new Date('2024-01-15')
+    expect(formatDate(date)).toContain('2024')
+  })
+
+  test('capitalize converts first letter to uppercase', () => {
+    expect(capitalize('hello')).toBe('Hello')
+  })
+
+  test('debounce delays function execution', async () => {
+    const mockFn = jest.fn()
+    const debounced = debounce(mockFn, 100)
+    debounced()
+    debounced()
+    expect(mockFn).not.toHaveBeenCalled()
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    expect(mockFn).toHaveBeenCalledTimes(1)
+  })
+})`,
         },
       ]
 
@@ -201,7 +363,7 @@ class Database:
       for (const file of exampleFiles) {
         const parser = state.parsers.getParser(file.language as any)
         if (parser) {
-          parser.parseAndIntegrate(file.name, file.content, newCodeMap)
+          parser.parseAndIntegrate(file.path, file.content, newCodeMap)
         }
       }
 
