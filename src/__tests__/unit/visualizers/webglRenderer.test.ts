@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { WebGLRenderer } from '@visualizers/webglRenderer'
 
 describe('WebGLRenderer', () => {

@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { SecurityScanner } from '@analyzers/securityScanner'
 import { PatternDetector } from '@analyzers/patternDetector'
 import { HealthScorer } from '@analyzers/healthScorer'

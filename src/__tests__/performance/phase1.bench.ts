@@ -9,7 +9,6 @@
  * - No UI blocking during parse
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { MapGenerator } from '@engine/mapGenerator'
 import { WorkerPool, PoolTask } from '@engine/workerPool'
 import { cacheManager, CacheEntry } from '@engine/cacheManager'

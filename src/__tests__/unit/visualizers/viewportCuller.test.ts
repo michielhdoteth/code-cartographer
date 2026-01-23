@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { ViewportCuller } from '@visualizers/viewportCuller'
 import { createSimulationNodes, viewports } from '../../fixtures/index'
 import { measurePerformance, expectPerformanceWithin } from '../../helpers/index'

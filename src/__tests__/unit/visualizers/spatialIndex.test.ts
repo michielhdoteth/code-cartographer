@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { SpatialIndex } from '@visualizers/spatialIndex'
 import { bounds, createTestPoints, createGridPoints } from '../../fixtures/index'
 import { measurePerformance, expectPerformanceWithin } from '../../helpers/index'

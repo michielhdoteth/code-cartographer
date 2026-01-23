@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { CanvasRenderer } from '@visualizers/canvasRenderer'
 import { createSimulationNodes, createSimulationEdges, transforms } from '../../fixtures/index'
 import {

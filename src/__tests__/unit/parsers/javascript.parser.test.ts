@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { JavaScriptParser } from '@parsers/javascript'
 import { CodeMap } from '@models/codeMap'
 import { codeSamples, generateLargeFunctionList } from '../../fixtures/index'

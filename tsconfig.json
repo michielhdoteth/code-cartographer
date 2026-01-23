@@ -18,8 +18,7 @@
     "noFallthroughCasesInSwitch": true,
 
     "resolveJsonModule": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "node",
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
@@ -32,9 +31,11 @@
       "@analyzers/*": ["src/analyzers/*"],
       "@visualizers/*": ["src/visualizers/*"],
       "@components/*": ["src/components/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@workers/*": ["src/workers/*"],
+      "@formatters/*": ["src/formatters/*"],
+      "@engine/*": ["src/engine/*"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src"]
 }

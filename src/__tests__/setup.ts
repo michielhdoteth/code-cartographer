@@ -1,9 +1,7 @@
 /**
- * Global test setup for vitest
+ * Global test setup for Jest
  * Provides browser environment mocks and shared utilities
  */
-
-import { vi } from 'vitest'
 
 // =============================================================================
 // Browser API Mocks
@@ -15,15 +13,15 @@ import { vi } from 'vitest'
 function setupMatchMedia(): void {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
+    value: jest.fn().mockImplementation((query: string) => ({
       matches: false,
       media: query,
       onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
     })),
   })
 }

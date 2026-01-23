@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { StreamingParser } from '@engine/streamingParser'
 import { ParserRegistry } from '@parsers/base'
 import { JavaScriptParser } from '@parsers/javascript'

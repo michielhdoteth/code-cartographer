@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { WorkerPool, PoolTask } from '@engine/workerPool'
 
 describe('WorkerPool', () => {

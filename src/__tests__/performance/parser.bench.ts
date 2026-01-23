@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { TypeScriptParser } from '@parsers/typescript'
 import { PythonParser } from '@parsers/python'
 import { JavaScriptParser } from '@parsers/javascript'
