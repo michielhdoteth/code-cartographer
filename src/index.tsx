@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import ReactDOM from 'react-dom/client'
+import * as d3 from 'd3'
 import { CodeMap } from '@models/codeMap'
 import { VisualizationConfig } from '@models/types'
 import { ParserRegistry } from '@parsers/base'
@@ -25,7 +26,20 @@ import { FileExplorer } from '@components/FileExplorer'
 import { LanguagePieChart } from '@components/LanguagePieChart'
 import { HealthScoreDisplay } from '@components/HealthScoreDisplay'
 import { ArchitectureIssuesPanel } from '@components/ArchitectureIssuesPanel'
+import { TraceSimulator } from '@components/TraceSimulator'
+import { ReportGenerator } from '@components/ReportGenerator'
 import './styles.css'
+
+// Layout descriptions for the help text
+const layoutDescriptions: Record<string, string> = {
+  force: 'Physics-based layout with nodes repelling and edges as springs. Best for exploring relationships.',
+  radial: 'Circular arrangement with central nodes at core. Best for showing hierarchy depth.',
+  hierarchical: 'Top-to-bottom tree structure. Best for visualizing module dependencies.',
+  grid: 'Organized grid layout. Best for comparing nodes side by side.',
+  metro: 'Transit map style with clean lines. Best for tracing paths between nodes.',
+  treemap: 'Space-filling rectangles by code metrics. Best for seeing relative sizes.',
+  matrix: 'Adjacency matrix showing all connections. Best for dense dependency analysis.',
+}
 
 // Initialize parser registry
 const initializeParsers = (): ParserRegistry => {
@@ -74,6 +88,133 @@ const App: React.FC = () => {
     healthScorer: new HealthScorer(),
     visualizationType: 'graph',
   })
+
+  const [exporting, setExporting] = useState(false)
+  const visualizationRef = useRef<HTMLDivElement>(null)
+  const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
+
+  // Zoom control functions
+  const handleZoomIn = useCallback(() => {
+    const svg = visualizationRef.current?.querySelector('svg')
+    if (svg && zoomBehaviorRef.current) {
+      d3.select(svg as SVGSVGElement)
+        .transition()
+        .duration(300)
+        .call(zoomBehaviorRef.current.scaleBy, 1.3)
+    } else if (svg) {
+      // Fallback: create temporary zoom behavior
+      const zoom = d3.zoom<SVGSVGElement, unknown>()
+      const g = svg.querySelector('g')
+      if (g) {
+        const currentTransform = d3.zoomTransform(svg as Element)
+        const newTransform = currentTransform.scale(1.3)
+        d3.select(g).attr('transform', newTransform.toString())
+      }
+    }
+  }, [])
+
+  const handleZoomOut = useCallback(() => {
+    const svg = visualizationRef.current?.querySelector('svg')
+    if (svg && zoomBehaviorRef.current) {
+      d3.select(svg as SVGSVGElement)
+        .transition()
+        .duration(300)
+        .call(zoomBehaviorRef.current.scaleBy, 0.7)
+    } else if (svg) {
+      const g = svg.querySelector('g')
+      if (g) {
+        const currentTransform = d3.zoomTransform(svg as Element)
+        const newTransform = currentTransform.scale(0.7)
+        d3.select(g).attr('transform', newTransform.toString())
+      }
+    }
+  }, [])
+
+  const handleZoomFit = useCallback(() => {
+    const svg = visualizationRef.current?.querySelector('svg')
+    if (svg) {
+      const g = svg.querySelector('g')
+      if (g) {
+        d3.select(g)
+          .transition()
+          .duration(500)
+          .attr('transform', 'translate(0,0) scale(1)')
+      }
+    }
+  }, [])
+
+  // Export functions
+  const handleExportPNG = useCallback(async () => {
+    const svg = visualizationRef.current?.querySelector('svg')
+    if (!svg) return
+    setExporting(true)
+
+    try {
+      const svgData = new XMLSerializer().serializeToString(svg)
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+      const svgUrl = URL.createObjectURL(svgBlob)
+
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const scale = 2
+        canvas.width = svg.clientWidth * scale
+        canvas.height = svg.clientHeight * scale
+
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.scale(scale, scale)
+          ctx.fillStyle = '#1f2937'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(img, 0, 0)
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob)
+              const link = document.createElement('a')
+              link.download = `code-cartographer-${state.visualizationConfig.layout}-${Date.now()}.png`
+              link.href = url
+              link.click()
+              URL.revokeObjectURL(url)
+            }
+            setExporting(false)
+          }, 'image/png')
+        }
+        URL.revokeObjectURL(svgUrl)
+      }
+      img.onerror = () => setExporting(false)
+      img.src = svgUrl
+    } catch (error) {
+      console.error('Export failed:', error)
+      setExporting(false)
+    }
+  }, [state.visualizationConfig.layout])
+
+  const handleExportSVG = useCallback(() => {
+    const svg = visualizationRef.current?.querySelector('svg')
+    if (!svg) return
+
+    try {
+      const clonedSvg = svg.cloneNode(true) as SVGSVGElement
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+      rect.setAttribute('width', '100%')
+      rect.setAttribute('height', '100%')
+      rect.setAttribute('fill', '#1f2937')
+      clonedSvg.insertBefore(rect, clonedSvg.firstChild)
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg)
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+      const url = URL.createObjectURL(svgBlob)
+
+      const link = document.createElement('a')
+      link.download = `code-cartographer-${state.visualizationConfig.layout}-${Date.now()}.svg`
+      link.href = url
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('SVG export failed:', error)
+    }
+  }, [state.visualizationConfig.layout])
 
   const handleLoadExample = async () => {
     try {
@@ -625,7 +766,7 @@ describe('Helpers', () => {
               </div>
             </div>
 
-            <div className='visualization'>
+            <div className='visualization' ref={visualizationRef}>
               {state.codeMap && state.codeMap.getNodes().length > 0 ? (
                 <>
                   {state.visualizationType === 'graph' && (
@@ -670,6 +811,59 @@ describe('Helpers', () => {
                 </div>
               )}
             </div>
+
+            <div className='visualization-controls-bar'>
+              <div className='zoom-controls'>
+                <button className='control-btn' onClick={handleZoomIn} title='Zoom In'>
+                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                    <circle cx='11' cy='11' r='8' />
+                    <path d='M21 21l-4.35-4.35M11 8v6M8 11h6' />
+                  </svg>
+                </button>
+                <button className='control-btn' onClick={handleZoomOut} title='Zoom Out'>
+                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                    <circle cx='11' cy='11' r='8' />
+                    <path d='M21 21l-4.35-4.35M8 11h6' />
+                  </svg>
+                </button>
+                <button className='control-btn' onClick={handleZoomFit} title='Fit to View'>
+                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                    <path d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7' />
+                  </svg>
+                </button>
+              </div>
+
+              <div className='export-controls'>
+                <button
+                  className='control-btn export-btn'
+                  onClick={handleExportPNG}
+                  disabled={exporting}
+                  title='Export as PNG'
+                >
+                  {exporting ? (
+                    <span className='export-spinner'></span>
+                  ) : (
+                    <>
+                      <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                        <path d='M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' />
+                      </svg>
+                      PNG
+                    </>
+                  )}
+                </button>
+                <button className='control-btn export-btn' onClick={handleExportSVG} title='Export as SVG'>
+                  <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                    <path d='M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' />
+                  </svg>
+                  SVG
+                </button>
+              </div>
+
+              <div className='layout-description'>
+                {layoutDescriptions[state.visualizationConfig.layout] || ''}
+              </div>
+            </div>
+
             <div className='visualization-footer'>
               <span>{state.codeMap.getFiles().length} files</span>
               <span>{state.codeMap.getEdges().length} links</span>
@@ -686,6 +880,7 @@ describe('Helpers', () => {
                   count: 8,
                   description: 'Functions not called from other files',
                   details: ['api.unused()', 'parser.oldMethod()', 'utils.deprecated()'],
+                  severity: 'medium',
                 },
                 {
                   id: 'large-files',
@@ -694,6 +889,7 @@ describe('Helpers', () => {
                   count: 2,
                   description: 'Files exceeding 10KB',
                   details: ['src/index.tsx (15KB)', 'src/visualizers/graph.tsx (12KB)'],
+                  severity: 'low',
                 },
                 {
                   id: 'circular',
@@ -702,7 +898,22 @@ describe('Helpers', () => {
                   count: 1,
                   description: 'Modules that depend on each other',
                   details: ['UserService <-> AuthService'],
+                  severity: 'high',
                 },
+              ]}
+            />
+            <TraceSimulator
+              codeMap={state.codeMap}
+              startNodeId={state.selectedNodeId || undefined}
+              onStepSelect={(nodeId) => setState((prev) => ({ ...prev, selectedNodeId: nodeId }))}
+            />
+            <ReportGenerator
+              codeMap={state.codeMap}
+              healthScore={{ grade: 'B', score: 78 }}
+              issues={[
+                { type: 'warning', title: 'Unused Functions', count: 8, description: 'Functions not called from other files' },
+                { type: 'info', title: 'Large Files', count: 2, description: 'Files exceeding 10KB' },
+                { type: 'error', title: 'Circular Dependencies', count: 1, description: 'Modules that depend on each other' },
               ]}
             />
           </div>
