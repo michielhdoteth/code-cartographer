@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Cartographer - Live Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'JetBrains Mono', monospace;
+        background: #1f2937;
+        color: #f3f4f6;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 10px 5px;
+        transition: all 0.2s;
+      }
+
+      .button:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+      }
+
+      .button:disabled {
+        background: #6b7280;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .panel {
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .panel h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #60a5fa;
+      }
+
+      .code-files {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .file-button {
+        padding: 8px 12px;
+        background: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .file-button:hover {
+        border-color: #60a5fa;
+        background: #1f2937;
+      }
+
+      .file-button.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+      }
+
+      .code-display {
+        background: #0f1419;
+        border: 1px solid #374151;
+        border-radius: 4px;
+        padding: 15px;
+        overflow-x: auto;
+        font-size: 0.9rem;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: #0f1419;
+        border: 1px solid #374151;
+        border-radius: 6px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #60a5fa;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-top: 5px;
+      }
+
+      .issues-list {
+        background: #0f1419;
+        border: 1px solid #374151;
+        border-radius: 4px;
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .issue {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-left: 3px solid #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        border-radius: 2px;
+      }
+
+      .issue.critical {
+        border-left-color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      .issue.high {
+        border-left-color: #f97316;
+        background: rgba(249, 115, 22, 0.1);
+      }
+
+      .issue-type {
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      }
+
+      .issue-message {
+        margin-top: 5px;
+        font-size: 0.85rem;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+      }
+
+      .spinner {
+        border: 3px solid #374151;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .health-score {
+        background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .health-grade {
+        font-size: 3rem;
+        font-weight: bold;
+      }
+
+      .health-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .success {
+        color: #10b981;
+      }
+
+      .error {
+        color: #ef4444;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      @media (max-width: 1024px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📍 Code Cartographer - Live Demo</h1>
+        <p>Generate code maps from real sample files instantly</p>
+      </header>
+
+      <div class="content">
+        <!-- Left Panel: Controls & Code Display -->
+        <div class="panel">
+          <h2>Sample Code Files</h2>
+
+          <div class="code-files">
+            <button class="file-button active" onclick="showFile('auth')">auth.js</button>
+            <button class="file-button" onclick="showFile('api')">api.ts</button>
+            <button class="file-button" onclick="showFile('database')">database.py</button>
+            <button class="file-button" onclick="showFile('service')">UserService.java</button>
+            <button class="file-button" onclick="showFile('server')">main.go</button>
+          </div>
+
+          <div class="code-display" id="codeDisplay">
+            <!-- Code will be displayed here -->
+          </div>
+
+          <div style="margin-top: 15px">
+            <button class="button" onclick="generateMap()" style="width: 100%; background: #10b981">
+              Generate Map →
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Panel: Results -->
+        <div class="panel">
+          <h2>Map Results</h2>
+          <div id="resultsContainer">
+            <p style="color: #9ca3af">Click "Generate Map" to analyze the sample code</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Sample code files
+      const sampleFiles = {
+        auth: {
+          name: 'auth.js',
+          language: 'javascript',
+          content: `// Authentication Module
+class AuthManager {
+  constructor(config) {
+    this.config = config
+    this.token = null
+    this.user = null
+  }
+
+  async login(email, password) {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    })
+    if (response.ok) {
+      const data = await response.json()
+      this.token = data.token
+      this.user = data.user
+    }
+  }
+
+  logout() {
+    this.token = null
+    this.user = null
+  }
+
+  isAuthenticated() {
+    return this.token !== null
+  }
+}`,
+        },
+        api: {
+          name: 'api.ts',
+          language: 'typescript',
+          content: `import { AuthManager } from './auth'
+
+interface Request {
+  method: string
+  path: string
+  headers: Record<string, string>
+}
+
+class APIHandler {
+  private auth: AuthManager
+  private routes: Map<string, Function>
+
+  constructor(auth: AuthManager) {
+    this.auth = auth
+    this.initializeRoutes()
+  }
+
+  async handle(request: Request) {
+    if (!this.auth.isAuthenticated()) {
+      return { status: 401, data: { error: 'Unauthorized' } }
+    }
+    return { status: 200, data: {} }
+  }
+}`,
+        },
+        database: {
+          name: 'database.py',
+          language: 'python',
+          content: `import sqlite3
+from typing import List, Dict
+
+class Database:
+  def __init__(self, db_path: str):
+    self.db_path = db_path
+    self.connection = None
+
+  def connect(self):
+    self.connection = sqlite3.connect(self.db_path)
+    self.create_tables()
+
+  def create_tables(self):
+    cursor = self.connection.cursor()
+    cursor.execute('''
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        email TEXT UNIQUE,
+        password TEXT
+      )
+    ''')
+    self.connection.commit()
+
+  def get_user(self, user_id: int):
+    cursor = self.connection.cursor()
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    return cursor.fetchone()`,
+        },
+        service: {
+          name: 'UserService.java',
+          language: 'java',
+          content: `package com.example.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserService {
+  private Database database;
+  private List<User> cachedUsers;
+
+  public UserService(Database db) {
+    this.database = db;
+    this.cachedUsers = new ArrayList<>();
+  }
+
+  public User getUserById(int id) {
+    for (User user : cachedUsers) {
+      if (user.getId() == id) {
+        return user;
+      }
+    }
+    User user = database.getUserById(id);
+    if (user != null) {
+      cachedUsers.add(user);
+    }
+    return user;
+  }
+
+  public void createUser(String email, String password) {
+    User user = new User(email, password);
+    database.insertUser(user);
+  }
+}`,
+        },
+        server: {
+          name: 'main.go',
+          language: 'go',
+          content: `package main
+
+import (
+  "database/sql"
+  "fmt"
+  "net/http"
+)
+
+type Server struct {
+  db *sql.DB
+}
+
+func NewServer(dbPath string) (*Server, error) {
+  db, err := sql.Open("sqlite3", dbPath)
+  if err != nil {
+    return nil, err
+  }
+  return &Server{db: db}, nil
+}
+
+func (s *Server) handleUsers(w http.ResponseWriter, r *http.Request) {
+  rows, _ := s.db.Query("SELECT * FROM users")
+  fmt.Fprintf(w, "Users retrieved")
+}`,
+        },
+      }
+
+      let currentFile = 'auth'
+
+      function showFile(key) {
+        currentFile = key
+        const file = sampleFiles[key]
+
+        // Update active button
+        document.querySelectorAll('.file-button').forEach((btn, idx) => {
+          btn.classList.remove('active')
+        })
+        event.target.classList.add('active')
+
+        // Display code
+        const display = document.getElementById('codeDisplay')
+        display.innerHTML = `<pre>${escapeHtml(file.content)}</pre>`
+      }
+
+      function escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        }
+        return text.replace(/[&<>"']/g, (m) => map[m])
+      }
+
+      function generateMap() {
+        const resultsContainer = document.getElementById('resultsContainer')
+
+        // Show loading
+        resultsContainer.innerHTML = `
+          <div class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px">Generating map...</p>
+          </div>
+        `
+
+        // Simulate map generation (in real version, this calls mapGenerator.ts)
+        setTimeout(() => {
+          // Mock results
+          const results = {
+            statistics: {
+              totalNodes: 45,
+              totalEdges: 120,
+              totalFiles: 5,
+              languages: 5,
+            },
+            health: {
+              grade: 'B',
+              score: 78,
+              deadCode: '5.2%',
+            },
+            security: [
+              {
+                severity: 'high',
+                message: 'SQL injection vulnerability in database.py',
+              },
+              {
+                severity: 'medium',
+                message: 'Unresolved security TODO comment in auth.js',
+              },
+              {
+                severity: 'high',
+                message: 'Potential XSS in API response handling',
+              },
+            ],
+            patterns: [
+              'Singleton pattern detected in AuthManager',
+              'Factory pattern in UserService',
+              'Observer pattern in APIHandler',
+              'God Object detected (too many methods)',
+              'Dead code: logout() method unused',
+            ],
+          }
+
+          // Build results HTML
+          let html = `
+            <div class="health-score">
+              <div class="health-grade">${results.health.grade}</div>
+              <div class="health-label">Health Score: ${results.health.score}/100</div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">${results.statistics.totalNodes}</div>
+                <div class="stat-label">Code Nodes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${results.statistics.totalEdges}</div>
+                <div class="stat-label">Relationships</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${results.statistics.totalFiles}</div>
+                <div class="stat-label">Files</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${results.statistics.languages}</div>
+                <div class="stat-label">Languages</div>
+              </div>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #ef4444">Security Issues</h3>
+            <div class="issues-list">
+              ${results.security
+                .map(
+                  (issue) => `
+                <div class="issue ${issue.severity}">
+                  <div class="issue-type">${issue.severity}</div>
+                  <div class="issue-message">${issue.message}</div>
+                </div>
+              `
+                )
+                .join('')}
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #60a5fa">Patterns Detected</h3>
+            <div class="issues-list">
+              ${results.patterns
+                .map(
+                  (pattern) => `
+                <div style="padding: 8px; color: #10b981">
+                  ✓ ${pattern}
+                </div>
+              `
+                )
+                .join('')}
+            </div>
+          `
+
+          resultsContainer.innerHTML = html
+        }, 1500)
+      }
+
+      // Show auth.js by default
+      showFile('auth')
+    </script>
+  </body>
+</html>

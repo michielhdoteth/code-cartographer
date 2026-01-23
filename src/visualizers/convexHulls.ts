@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import { stringHash, FOLDER_COLORS, calculateCentroid as calcCentroid } from '../utils/visualizationUtils.js'
 
 export interface NodePosition {
   id: string
@@ -116,16 +117,10 @@ export class ConvexHullVisualizer {
 
   /**
    * Calculate centroid of polygon
+   * Uses shared utility
    */
   private calculateCentroid(hull: [number, number][]): [number, number] | null {
-    if (hull.length === 0) return null
-
-    const sum = hull.reduce(
-      (acc, p) => [acc[0] + p[0], acc[1] + p[1]],
-      [0, 0]
-    )
-
-    return [sum[0] / hull.length, sum[1] / hull.length]
+    return calcCentroid(hull)
   }
 
   /**
@@ -186,17 +181,11 @@ export class ConvexHullVisualizer {
 
   /**
    * Get default color for folder based on hash
+   * Uses shared utility for consistent coloring
    */
   private getDefaultColor(folder: string): string {
-    const colors = ['#4d9fff', '#22d3ee', '#a78bfa', '#ff9f43', '#00ff9d', '#ec4899', '#84cc16', '#f43f5e']
-    let hash = 0
-
-    for (let i = 0; i < folder.length; i++) {
-      hash = ((hash << 5) - hash) + folder.charCodeAt(i)
-      hash = hash & hash // Convert to 32bit integer
-    }
-
-    return colors[Math.abs(hash) % colors.length]
+    const hash = stringHash(folder)
+    return FOLDER_COLORS[hash % FOLDER_COLORS.length]
   }
 
   /**
@@ -211,12 +200,13 @@ export class ConvexHullVisualizer {
    */
   updateHullPositions(svg: any, nodes: NodePosition[], padding: number = 30): void {
     const hulls = this.calculateHulls(nodes, padding)
+    const hullToPath = this.hullToPath.bind(this)
 
-    svg.selectAll('.convex-hulls path').each(function (d: any, i: number) {
+    svg.selectAll('.convex-hulls path').each(function (this: SVGPathElement, _d: unknown, i: number) {
       const hull = Array.from(hulls.values())[i]
       if (hull) {
         const path = d3.select(this)
-        path.transition().duration(300).attr('d', (d: any) => this.hullToPath(hull))
+        path.transition().duration(300).attr('d', hullToPath(hull))
       }
     })
   }

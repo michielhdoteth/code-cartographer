@@ -1,74 +1,134 @@
-import { ChurnMetrics } from '@models/types'
-import { execSync } from 'child_process'
+/**
+ * Git churn analyzer for identifying code hotspots
+ * Analyzes commit history to find frequently changed files
+ */
+
+import type { ChurnMetrics } from '@models/types'
+import { execGit, getRepositoryStatus } from '@utils/gitUtils.js'
+
+// =============================================================================
+// Types
+// =============================================================================
+
+export type ChurnLevel = 'critical' | 'high' | 'medium' | 'low' | 'none'
+
+export interface ChurnHotspot {
+  file: string
+  metrics: ChurnMetrics
+  score: number
+}
+
+type ProgressCallback = (percent: number, message: string) => void
+
+// =============================================================================
+// Churn Analyzer
+// =============================================================================
 
 export class ChurnAnalyzer {
   /**
    * Parse git log to calculate churn metrics per file
-   * Returns a map of file paths to their churn metrics
    */
-  analyzeChurn(repoPath: string, authorFilter?: string): Map<string, ChurnMetrics> {
+  async analyzeChurn(
+    repoPath: string,
+    authorFilter?: string,
+    onProgress?: ProgressCallback
+  ): Promise<Map<string, ChurnMetrics>> {
+    onProgress?.(0, 'Analyzing git churn...')
+
+    const output = await this.fetchGitLog(repoPath, authorFilter, onProgress)
+    const churnMap = this.parseGitLogOutput(output, onProgress)
+
+    onProgress?.(100, 'Churn analysis complete')
+    return churnMap
+  }
+
+  private async fetchGitLog(
+    repoPath: string,
+    authorFilter?: string,
+    onProgress?: ProgressCallback
+  ): Promise<string> {
+    const args = ['log', '--numstat', '--follow', '--pretty=format:%H %aI']
+
+    if (authorFilter) {
+      args.push(`--author=${authorFilter.replace(/['"]/g, '')}`)
+    }
+
+    return execGit(args, {
+      cwd: repoPath,
+      onProgress: (percent, msg) => onProgress?.(Math.min(50, percent / 2), msg),
+    })
+  }
+
+  private parseGitLogOutput(output: string, onProgress?: ProgressCallback): Map<string, ChurnMetrics> {
     const churnMap = new Map<string, ChurnMetrics>()
+    const lines = output.split('\n')
 
-    try {
-      // Get git log with numstat format
-      let command = 'git -C "{0}" log --numstat --follow --pretty=format:"%H %aI"'
-        .replace('{0}', repoPath)
+    let currentDate = new Date()
+    let lineIndex = 0
 
-      if (authorFilter) {
-        command += ` --author="${authorFilter}"`
+    for (const line of lines) {
+      if (!line.trim()) continue
+
+      if (lineIndex++ % 100 === 0) {
+        onProgress?.(50 + (lineIndex / lines.length) * 50, `Parsed ${lineIndex} lines`)
       }
 
-      const output = execSync(command, { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 })
-
-      // Parse git log output
-      const lines = output.split('\n')
-      let currentCommit = ''
-      let currentDate = new Date()
-
-      for (const line of lines) {
-        if (!line.trim()) continue
-
-        // Check if this is a commit header line (hash and date)
-        if (line.match(/^[a-f0-9]{40}\s/)) {
-          const parts = line.split(' ')
-          currentCommit = parts[0]
-          currentDate = new Date(parts.slice(1).join(' '))
-          continue
-        }
-
-        // Parse numstat line (additions deletions filename)
-        const parts = line.split('\t')
-        if (parts.length >= 3) {
-          const additions = parts[0] === '-' ? 0 : parseInt(parts[0], 10) || 0
-          const deletions = parts[1] === '-' ? 0 : parseInt(parts[1], 10) || 0
-          const filePath = parts[2]
-
-          if (!churnMap.has(filePath)) {
-            churnMap.set(filePath, {
-              commits: 0,
-              additions: 0,
-              deletions: 0,
-              lastModified: currentDate,
-            })
-          }
-
-          const metrics = churnMap.get(filePath)!
-          metrics.commits += 1
-          metrics.additions += additions
-          metrics.deletions += deletions
-          metrics.lastModified = new Date(Math.max(metrics.lastModified.getTime(), currentDate.getTime()))
-        }
+      if (this.isCommitHeader(line)) {
+        currentDate = this.parseCommitDate(line)
+        continue
       }
-    } catch (error) {
-      console.error('Error analyzing git churn:', error)
+
+      this.processNumstatLine(line, currentDate, churnMap)
     }
 
     return churnMap
   }
 
+  private isCommitHeader(line: string): boolean {
+    return /^[a-f0-9]{40}\s/.test(line)
+  }
+
+  private parseCommitDate(line: string): Date {
+    const dateStr = line.split(' ').slice(1).join(' ')
+    return new Date(dateStr)
+  }
+
+  private processNumstatLine(line: string, currentDate: Date, churnMap: Map<string, ChurnMetrics>): void {
+    const parts = line.split('\t')
+    if (parts.length < 3) return
+
+    const additions = parts[0] === '-' ? 0 : parseInt(parts[0], 10) || 0
+    const deletions = parts[1] === '-' ? 0 : parseInt(parts[1], 10) || 0
+    const filePath = parts[2]
+
+    this.updateChurnMetrics(churnMap, filePath, additions, deletions, currentDate)
+  }
+
+  private updateChurnMetrics(
+    churnMap: Map<string, ChurnMetrics>,
+    filePath: string,
+    additions: number,
+    deletions: number,
+    date: Date
+  ): void {
+    if (!churnMap.has(filePath)) {
+      churnMap.set(filePath, {
+        commits: 0,
+        additions: 0,
+        deletions: 0,
+        lastModified: date,
+      })
+    }
+
+    const metrics = churnMap.get(filePath)!
+    metrics.commits += 1
+    metrics.additions += additions
+    metrics.deletions += deletions
+    metrics.lastModified = new Date(Math.max(metrics.lastModified.getTime(), date.getTime()))
+  }
+
   /**
    * Get churn score for a file (weighted by commits and changes)
-   * Higher score = more active file
    */
   getChurnScore(metrics: ChurnMetrics): number {
     return metrics.commits + (metrics.additions + metrics.deletions) / 100
@@ -77,22 +137,22 @@ export class ChurnAnalyzer {
   /**
    * Classify files by churn level
    */
-  getChurnLevel(metrics: ChurnMetrics): 'critical' | 'high' | 'medium' | 'low' | 'none' {
-    const commits = metrics.commits
-    const changes = metrics.additions + metrics.deletions
+  getChurnLevel(metrics: ChurnMetrics): ChurnLevel {
+    const { commits, additions, deletions } = metrics
+    const totalChanges = additions + deletions
 
-    if (commits > 50 || changes > 1000) return 'critical'
-    if (commits > 20 || changes > 500) return 'high'
-    if (commits > 10 || changes > 200) return 'medium'
+    if (commits > 50 || totalChanges > 1000) return 'critical'
+    if (commits > 20 || totalChanges > 500) return 'high'
+    if (commits > 10 || totalChanges > 200) return 'medium'
     if (commits > 0) return 'low'
     return 'none'
   }
 
   /**
-   * Find hotspot files - files with high churn
+   * Find hotspot files with highest churn
    */
-  findHotspots(churnMap: Map<string, ChurnMetrics>, limit: number = 10): Array<{ file: string; metrics: ChurnMetrics; score: number }> {
-    const hotspots = Array.from(churnMap.entries())
+  findHotspots(churnMap: Map<string, ChurnMetrics>, limit: number = 10): ChurnHotspot[] {
+    return Array.from(churnMap.entries())
       .map(([file, metrics]) => ({
         file,
         metrics,
@@ -100,8 +160,6 @@ export class ChurnAnalyzer {
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
-
-    return hotspots
   }
 
   /**
@@ -124,13 +182,11 @@ export class ChurnAnalyzer {
   /**
    * Get authors who have modified a file
    */
-  getFileAuthors(repoPath: string, filePath: string): string[] {
+  async getFileAuthors(repoPath: string, filePath: string): Promise<string[]> {
     try {
-      const command = `git -C "${repoPath}" log --pretty=format:"%an" -- "${filePath}"`
-      const output = execSync(command, { encoding: 'utf-8' })
-      const authors = [...new Set(output.split('\n').filter((a) => a.trim()))]
-      return authors
-    } catch (error) {
+      const output = await execGit(['log', '--pretty=format:%an', '--', filePath], { cwd: repoPath })
+      return [...new Set(output.split('\n').filter((author) => author.trim()))]
+    } catch {
       return []
     }
   }
@@ -138,43 +194,63 @@ export class ChurnAnalyzer {
   /**
    * Get commit count for a file
    */
-  getFileCommitCount(repoPath: string, filePath: string): number {
+  async getFileCommitCount(repoPath: string, filePath: string): Promise<number> {
     try {
-      const command = `git -C "${repoPath}" log --oneline -- "${filePath}" | wc -l`
-      const output = execSync(command, { encoding: 'utf-8', shell: '/bin/bash' })
-      return parseInt(output.trim(), 10) || 0
-    } catch (error) {
+      const output = await execGit(['log', '--oneline', '--', filePath], { cwd: repoPath })
+      return output.split('\n').filter((line) => line.trim()).length
+    } catch {
       return 0
     }
   }
 
   /**
-   * Get current git status to identify uncommitted changes
+   * Get uncommitted changes in the repository
    */
-  getUncommittedChanges(repoPath: string): Map<string, 'modified' | 'added' | 'deleted' | 'renamed'> {
+  async getUncommittedChanges(
+    repoPath: string,
+    onProgress?: ProgressCallback
+  ): Promise<Map<string, 'modified' | 'added' | 'deleted' | 'renamed'>> {
+    onProgress?.(0, 'Getting git status...')
+
+    const output = await execGit(['status', '--porcelain'], {
+      cwd: repoPath,
+      onProgress,
+    })
+
+    const statusMap = this.parseStatusOutput(output, onProgress)
+
+    onProgress?.(100, 'Git status complete')
+    return statusMap
+  }
+
+  private parseStatusOutput(
+    output: string,
+    onProgress?: ProgressCallback
+  ): Map<string, 'modified' | 'added' | 'deleted' | 'renamed'> {
     const statusMap = new Map<string, 'modified' | 'added' | 'deleted' | 'renamed'>()
+    const lines = output.split('\n')
 
-    try {
-      const command = `git -C "${repoPath}" status --porcelain`
-      const output = execSync(command, { encoding: 'utf-8' })
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      if (!line.trim()) continue
 
-      for (const line of output.split('\n')) {
-        if (!line.trim()) continue
-
-        const status = line.substring(0, 2).trim()
-        const filePath = line.substring(3).trim()
-
-        let statusType: 'modified' | 'added' | 'deleted' | 'renamed' = 'modified'
-        if (status.includes('A')) statusType = 'added'
-        else if (status.includes('D')) statusType = 'deleted'
-        else if (status.includes('R')) statusType = 'renamed'
-
-        statusMap.set(filePath, statusType)
+      if (i % 10 === 0) {
+        onProgress?.(50 + (i / lines.length) * 50, `Processed ${i} changes`)
       }
-    } catch (error) {
-      console.error('Error getting git status:', error)
+
+      const status = line.substring(0, 2).trim()
+      const filePath = line.substring(3).trim()
+
+      statusMap.set(filePath, this.mapStatusCode(status))
     }
 
     return statusMap
+  }
+
+  private mapStatusCode(status: string): 'modified' | 'added' | 'deleted' | 'renamed' {
+    if (status.includes('A')) return 'added'
+    if (status.includes('D')) return 'deleted'
+    if (status.includes('R')) return 'renamed'
+    return 'modified'
   }
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { CodeMap, CodeNode } from '@models/codeMap'
+import { ChevronDown, ChevronRight, File, Folder, FolderOpen, Code2, FunctionSquare, Search, X } from 'lucide-react'
 
 interface FileExplorerProps {
   codeMap: CodeMap | null
@@ -222,20 +223,24 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ codeMap, selectedNod
     setExpandedFolders(newExpanded)
   }
 
-  const getTypeIcon = (type: string): string => {
+  const getTypeIcon = (type: string, isExpanded: boolean = false) => {
     switch (type) {
       case 'file':
-        return '📄'
+        return <File size={16} className='text-blue-400' />
       case 'class':
-        return '◆'
+        return <Code2 size={16} className='text-yellow-400' />
       case 'function':
-        return 'ƒ'
+        return <FunctionSquare size={16} className='text-green-400' />
       case 'method':
-        return '→'
+        return <FunctionSquare size={16} className='text-green-400' />
       case 'folder':
-        return '📁'
+        return isExpanded ? (
+          <FolderOpen size={16} className='text-orange-400' />
+        ) : (
+          <Folder size={16} className='text-orange-400' />
+        )
       default:
-        return '•'
+        return <File size={16} className='text-gray-400' />
     }
   }
 
@@ -257,19 +262,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ codeMap, selectedNod
           }}
         >
           {node.children.length > 0 && (
-            <span
-              className='expand-toggle'
+            <button
+              className='expand-toggle hover:bg-gray-700 p-1 rounded'
               onClick={(e) => {
                 e.stopPropagation()
                 toggleExpand(node.id)
               }}
+              aria-label={isExpanded ? 'Collapse' : 'Expand'}
             >
-              {isExpanded ? '▼' : '▶'}
-            </span>
+              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </button>
           )}
-          {!node.children.length && <span className='expand-toggle' style={{ visibility: 'hidden' }}>▶</span>}
+          {!node.children.length && <span className='expand-toggle w-6' />}
 
-          <span className='node-icon'>{getTypeIcon(node.type)}</span>
+          <span className='node-icon'>{getTypeIcon(node.type, isExpanded)}</span>
           <span className='node-name'>{node.name}</span>
 
           {node.children.length > 0 && (
@@ -303,25 +309,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ codeMap, selectedNod
     <div className='file-explorer'>
       <h3>Code Structure</h3>
       <div style={{ padding: '0.75rem 0.5rem', borderBottom: '1px solid var(--border)' }}>
-        {filterText ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 0.75rem',
-              backgroundColor: 'var(--bg-tertiary)',
-              borderRadius: '4px',
-              fontSize: '0.8rem',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              border: '1px solid var(--border)',
-            }}
-            onClick={() => setFilterText('')}
-          >
-            <span>✕ Clear Filter: {filterText}</span>
-          </div>
-        ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}>
+          <Search size={14} style={{ color: 'var(--text-tertiary)', position: 'absolute', left: '0.6rem', pointerEvents: 'none' }} />
           <input
             type='text'
             placeholder='Filter code structure...'
@@ -329,7 +318,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ codeMap, selectedNod
             onChange={(e) => setFilterText(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.5rem 0.75rem',
+              padding: '0.5rem 0.75rem 0.5rem 2rem',
               backgroundColor: 'var(--bg)',
               border: '1px solid var(--border)',
               borderRadius: '4px',
@@ -340,6 +329,31 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ codeMap, selectedNod
             onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--primary)')}
             onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
           />
+          {filterText && (
+            <button
+              onClick={() => setFilterText('')}
+              style={{
+                position: 'absolute',
+                right: '0.6rem',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-tertiary)',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              aria-label='Clear filter'
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        {filterText && (
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginTop: '0.4rem', paddingLeft: '0.5rem' }}>
+            Filtered by: <strong>{filterText}</strong>
+          </div>
         )}
       </div>
       <div className='explorer-tree'>{tree.map((node) => renderNode(node))}</div>

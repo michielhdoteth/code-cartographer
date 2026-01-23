@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { CodeMap } from '@models/codeMap'
+import { Code2 } from 'lucide-react'
 
 interface LanguagePieChartProps {
   codeMap: CodeMap | null
@@ -168,9 +169,14 @@ export const LanguagePieChart: React.FC<LanguagePieChartProps> = ({ codeMap }) =
 
       <div className='language-list'>
         {slices.map((slice) => (
-          <div key={slice.language} className='language-item'>
-            <span className='language-dot' style={{ backgroundColor: slice.color }}></span>
-            <span className='language-name'>{slice.language}</span>
+          <div key={slice.language} className='language-item' style={{ transition: 'all 0.2s ease' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flex: 1, minWidth: 0 }}>
+              <span className='language-dot' style={{ backgroundColor: slice.color }}></span>
+              <Code2 size={12} style={{ color: slice.color, flexShrink: 0 }} />
+              <span className='language-name' style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {slice.language}
+              </span>
+            </div>
             <span className='language-percent'>{slice.percentage.toFixed(0)}%</span>
           </div>
         ))}

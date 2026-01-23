@@ -7,22 +7,30 @@ import {
   EdgeType,
 } from './types'
 
+const DIRECTIONAL_EDGE_TYPES = new Set(['calls', 'imports', 'depends_on', 'inherits', 'implements'])
+
+function getOrCreateSet<K, V>(map: Map<K, Set<V>>, key: K): Set<V> {
+  let set = map.get(key)
+  if (!set) {
+    set = new Set()
+    map.set(key, set)
+  }
+  return set
+}
+
 export class CodeNode {
   constructor(public data: CodeNodeData) {}
 
   getHierarchyPath(): string[] {
-    const path: string[] = [this.data.name]
-    let current = this.data.parent
-    // Note: Will need to resolve through CodeMap when integrated
-    return path
+    return [this.data.name]
   }
 
-  getMetrics() {
+  getMetrics(): CodeNodeData['metrics'] {
     return this.data.metrics
   }
 
   isLeaf(): boolean {
-    return !this.data.children || this.data.children.length === 0
+    return !this.data.children?.length
   }
 }
 
@@ -30,11 +38,11 @@ export class CodeEdge {
   constructor(public data: CodeEdgeData) {}
 
   getWeight(): number {
-    return this.data.weight || 1
+    return this.data.weight ?? 1
   }
 
   isDirectional(): boolean {
-    return ['calls', 'imports', 'depends_on', 'inherits', 'implements'].includes(this.data.type)
+    return DIRECTIONAL_EDGE_TYPES.has(this.data.type)
   }
 }
 
@@ -57,6 +65,19 @@ export class CodeMap {
   private analysis: AnalysisResult | null = null
   private churnMap: Map<string, number> = new Map() // filePath -> churn score
 
+  // Indexes for O(1) queries (Phase 3 optimization)
+  private nodesByType: Map<NodeType, Set<string>> = new Map()
+  private nodesByFile: Map<string, Set<string>> = new Map()
+  private edgesBySource: Map<string, Set<string>> = new Map()
+  private edgesByTarget: Map<string, Set<string>> = new Map()
+  private edgesByType: Map<EdgeType, Set<string>> = new Map()
+  private adjacencyCache: {
+    exportedTo: Map<string, Set<string>>
+    importedFrom: Map<string, Set<string>>
+    exportedFns: Map<string, Map<string, number>>
+    lastInvalidation: number
+  } | null = null
+
   constructor(
     public id: string,
     public name: string,
@@ -65,10 +86,17 @@ export class CodeMap {
 
   addNode(node: CodeNode): void {
     this.nodes.set(node.data.id, node)
+    getOrCreateSet(this.nodesByType, node.data.type).add(node.data.id)
+    getOrCreateSet(this.nodesByFile, node.data.file).add(node.data.id)
+    this.adjacencyCache = null
   }
 
   addEdge(edge: CodeEdge): void {
     this.edges.set(edge.data.id, edge)
+    getOrCreateSet(this.edgesBySource, edge.data.source).add(edge.data.id)
+    getOrCreateSet(this.edgesByTarget, edge.data.target).add(edge.data.id)
+    getOrCreateSet(this.edgesByType, edge.data.type).add(edge.data.id)
+    this.adjacencyCache = null
   }
 
   addFile(file: CodeFile): void {
@@ -99,24 +127,32 @@ export class CodeMap {
     return Array.from(this.files.values())
   }
 
+  private resolveNodes(ids: Set<string> | undefined): CodeNode[] {
+    return ids ? [...ids].map((id) => this.nodes.get(id)).filter(Boolean) as CodeNode[] : []
+  }
+
+  private resolveEdges(ids: Set<string> | undefined): CodeEdge[] {
+    return ids ? [...ids].map((id) => this.edges.get(id)).filter(Boolean) as CodeEdge[] : []
+  }
+
   getNodesByType(type: NodeType): CodeNode[] {
-    return this.getNodes().filter(n => n.data.type === type)
+    return this.resolveNodes(this.nodesByType.get(type))
   }
 
   getNodesByFile(filePath: string): CodeNode[] {
-    return this.getNodes().filter(n => n.data.file === filePath)
+    return this.resolveNodes(this.nodesByFile.get(filePath))
   }
 
   getEdgesBySource(nodeId: string): CodeEdge[] {
-    return this.getEdges().filter(e => e.data.source === nodeId)
+    return this.resolveEdges(this.edgesBySource.get(nodeId))
   }
 
   getEdgesByTarget(nodeId: string): CodeEdge[] {
-    return this.getEdges().filter(e => e.data.target === nodeId)
+    return this.resolveEdges(this.edgesByTarget.get(nodeId))
   }
 
   getEdgesByType(type: EdgeType): CodeEdge[] {
-    return this.getEdges().filter(e => e.data.type === type)
+    return this.resolveEdges(this.edgesByType.get(type))
   }
 
   // Dependency analysis
@@ -246,11 +282,6 @@ export class CodeMap {
     }
   }
 
-  /**
-   * Calculate detailed blast radius for a file
-   * Based on codeflow implementation
-   * Returns impact analysis showing affected files (direct and transitive)
-   */
   calculateBlastRadiusDetailed(fileId: string): {
     affected: string[]
     transitive: string[]
@@ -264,104 +295,100 @@ export class CodeMap {
     impactScore: number
     centrality: number
   } {
-    // Build adjacency lists for fast lookups
-    const exportedTo = new Map<string, Set<string>>() // fileId -> Set of files that import from it
-    const importedFrom = new Map<string, Set<string>>() // fileId -> Set of files it imports from
-    const exportedFns = new Map<string, Map<string, number>>() // fileId -> Map of fn -> count of external calls
+    const { exportedTo, importedFrom, exportedFns } = this.ensureAdjacencyCache()
 
-    // Process all edges
-    for (const edge of this.getEdges()) {
-      const src = edge.data.source
-      const tgt = edge.data.target
+    const directDeps = [...(exportedTo.get(fileId) ?? [])]
+    const transitive = this.computeTransitiveDeps(fileId, directDeps, exportedTo)
 
-      // src exports, tgt imports
-      if (!exportedTo.has(src)) {
-        exportedTo.set(src, new Set())
-      }
-      exportedTo.get(src)!.add(tgt)
-
-      if (!importedFrom.has(tgt)) {
-        importedFrom.set(tgt, new Set())
-      }
-      importedFrom.get(tgt)!.add(src)
-
-      if (!exportedFns.has(src)) {
-        exportedFns.set(src, new Map())
-      }
-      const fnMap = exportedFns.get(src)!
-      const fnName = edge.data.metadata?.fn || 'unknown'
-      fnMap.set(fnName, (fnMap.get(fnName) || 0) + (edge.data.weight || 1))
-    }
-
-    // 1. Direct dependents (files that directly import from this file)
-    const directDeps = Array.from(exportedTo.get(fileId) || [])
-
-    // 2. Transitive dependents (BFS with depth tracking, limit depth to 3)
-    const transitive = new Map<string, number>() // fileId -> depth
-    const queue = directDeps.map((f) => ({ file: f, depth: 1 }))
-    const visited = new Set([fileId, ...directDeps])
-
-    while (queue.length > 0) {
-      const item = queue.shift()!
-      if (item.depth > 3) continue // Limit depth to 3 for transitive
-      transitive.set(item.file, item.depth)
-
-      const nextDeps = exportedTo.get(item.file) || new Set<string>()
-      for (const f of nextDeps) {
-        if (!visited.has(f)) {
-          visited.add(f)
-          queue.push({ file: f, depth: item.depth + 1 })
-        }
-      }
-    }
-
-    // 3. Functions exported (how many of this file's functions are used)
-    const fnUsage = exportedFns.get(fileId) || new Map<string, number>()
+    const fnUsage = exportedFns.get(fileId) ?? new Map<string, number>()
     const fnsUsed = fnUsage.size
-    let totalCalls = 0
-    fnUsage.forEach((cnt) => {
-      totalCalls += cnt
-    })
+    const totalCalls = [...fnUsage.values()].reduce((sum, cnt) => sum + cnt, 0)
+    const dependencies = [...(importedFrom.get(fileId) ?? [])]
 
-    // 4. Dependencies (files this file imports from - its risk)
-    const dependencies = Array.from(importedFrom.get(fileId) || [])
-
-    // 5. Calculate weighted impact score
-    // Direct deps count fully, transitive count with decay
     let impactScore = directDeps.length
     transitive.forEach((depth) => {
-      if (depth > 1) impactScore += 1 / depth // 0.5 for depth 2, 0.33 for depth 3
+      if (depth > 1) impactScore += 1 / depth
     })
 
-    // 6. Calculate centrality (how connected is this file)
     const centrality = directDeps.length + dependencies.length + fnsUsed
-
-    // Determine level based on direct dependents and functions used
-    let level: 'low' | 'medium' | 'high' | 'critical' = 'low'
-    const connectedFiles = this.getFiles().filter((f) => exportedTo.has(f.data.id) || importedFrom.has(f.data.id)).length
-    const relativePct = connectedFiles > 0 ? Math.round((directDeps.length / connectedFiles) * 100) : 0
-
-    if (directDeps.length >= 8 || fnsUsed >= 5) {
-      level = 'critical'
-    } else if (directDeps.length >= 4 || fnsUsed >= 3) {
-      level = 'high'
-    } else if (directDeps.length >= 2 || fnsUsed >= 1) {
-      level = 'medium'
-    }
+    const level = this.determineImpactLevel(directDeps.length, fnsUsed)
 
     return {
       affected: directDeps,
-      transitive: Array.from(transitive.keys()),
+      transitive: [...transitive.keys()],
       count: directDeps.length,
       transitiveCount: transitive.size,
       level,
-      depth: transitive.size > 0 ? Math.max(...Array.from(transitive.values())) : 0,
+      depth: transitive.size > 0 ? Math.max(...transitive.values()) : 0,
       fnsUsed,
       totalCalls,
       dependencies,
       impactScore: Math.round(impactScore * 10) / 10,
       centrality,
     }
+  }
+
+  private computeTransitiveDeps(
+    fileId: string,
+    directDeps: string[],
+    exportedTo: Map<string, Set<string>>
+  ): Map<string, number> {
+    const transitive = new Map<string, number>()
+    const visited = new Set([fileId, ...directDeps])
+    const queue = directDeps.map((f) => ({ file: f, depth: 1 }))
+
+    while (queue.length > 0) {
+      const { file, depth } = queue.shift()!
+      if (depth > 3) continue
+
+      transitive.set(file, depth)
+
+      for (const f of exportedTo.get(file) ?? []) {
+        if (!visited.has(f)) {
+          visited.add(f)
+          queue.push({ file: f, depth: depth + 1 })
+        }
+      }
+    }
+
+    return transitive
+  }
+
+  private determineImpactLevel(depCount: number, fnsUsed: number): 'low' | 'medium' | 'high' | 'critical' {
+    if (depCount >= 8 || fnsUsed >= 5) return 'critical'
+    if (depCount >= 4 || fnsUsed >= 3) return 'high'
+    if (depCount >= 2 || fnsUsed >= 1) return 'medium'
+    return 'low'
+  }
+
+  private ensureAdjacencyCache(): {
+    exportedTo: Map<string, Set<string>>
+    importedFrom: Map<string, Set<string>>
+    exportedFns: Map<string, Map<string, number>>
+  } {
+    if (this.adjacencyCache) return this.adjacencyCache
+
+    const exportedTo = new Map<string, Set<string>>()
+    const importedFrom = new Map<string, Set<string>>()
+    const exportedFns = new Map<string, Map<string, number>>()
+
+    for (const edge of this.getEdges()) {
+      const { source: src, target: tgt, metadata, weight } = edge.data
+
+      getOrCreateSet(exportedTo, src).add(tgt)
+      getOrCreateSet(importedFrom, tgt).add(src)
+
+      let fnMap = exportedFns.get(src)
+      if (!fnMap) {
+        fnMap = new Map()
+        exportedFns.set(src, fnMap)
+      }
+      const fnName = metadata?.fn ?? 'unknown'
+      fnMap.set(fnName, (fnMap.get(fnName) ?? 0) + (weight ?? 1))
+    }
+
+    this.adjacencyCache = { exportedTo, importedFrom, exportedFns, lastInvalidation: Date.now() }
+    return this.adjacencyCache
   }
 
   serialize(): string {

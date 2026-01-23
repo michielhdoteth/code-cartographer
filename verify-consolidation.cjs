@@ -1,215 +1,144 @@
 const fs = require('fs');
 const path = require('path');
 
+// Configuration
+const PLUGIN_DIR = path.join(__dirname, '.claude-plugin');
+const COMMANDS_DIR = path.join(PLUGIN_DIR, 'commands');
+const EXAMPLES_DIR = path.join(PLUGIN_DIR, 'examples');
+
+const NEW_COMMANDS = ['carto-map', 'carto-parse', 'carto-find', 'carto-analyze', 'carto-visualize', 'carto-info'];
+const OLD_COMMANDS = ['carto-init', 'carto-scan', 'carto-detect', 'carto-query', 'carto-search', 'carto-graph', 'carto-canvas', 'carto-report', 'carto-status', 'carto-diff'];
+
 const results = [];
 
+// Test utilities
 function test(name, fn) {
   try {
     console.log(`Testing: ${name}...`);
     fn();
     results.push({ name, passed: true });
-    console.log(`✓ ${name}`);
+    console.log(`[PASS] ${name}`);
   } catch (error) {
-    results.push({
-      name,
-      passed: false,
-      error: error.message,
-    });
-    console.log(`✗ ${name} - ${error.message}`);
+    results.push({ name, passed: false, error: error.message });
+    console.log(`[FAIL] ${name} - ${error.message}`);
   }
 }
 
+function fileExists(filePath) {
+  return fs.existsSync(filePath);
+}
+
+function readFile(filePath) {
+  return fs.readFileSync(filePath, 'utf-8');
+}
+
+function assertFileExists(filePath, description) {
+  if (!fileExists(filePath)) {
+    throw new Error(`Missing: ${description || filePath}`);
+  }
+}
+
+function assertFileNotExists(filePath, description) {
+  if (fileExists(filePath)) {
+    throw new Error(`Should not exist: ${description || filePath}`);
+  }
+}
+
+function assertContains(content, searchTerm, context) {
+  if (!content.includes(searchTerm)) {
+    throw new Error(`${context} missing: ${searchTerm}`);
+  }
+}
+
+function assertNotContains(content, searchTerm, context) {
+  if (content.includes(searchTerm)) {
+    throw new Error(`${context} should not contain: ${searchTerm}`);
+  }
+}
+
+// Tests
 console.log('\n===========================================');
 console.log('Code Cartographer v2.0 - Consolidation Tests');
 console.log('===========================================\n');
 
-// Test 1: Verify 6 command files exist
-test('All 6 new commands created', () => {
-  const commands = [
-    'carto-map.md',
-    'carto-parse.md',
-    'carto-find.md',
-    'carto-analyze.md',
-    'carto-visualize.md',
-    'carto-info.md',
-  ];
-
-  for (const cmd of commands) {
-    const filePath = path.join(__dirname, '.claude-plugin', 'commands', cmd);
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`Missing: ${cmd}`);
-    }
+test('All 6 new command files exist', () => {
+  for (const cmd of NEW_COMMANDS) {
+    assertFileExists(path.join(COMMANDS_DIR, `${cmd}.md`), cmd);
   }
 });
 
-// Test 2: Verify old commands deleted
-test('All 10 old commands deleted', () => {
-  const oldCommands = [
-    'carto-init.md',
-    'carto-scan.md',
-    'carto-detect.md',
-    'carto-query.md',
-    'carto-search.md',
-    'carto-graph.md',
-    'carto-canvas.md',
-    'carto-report.md',
-    'carto-status.md',
-    'carto-diff.md',
-  ];
-
-  let deletedCount = 0;
-  for (const cmd of oldCommands) {
-    const filePath = path.join(__dirname, '.claude-plugin', 'commands', cmd);
-    if (!fs.existsSync(filePath)) {
-      deletedCount++;
-    }
-  }
-
-  if (deletedCount !== oldCommands.length) {
-    throw new Error(`Expected ${oldCommands.length} deleted, got ${deletedCount}`);
+test('All 10 old command files deleted', () => {
+  for (const cmd of OLD_COMMANDS) {
+    assertFileNotExists(path.join(COMMANDS_DIR, `${cmd}.md`), cmd);
   }
 });
 
-// Test 3: Verify command file content
 test('Command files have proper YAML schema', () => {
-  const commands = [
-    'carto-map.md',
-    'carto-parse.md',
-    'carto-find.md',
-    'carto-analyze.md',
-    'carto-visualize.md',
-    'carto-info.md',
-  ];
-
-  for (const cmd of commands) {
-    const filePath = path.join(__dirname, '.claude-plugin', 'commands', cmd);
-    const content = fs.readFileSync(filePath, 'utf-8');
-
-    if (!content.startsWith('---')) {
-      throw new Error(`${cmd} missing YAML frontmatter`);
-    }
-
-    if (!content.includes('description:')) {
-      throw new Error(`${cmd} missing description`);
-    }
-
-    if (!content.includes('parameters:')) {
-      throw new Error(`${cmd} missing parameters field`);
-    }
+  for (const cmd of NEW_COMMANDS) {
+    const content = readFile(path.join(COMMANDS_DIR, `${cmd}.md`));
+    assertContains(content, '---', `${cmd} YAML frontmatter`);
+    assertContains(content, 'description:', `${cmd} description`);
+    assertContains(content, 'parameters:', `${cmd} parameters`);
   }
 });
 
-// Test 4: Verify workflow consistency
-test('Workflow references in carto-parse.md updated', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'commands', 'carto-parse.md');
-  const content = fs.readFileSync(filePath, 'utf-8');
-
-  const newCommands = ['carto-map', 'carto-analyze', 'carto-visualize', 'carto-find', 'carto-info'];
-
-  for (const cmd of newCommands) {
-    if (!content.includes(cmd)) {
-      throw new Error(`${cmd} not referenced in workflow`);
-    }
+test('carto-parse.md references new commands', () => {
+  const content = readFile(path.join(COMMANDS_DIR, 'carto-parse.md'));
+  for (const cmd of NEW_COMMANDS) {
+    assertContains(content, cmd, 'carto-parse workflow');
   }
-
-  const oldCommands = ['carto-init', 'carto-scan', 'carto-detect', 'carto-query'];
-  for (const cmd of oldCommands) {
-    if (content.includes(cmd)) {
-      throw new Error(`Old command ${cmd} still referenced`);
-    }
+  for (const cmd of OLD_COMMANDS.slice(0, 4)) {
+    assertNotContains(content, cmd, 'carto-parse workflow');
   }
 });
 
-// Test 5: Verify subagent updated
 test('Subagent code-analyzer.md references new commands', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'subagents', 'code-analyzer.md');
-  const content = fs.readFileSync(filePath, 'utf-8');
-
-  const newCommands = ['carto-map', 'carto-find', 'carto-visualize', 'carto-analyze'];
-
-  for (const cmd of newCommands) {
-    if (!content.includes(cmd)) {
-      throw new Error(`${cmd} not in subagent`);
-    }
+  const content = readFile(path.join(PLUGIN_DIR, 'subagents', 'code-analyzer.md'));
+  const requiredCommands = ['carto-map', 'carto-find', 'carto-visualize', 'carto-analyze'];
+  for (const cmd of requiredCommands) {
+    assertContains(content, cmd, 'subagent');
   }
 });
 
-// Test 6: Verify examples updated
 test('WORKFLOW.md uses new 6-command structure', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'examples', 'WORKFLOW.md');
-  const content = fs.readFileSync(filePath, 'utf-8');
-
-  const newCommands = ['carto-map', 'carto-parse', 'carto-find', 'carto-analyze', 'carto-visualize', 'carto-info'];
-
-  for (const cmd of newCommands) {
-    if (!content.includes(cmd)) {
-      throw new Error(`${cmd} not in WORKFLOW.md`);
-    }
+  const content = readFile(path.join(EXAMPLES_DIR, 'WORKFLOW.md'));
+  for (const cmd of NEW_COMMANDS) {
+    assertContains(content, cmd, 'WORKFLOW.md');
   }
-
-  const oldCommands = ['carto-init', 'carto-scan', 'carto-query', 'carto-detect', 'carto-graph', 'carto-canvas', 'carto-report', 'carto-status', 'carto-diff'];
-
-  for (const cmd of oldCommands) {
-    if (content.includes(cmd)) {
-      throw new Error(`Old command ${cmd} still in WORKFLOW.md`);
-    }
+  for (const cmd of OLD_COMMANDS) {
+    assertNotContains(content, cmd, 'WORKFLOW.md');
   }
 });
 
-// Test 7: Verify LIVE_ANALYSIS.md updated
 test('LIVE_ANALYSIS.md uses new commands', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'examples', 'LIVE_ANALYSIS.md');
-  const content = fs.readFileSync(filePath, 'utf-8');
-
-  if (!content.includes('carto-map') || !content.includes('carto-visualize')) {
-    throw new Error('LIVE_ANALYSIS.md not updated with new commands');
-  }
+  const content = readFile(path.join(EXAMPLES_DIR, 'LIVE_ANALYSIS.md'));
+  assertContains(content, 'carto-map', 'LIVE_ANALYSIS.md');
+  assertContains(content, 'carto-visualize', 'LIVE_ANALYSIS.md');
 });
 
-// Test 8: Verify example data exists
-test('Example data files with live output present', () => {
-  const exampleFiles = [
-    'carto-scan-output.md',
-    'carto-parse-output.md',
-    'carto-graph-output.md',
-  ];
-
+test('Example data files exist with content', () => {
+  const exampleFiles = ['carto-scan-output.md', 'carto-parse-output.md', 'carto-graph-output.md'];
   for (const file of exampleFiles) {
-    const filePath = path.join(__dirname, '.claude-plugin', 'examples', file);
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`Missing example: ${file}`);
-    }
-
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const filePath = path.join(EXAMPLES_DIR, file);
+    assertFileExists(filePath, file);
+    const content = readFile(filePath);
     if (content.length < 100) {
       throw new Error(`${file} is empty or too small`);
     }
   }
 });
 
-// Test 9: Verify migration guide created
-test('MIGRATION_GUIDE.md created with command mappings', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'MIGRATION_GUIDE.md');
-  if (!fs.existsSync(filePath)) {
-    throw new Error('MIGRATION_GUIDE.md not created');
-  }
-
-  const content = fs.readFileSync(filePath, 'utf-8');
-  if (!content.includes('Old Commands') || !content.includes('New Command')) {
-    throw new Error('Migration guide missing mapping table');
-  }
+test('MIGRATION_GUIDE.md exists with command mappings', () => {
+  const filePath = path.join(PLUGIN_DIR, 'MIGRATION_GUIDE.md');
+  assertFileExists(filePath, 'MIGRATION_GUIDE.md');
+  const content = readFile(filePath);
+  assertContains(content, 'Old Commands', 'Migration guide');
+  assertContains(content, 'New Command', 'Migration guide');
 });
 
-// Test 10: Verify plugin.json is valid
 test('plugin.json is valid JSON', () => {
-  const filePath = path.join(__dirname, '.claude-plugin', 'plugin.json');
-  const content = fs.readFileSync(filePath, 'utf-8');
-
-  try {
-    JSON.parse(content);
-  } catch (error) {
-    throw new Error(`plugin.json invalid: ${error.message}`);
-  }
+  const content = readFile(path.join(PLUGIN_DIR, 'plugin.json'));
+  JSON.parse(content);
 });
 
 // Summary
@@ -228,14 +157,14 @@ if (failed > 0) {
   console.log('Failed Tests:');
   results
     .filter(r => !r.passed)
-    .forEach(r => console.log(`  ✗ ${r.name}\n    ${r.error}`));
+    .forEach(r => console.log(`  [FAIL] ${r.name}\n    ${r.error}`));
   console.log('');
   process.exit(1);
-} else {
-  console.log('All consolidation tests passed!\n');
-  console.log('✓ 11 commands successfully consolidated to 6');
-  console.log('✓ Documentation updated');
-  console.log('✓ Examples reflect new structure');
-  console.log('✓ Live data validation complete\n');
-  process.exit(0);
 }
+
+console.log('All consolidation tests passed!\n');
+console.log('[OK] 11 commands successfully consolidated to 6');
+console.log('[OK] Documentation updated');
+console.log('[OK] Examples reflect new structure');
+console.log('[OK] Live data validation complete\n');
+process.exit(0);
