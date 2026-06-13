@@ -11,7 +11,9 @@ import (
 
 	"carto/analyze"
 	"carto/find"
+	"carto/git"
 	"carto/lib/parser"
+	"carto/manifest"
 	"carto/mcp"
 	"carto/serve"
 
@@ -53,6 +55,9 @@ Examples:
 	rootCmd.AddCommand(serveCmd)
 	rootCmd.AddCommand(infoCmd)
 	rootCmd.AddCommand(mcpCmd)
+	rootCmd.AddCommand(diffCmd)
+	rootCmd.AddCommand(changedCmd)
+	rootCmd.AddCommand(impactCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -136,6 +141,23 @@ a module graph for analysis and visualization.`,
 		fmt.Println("\nLanguages:")
 		for lang, c := range byLang {
 			fmt.Printf("  %s: %d files\n", lang, c)
+		}
+
+		// Save commit-aware manifest if in a git repo
+		if git.IsRepo(absPath) {
+			sha, _ := git.GetHeadSHA(absPath)
+			branch, _ := git.GetBranch(absPath)
+			m := &manifest.Manifest{
+				Repo:      filepath.Base(absPath),
+				Commit:    sha,
+				Branch:    branch,
+				MappedAt:  time.Now(),
+				FileCount: count,
+				Languages: byLang,
+			}
+			if err := manifest.Save(absPath, m); err == nil {
+				fmt.Printf("\nMap saved for commit %s (%s)\n", sha[:8], branch)
+			}
 		}
 
 		return nil
@@ -350,6 +372,217 @@ This enables Claude to use Code Cartographer tools directly.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		server := mcp.NewServer()
 		return server.Run(context.Background())
+	},
+}
+
+// DIFF COMMAND
+var diffCmd = &cobra.Command{
+	Use:   "diff [ref]",
+	Short: "Show changes since last map",
+	Long: `Compare current state against the last mapped commit.
+Shows which files have changed and groups them by language.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path := "."
+		if len(args) > 0 {
+			path = args[0]
+		}
+		absPath, _ := filepath.Abs(path)
+
+		if !git.IsRepo(absPath) {
+			return fmt.Errorf("not a git repository: %s", absPath)
+		}
+
+		m, err := manifest.Load(absPath)
+		if err != nil {
+			return fmt.Errorf("no manifest found. Run 'carto map' first")
+		}
+
+		currentSHA, _ := git.GetHeadSHA(absPath)
+		if m.Commit == currentSHA {
+			fmt.Println("No changes since last map.")
+			return nil
+		}
+
+		files, err := git.GetChangedFiles(absPath, m.Commit, currentSHA)
+		if err != nil {
+			return fmt.Errorf("failed to get changes: %w", err)
+		}
+
+		if len(files) == 0 {
+			fmt.Println("No file changes detected since last map.")
+			return nil
+		}
+
+		// Group by language
+		byLang := map[string][]string{}
+		for _, f := range files {
+			lang := string(parser.DetectLanguage(filepath.Ext(f)))
+			if lang == "" {
+				lang = "unknown"
+			}
+			byLang[lang] = append(byLang[lang], f)
+		}
+
+		fmt.Printf("Changed %d files since %s\n\n", len(files), m.Commit[:8])
+		for lang, fns := range byLang {
+			fmt.Printf("[%s] (%d files)\n", lang, len(fns))
+			for _, f := range fns {
+				fmt.Printf("  %s\n", f)
+			}
+		}
+		return nil
+	},
+}
+
+// CHANGED COMMAND
+var changedCmd = &cobra.Command{
+	Use:   "changed",
+	Short: "Show current uncommitted changes",
+	Long: `Show files that have been modified, added, or deleted
+but not yet committed.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path := "."
+		if len(args) > 0 {
+			path = args[0]
+		}
+		absPath, _ := filepath.Abs(path)
+
+		if !git.IsRepo(absPath) {
+			return fmt.Errorf("not a git repository: %s", absPath)
+		}
+
+		statuses, err := git.GetStatus(absPath)
+		if err != nil {
+			return fmt.Errorf("failed to get status: %w", err)
+		}
+
+		if len(statuses) == 0 {
+			fmt.Println("Working tree clean.")
+			return nil
+		}
+
+		added := []string{}
+		modified := []string{}
+		deleted := []string{}
+
+		for _, s := range statuses {
+			if len(s) < 3 {
+				continue
+			}
+			code := s[:2]
+			file := s[3:]
+			switch {
+			case strings.Contains(code, "A"):
+				added = append(added, file)
+			case strings.Contains(code, "D"):
+				deleted = append(deleted, file)
+			default:
+				modified = append(modified, file)
+			}
+		}
+
+		fmt.Printf("Changed files: %d\n\n", len(statuses))
+		if len(added) > 0 {
+			fmt.Printf("Added (%d):\n", len(added))
+			for _, f := range added {
+				fmt.Printf("  + %s\n", f)
+			}
+		}
+		if len(modified) > 0 {
+			fmt.Printf("Modified (%d):\n", len(modified))
+			for _, f := range modified {
+				fmt.Printf("  ~ %s\n", f)
+			}
+		}
+		if len(deleted) > 0 {
+			fmt.Printf("Deleted (%d):\n", len(deleted))
+			for _, f := range deleted {
+				fmt.Printf("  - %s\n", f)
+			}
+		}
+		return nil
+	},
+}
+
+// IMPACT COMMAND
+var impactCmd = &cobra.Command{
+	Use:   "impact <file>",
+	Short: "Analyze impact of changing a file",
+	Long: `Show which files depend on the given file and which files
+it imports. Helps assess risk before making changes.`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path := "."
+		relFile := args[0]
+
+		absPath, _ := filepath.Abs(path)
+		absFile := filepath.Join(absPath, relFile)
+
+		if _, err := os.Stat(absFile); err != nil {
+			return fmt.Errorf("file not found: %s", relFile)
+		}
+
+		graph, err := analyze.BuildGraph(absPath, "go")
+		if err != nil {
+			return fmt.Errorf("failed to build graph: %w", err)
+		}
+
+		// Find dependents (files that import this file)
+		var dependents []string
+		for filePath, imports := range graph.Imports {
+			for _, imp := range imports {
+				if strings.Contains(imp.Source, relFile) || strings.Contains(filePath, relFile) {
+					dependents = append(dependents, filePath)
+					break
+				}
+			}
+		}
+
+		// Find dependencies (files this file imports)
+		var dependencies []string
+		if fileNode, ok := graph.Files[absFile]; ok {
+			for _, imp := range fileNode.Imports {
+				dependencies = append(dependencies, imp.Source)
+			}
+		}
+
+		// Risk assessment
+		risk := "low"
+		if len(dependents) > 5 {
+			risk = "high"
+		} else if len(dependents) > 2 {
+			risk = "medium"
+		}
+
+		fmt.Printf("Impact analysis for: %s\n\n", relFile)
+		fmt.Printf("Risk: %s (%d dependents)\n\n", risk, len(dependents))
+
+		if len(dependents) > 0 {
+			fmt.Printf("Used by (%d):\n", len(dependents))
+			for _, d := range dependents {
+				fmt.Printf("  %s\n", d)
+			}
+			fmt.Println()
+		}
+
+		if len(dependencies) > 0 {
+			fmt.Printf("Depends on (%d):\n", len(dependencies))
+			for _, d := range dependencies {
+				fmt.Printf("  %s\n", d)
+			}
+			fmt.Println()
+		}
+
+		fmt.Println("Recommended read set:")
+		fmt.Printf("  1. %s\n", relFile)
+		for i, d := range dependents {
+			if i >= 4 {
+				break
+			}
+			fmt.Printf("  %d. %s\n", i+2, d)
+		}
+
+		return nil
 	},
 }
 
