@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"carto/analyze"
 	"carto/find"
+	"carto/git"
+	"carto/manifest"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -67,6 +70,24 @@ func registerTools(s *mcp.Server) {
 		Name:        "search_code",
 		Description: "Search for text or regex patterns in the codebase",
 	}, searchCodeTool)
+
+	// Diff since last map tool
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "diff_since_last_map",
+		Description: "Show files changed since the last carto map was created",
+	}, diffSinceLastMapTool)
+
+	// Get changed files tool
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "get_changed_files",
+		Description: "Show uncommitted changes (added, modified, deleted files)",
+	}, getChangedFilesTool)
+
+	// Impact analysis tool
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "impact_analysis",
+		Description: "Analyze the impact of changing a specific file - shows dependents and risk level",
+	}, impactAnalysisTool)
 }
 
 // Tool input/output types
@@ -138,6 +159,43 @@ type SearchCodeInput struct {
 type SearchCodeOutput struct {
 	Results int    `json:"results"`
 	Message string `json:"message"`
+}
+
+type DiffSinceLastMapInput struct {
+	Path string `json:"path" jsonschema:"required,description=The directory path to check"`
+}
+
+type DiffSinceLastMapOutput struct {
+	ChangedFiles []string `json:"changed_files"`
+	Count        int      `json:"count"`
+	FromCommit   string   `json:"from_commit"`
+	ToCommit     string   `json:"to_commit"`
+	Message      string   `json:"message"`
+}
+
+type GetChangedFilesInput struct {
+	Path string `json:"path" jsonschema:"required,description=The directory path to check"`
+}
+
+type GetChangedFilesOutput struct {
+	Added    []string `json:"added"`
+	Modified []string `json:"modified"`
+	Deleted  []string `json:"deleted"`
+	Total    int      `json:"total"`
+	Message  string   `json:"message"`
+}
+
+type ImpactAnalysisInput struct {
+	Path string `json:"path" jsonschema:"required,description=The directory path to analyze"`
+	File string `json:"file" jsonschema:"required,description=The file path to analyze impact for"`
+}
+
+type ImpactAnalysisOutput struct {
+	Dependents   []string `json:"dependents"`
+	Dependencies []string `json:"dependencies"`
+	Risk         string   `json:"risk"`
+	ReadSet      []string `json:"read_set"`
+	Message      string   `json:"message"`
 }
 
 // Tool handlers
@@ -268,6 +326,133 @@ func searchCodeTool(ctx context.Context, req *mcp.CallToolRequest, input SearchC
 		Message: fmt.Sprintf("Found %d matches", len(results)),
 	}
 	return nil, output, nil
+}
+
+func diffSinceLastMapTool(ctx context.Context, req *mcp.CallToolRequest, input DiffSinceLastMapInput) (*mcp.CallToolResult, DiffSinceLastMapOutput, error) {
+	path := input.Path
+	if path == "" {
+		path = "."
+	}
+	absPath, _ := filepath.Abs(path)
+
+	if !git.IsRepo(absPath) {
+		return nil, DiffSinceLastMapOutput{Message: "Not a git repository"}, nil
+	}
+
+	m, err := manifest.Load(absPath)
+	if err != nil {
+		return nil, DiffSinceLastMapOutput{Message: "No manifest found. Run 'carto map' first"}, nil
+	}
+
+	currentSHA, _ := git.GetHeadSHA(absPath)
+	if m.Commit == currentSHA {
+		return nil, DiffSinceLastMapOutput{Message: "No changes since last map"}, nil
+	}
+
+	files, err := git.GetChangedFiles(absPath, m.Commit, currentSHA)
+	if err != nil {
+		return nil, DiffSinceLastMapOutput{Message: fmt.Sprintf("Error: %v", err)}, nil
+	}
+
+	return nil, DiffSinceLastMapOutput{
+		ChangedFiles: files,
+		Count:        len(files),
+		FromCommit:   m.Commit,
+		ToCommit:     currentSHA,
+		Message:      fmt.Sprintf("Changed %d files since commit %s", len(files), m.Commit[:8]),
+	}, nil
+}
+
+func getChangedFilesTool(ctx context.Context, req *mcp.CallToolRequest, input GetChangedFilesInput) (*mcp.CallToolResult, GetChangedFilesOutput, error) {
+	path := input.Path
+	if path == "" {
+		path = "."
+	}
+	absPath, _ := filepath.Abs(path)
+
+	if !git.IsRepo(absPath) {
+		return nil, GetChangedFilesOutput{Message: "Not a git repository"}, nil
+	}
+
+	statuses, err := git.GetStatus(absPath)
+	if err != nil {
+		return nil, GetChangedFilesOutput{Message: fmt.Sprintf("Error: %v", err)}, nil
+	}
+
+	var added, modified, deleted []string
+	for _, s := range statuses {
+		if len(s) < 3 {
+			continue
+		}
+		code := s[:2]
+		file := s[3:]
+		switch {
+		case strings.Contains(code, "A"):
+			added = append(added, file)
+		case strings.Contains(code, "D"):
+			deleted = append(deleted, file)
+		default:
+			modified = append(modified, file)
+		}
+	}
+
+	return nil, GetChangedFilesOutput{
+		Added:    added,
+		Modified: modified,
+		Deleted:  deleted,
+		Total:    len(statuses),
+		Message:  fmt.Sprintf("%d uncommitted changes", len(statuses)),
+	}, nil
+}
+
+func impactAnalysisTool(ctx context.Context, req *mcp.CallToolRequest, input ImpactAnalysisInput) (*mcp.CallToolResult, ImpactAnalysisOutput, error) {
+	absPath, _ := filepath.Abs(input.Path)
+
+	graph, err := analyze.BuildGraph(absPath, "go")
+	if err != nil {
+		return nil, ImpactAnalysisOutput{Message: fmt.Sprintf("Error: %v", err)}, nil
+	}
+
+	var dependents []string
+	for filePath, imports := range graph.Imports {
+		for _, imp := range imports {
+			if strings.Contains(imp.Source, input.File) || strings.Contains(filePath, input.File) {
+				dependents = append(dependents, filePath)
+				break
+			}
+		}
+	}
+
+	var dependencies []string
+	absFile := filepath.Join(absPath, input.File)
+	if fileNode, ok := graph.Files[absFile]; ok {
+		for _, imp := range fileNode.Imports {
+			dependencies = append(dependencies, imp.Source)
+		}
+	}
+
+	risk := "low"
+	if len(dependents) > 5 {
+		risk = "high"
+	} else if len(dependents) > 2 {
+		risk = "medium"
+	}
+
+	readSet := []string{input.File}
+	for i, d := range dependents {
+		if i >= 4 {
+			break
+		}
+		readSet = append(readSet, d)
+	}
+
+	return nil, ImpactAnalysisOutput{
+		Dependents:   dependents,
+		Dependencies: dependencies,
+		Risk:         risk,
+		ReadSet:      readSet,
+		Message:      fmt.Sprintf("File %s has %d dependents, risk: %s", input.File, len(dependents), risk),
+	}, nil
 }
 
 // Run starts the MCP server over stdio
