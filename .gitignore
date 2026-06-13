@@ -1,16 +1,56 @@
+# Dependencies
 node_modules/
+vendor/
+
+# Build output
 dist/
 build/
-*.log
+bin/
+chunks/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# OS files
 .DS_Store
-.env
-.env.local
+Thumbs.db
+*~
+
+# Editor/IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test
+coverage/
 .pytest_cache/
 __pycache__/
 *.pyc
+
+# Project-specific
+.opencode/
+.squish/
+.iter/
+code-map/
+cli-tool/
+tmp/
+test-data/squish/
+
+# Lock files (keep bun.lock tracked)
+package-lock.json

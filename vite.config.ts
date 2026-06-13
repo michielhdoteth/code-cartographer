@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@models': path.resolve(__dirname, './src/models'),
-      '@parsers': path.resolve(__dirname, './src/parsers'),
-      '@analyzers': path.resolve(__dirname, './src/analyzers'),
-      '@visualizers': path.resolve(__dirname, './src/visualizers'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@utils': path.resolve(__dirname, './src/utils'),
+      '@': path.resolve(__dirname, './ui'),
+      '@models': path.resolve(__dirname, './ui/models'),
+      '@parsers': path.resolve(__dirname, './ui/parsers'),
+      '@analyzers': path.resolve(__dirname, './ui/analyzers'),
+      '@visualizers': path.resolve(__dirname, './ui/visualizers'),
+      '@components': path.resolve(__dirname, './ui/components'),
+      '@utils': path.resolve(__dirname, './ui/utils'),
     },
   },
   build: {

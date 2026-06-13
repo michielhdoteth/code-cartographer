@@ -1,356 +1,141 @@
-# Code Cartographer v2.0
+# Code Cartographer
 
-## The Ultimate Browser-Based Code Analysis & Visualization Tool
+Fast, CLI-first codebase analyzer and visualizer. Maps code structure using AST parsing, detects patterns, and provides interactive visualization. Zero-config. Built for speed.
 
-![Badge](https://img.shields.io/badge/version-2.0.0-blue)
-![Badge](https://img.shields.io/badge/language-TypeScript-blue)
-![Badge](https://img.shields.io/badge/runtime-Browser-green)
-![Badge](https://img.shields.io/badge/languages-9-orange)
+## Installation
 
-**Code Cartographer** is a zero-setup, browser-based tool for mapping, analyzing, and visualizing codebases. Built with TypeScript/React/D3.js, it requires no backend, no installation, and no data collection.
+### CLI (Go)
 
-## Features
+```bash
+cd cmd && go build -o ../bin/carto.exe .
+```
 
-### Code Analysis
-- **9-Language Support**: JavaScript, TypeScript, Python, Java, Go, Rust, C++, Ruby, PHP
-- **AST Parsing**: Accurate structure extraction with language-specific parsers
-- **Dependency Graph**: Complete code dependency mapping
-- **Metrics**: Cyclomatic complexity, lines of code, coupling analysis
+### Web UI
 
-### Security Scanning
-- Hardcoded secrets & API keys detection
-- SQL injection vulnerabilities
-- XSS (Cross-Site Scripting) risks
-- Command execution dangers
-- Weak cryptography usage
-- Detailed severity levels with suggestions
-
-### Quality Metrics
-- **Health Score**: A-F grade for code quality
-- **Dead Code Detection**: Identifies unused functions/methods
-- **Circular Dependencies**: Finds cyclic import issues
-- **Pattern Detection**:
-  - Design patterns (Singleton, Factory, Observer)
-  - Anti-patterns (God Objects, Complex Functions)
-  - Architecture violations
-
-### Visualization
-- **7 Layout Modes**: Force-directed, Radial, Hierarchical, Grid, Metro, Treemap, Dependency Matrix
-- **Interactive**: Zoom, pan, drag nodes
-- **Color Modes**: Type, Language, Complexity, Security, Health
-- **Customizable**: Filter by language, complexity, type
-
-### User Experience
-- Drag & drop file upload
-- Real-time search & filter
-- Detailed node information
-- Settings panel for customization
-- Dark/light theme support
-- Responsive design
+```bash
+bun install
+bun run build
+```
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 16+ and npm
+```bash
+# Map a codebase
+carto map ./my-project
 
-### Installation & Running
+# Analyze for issues
+carto analyze
+
+# Search code
+carto find "functionName"
+
+# Start web UI
+carto serve
+```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `carto map <path>` | Scan and map a codebase |
+| `carto analyze [type]` | Analyze for dead code, complexity, circular deps, or health |
+| `carto find <pattern>` | Search code in mapped files |
+| `carto serve` | Start interactive web UI |
+| `carto info` | Show current map info |
+| `carto mcp` | Start MCP server for Claude integration |
+
+### Analysis Types
+
+| Type | Description |
+|------|-------------|
+| `dead-code` | Unused files, exports, and dependencies |
+| `complexity` | Functions with high cyclomatic complexity |
+| `circular` | Circular dependency detection |
+| `health` | Overall code health metrics |
+| `all` | Run all analyses (default) |
+
+### Flags
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server (hot reload)
-npm run dev
-
-# Build for production (single HTML file)
-npm run build
-
-# Type checking
-npm run type-check
+carto map --lang typescript,python ./src   # Filter by language
+carto analyze --type dead-code              # Specific analysis
+carto find --regex "func\w+"               # Regex search
+carto find --case-sensitive "MyFunc"        # Case-sensitive search
+carto analyze --json                        # JSON output
+carto serve --port 8080                     # Custom port
 ```
 
-### Opening the App
+## Features
 
-**Development**: Open http://localhost:5173 in your browser
+- **Fast scanning** - Sub-second for typical projects
+- **Multi-language** - TypeScript, JavaScript, Python, Go, Rust, Java, C++, Ruby, PHP
+- **Tree-sitter parsing** - Accurate AST analysis for all supported languages
+- **Zero config** - Works out of the box
+- **CLI-first** - Fast integration in any workflow
+- **Web UI** - Interactive visualization with multiple views (force-directed, tree, treemap, matrix, radial, flow)
+- **Analysis** - Dead code detection, complexity scoring, circular dependency detection, health metrics
+- **MCP server** - Claude Desktop integration via Model Context Protocol
+- **JSON output** - Machine-readable results for scripting and CI/CD
 
-**Production**: Open `build/index.html` directly in your browser (no server needed)
+## Web UI Components
 
-### Usage
+- **File Explorer** - Browse codebase structure with folder hierarchy
+- **Language Distribution** - Pie chart breakdown of languages used
+- **Health Score Display** - Overall codebase health visualization
+- **Architecture Issues Panel** - Surface detected patterns and anti-patterns
+- **Git Diff Visualization** - View changes across commits
+- **Hub Visualization** - Identify hub/dependency-heavy modules
+- **Multiple visualization modes** - Force-directed graph, tree, treemap, matrix, radial layout, flow diagram
 
-1. **Upload Code**: Drag & drop files or click to browse
-2. **Analyze**: Parsing and analysis happens instantly
-3. **Explore**: Use file tree or search to find code
-4. **Visualize**: Switch between 7 layout modes
-5. **Inspect**: Click nodes to view details
-6. **Filter**: Use search and settings to focus
+## Tech Stack
 
-## Supported File Types
+- **CLI**: Go with Cobra, tree-sitter for AST parsing
+- **Web UI**: React + TypeScript, Vite, Tailwind CSS, D3.js, WebGL
+- **MCP**: Go SDK for Model Context Protocol
+- **Package manager**: Bun
 
-| Language | Extensions |
-|----------|-----------|
-| JavaScript | `.js`, `.jsx` |
-| TypeScript | `.ts`, `.tsx` |
-| Python | `.py`, `.pyi` |
-| Java | `.java` |
-| Go | `.go` |
-| Rust | `.rs` |
-| C++ | `.cpp`, `.cc`, `.cxx`, `.h`, `.hpp` |
-| Ruby | `.rb`, `.erb` |
-| PHP | `.php` |
-
-## Key Technologies
-
-- **React 18**: Modern UI components with hooks
-- **TypeScript 5**: Full type safety
-- **D3.js 7**: Professional data visualization
-- **Acorn**: JavaScript/TypeScript AST parsing
-- **Vite**: Fast build tooling
-- **CSS Grid**: Responsive layout
-
-## Architecture
-
-### Data Flow
-```
-Source Files
-  ↓
-Language-Specific Parsers (Acorn/Regex)
-  ↓
-CodeNode/CodeEdge Objects
-  ↓
-CodeMap (Aggregate Root with Algorithms)
-  ↓
-Analyzers (Security, Patterns, Health)
-  ↓
-React Components + D3.js Visualizers
-  ↓
-Interactive Browser UI
-```
-
-### Project Structure
+## Project Structure
 
 ```
 code-cartographer/
-├── src/
-│   ├── models/          # Data structures & types
-│   ├── parsers/         # 9 language parsers
-│   ├── analyzers/       # Security, patterns, health
-│   ├── components/      # React UI components
-│   ├── visualizers/     # D3.js visualization
-│   ├── utils/           # Helper utilities
-│   ├── index.tsx        # React entry point
-│   └── styles.css       # Styling
-├── public/
-│   └── index.html       # HTML container
-├── build/               # Production output (after build)
-└── [config files]
+  cmd/              # Go CLI source
+    analyze/        # Analysis commands (dead-code, complexity, circular, health)
+    find/           # Code search
+    lib/parser/     # Tree-sitter based multi-language parser
+    mcp/            # MCP server for Claude integration
+    plugins/        # Plugin system
+    serve/          # HTTP server for web UI
+  ui/               # React web UI
+    components/     # UI components
+    visualizers/    # Visualization engines (WebGL, D3, canvas)
+    parsers/        # Client-side parsers
+    analyzers/      # Client-side analyzers
+    models/         # Data models
+    engine/         # Core engine logic
+  scanner/          # Scanner library
+  bin/              # Built CLI binaries (gitignored)
+  build/            # Web UI output (gitignored)
 ```
 
-## Documentation
+## Development
 
-- **[QUICK_START.md](./QUICK_START.md)** - Quick reference guide
-- **[BUILD_PROGRESS.md](./BUILD_PROGRESS.md)** - Detailed progress report
-- **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Complete implementation details
-
-## Performance
-
-- **Small Codebases** (< 100 files): Instant
-- **Medium Codebases** (100-500 files): < 2 seconds
-- **Large Codebases** (500+ files): 5-10 seconds
-- **Bundle Size**: ~500KB (single HTML file, gzipped ~150KB)
-
-## Browser Support
-
-| Browser | Support |
-|---------|---------|
-| Chrome/Edge | ✅ Latest |
-| Firefox | ✅ Latest |
-| Safari | ✅ Latest |
-| Mobile | ✅ iOS Safari, Chrome Mobile |
-
-## Security
-
-- **100% Browser-Based**: No data sent to servers
-- **No Tracking**: No analytics, no data collection
-- **Offline**: Works completely offline after loading
-- **HTTPS Ready**: Can be hosted with HTTPS only
-- **Security Scanning**: Detects common vulnerabilities
-
-## Statistics
-
-- **2,500+** lines of TypeScript code
-- **9** language parsers
-- **10** relationship types in code graph
-- **15** node types for code elements
-- **50+** security/pattern detection rules
-- **7** visualization layout modes
-- **A-F** health grade system
-
-## Command Reference
-
-### Development
 ```bash
-npm run dev              # Start dev server with hot reload
-npm run type-check      # Check TypeScript types
-npm run build           # Build for production
-npm run preview         # Preview production build locally
+# Install dependencies
+bun install
+
+# Start dev server
+bun run dev
+
+# Run tests
+bun run test
+
+# Type check
+bun run type-check
+
+# Build for production
+bun run build
 ```
-
-### Build Output
-
-Running `npm run build` creates:
-- `build/index.html` - Single file containing entire app
-  - All CSS embedded
-  - All JavaScript bundled
-  - Fully minified and optimized
-  - Can be opened directly in browser
-  - ~500KB total (gzipped ~150KB)
-
-## Integration with Claude Code
-
-Code Cartographer integrates with Claude Code as a plugin:
-
-```
-/carto:carto-init       # Initialize code map
-/carto:carto-scan       # Scan directory
-/carto:carto-parse      # Parse code files
-/carto:carto-canvas     # Open visualization
-/carto:carto-analyze    # Run all analyzers
-/carto:carto-health     # Show health score
-```
-
-## API Overview
-
-### Core Types
-
-```typescript
-// Language support
-type Language = 'python' | 'javascript' | 'typescript' | 'java' | 'go' | 'rust' | ...
-
-// Node represents code element
-interface CodeNode {
-  id: string
-  name: string
-  type: NodeType
-  language: Language
-  metrics: ComplexityMetrics
-  // ... more fields
-}
-
-// Edge represents relationship
-interface CodeEdge {
-  source: string
-  target: string
-  type: EdgeType // 'calls', 'imports', 'inherits', etc.
-}
-
-// Map contains all nodes and edges
-class CodeMap {
-  getNodes(): CodeNode[]
-  getEdges(): CodeEdge[]
-  findCircularDependencies(): string[][]
-  getBlastRadius(nodeId: string): Set<string>
-  // ... more methods
-}
-```
-
-### Analyzers
-
-```typescript
-// Security scanning
-const scanner = new SecurityScanner()
-const issues = scanner.scan(code)  // SecurityIssue[]
-
-// Pattern detection
-const detector = new PatternDetector()
-const patterns = detector.detectPatterns(codeMap)  // PatternMatch[]
-
-// Health scoring
-const scorer = new HealthScorer()
-const health = scorer.calculateHealth(codeMap, code)  // HealthMetrics
-```
-
-## Common Use Cases
-
-### New Developer Onboarding
-Use Code Cartographer to quickly understand a new codebase's structure, dependencies, and architecture.
-
-### Code Review Assistance
-Visualize the impact of changes (blast radius) before approving PRs.
-
-### Technical Debt Identification
-Use health score and anti-pattern detection to identify refactoring opportunities.
-
-### Security Audit
-Run security scanner to detect hardcoded secrets, SQL injection risks, etc.
-
-### Architecture Documentation
-Generate visual maps of system architecture for documentation.
-
-### Performance Analysis
-Identify highly coupled modules and complex functions for optimization.
-
-## Development Status
-
-**Version 2.0 Features**:
-- ✅ 9-language parser support
-- ✅ AST-based code analysis
-- ✅ Security vulnerability scanning
-- ✅ Pattern & anti-pattern detection
-- ✅ Health scoring (A-F grade)
-- ✅ Interactive visualization
-- ✅ React + D3.js frontend
-- ✅ Single HTML file distribution
-- ✅ Browser-based (no backend)
-
-**Roadmap**:
-- Additional visualizer layouts
-- Git integration (blame, history)
-- PR impact analysis
-- Code duplication detection
-- Performance profiling
-- Export capabilities (PNG, SVG)
-
-## Contributing
-
-This project was created as part of Claude Code development. Contributions welcome!
 
 ## License
 
-GPL v3 - See LICENSE file
-
-## Credits
-
-Built with:
-- **Acorn** - JavaScript/TypeScript AST parsing
-- **D3.js** - Data visualization
-- **React** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tooling
-
-## Support
-
-- **Issues**: Report bugs via GitHub Issues
-- **Documentation**: See IMPLEMENTATION_GUIDE.md
-- **Quick Help**: See QUICK_START.md
-
----
-
-## The Vision
-
-**Code Cartographer** is designed to be *the ultimate tool for understanding code* - both for humans and AI.
-
-Whether you're:
-- 🧑‍💻 **Joining a new project** - Instantly understand the codebase
-- 🔍 **Reviewing code** - See impact and dependencies
-- 🛡️ **Auditing security** - Find vulnerabilities automatically
-- 📊 **Managing technical debt** - Identify refactoring opportunities
-- 🤖 **Working with AI** - Give Claude better context
-- 📚 **Documenting architecture** - Generate visual maps
-
-Code Cartographer helps you see the whole picture, fast.
-
----
-
-**Welcome to Code Cartographer v2.0 - Where Code Meets Clarity**
-
-*Map your code. Understand it faster. Build better software.*
+MIT

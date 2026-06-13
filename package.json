@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Map codebases with AST parsing, interactive visualization, security scanning, and pattern detection",
   "type": "module",
-  "main": "build/index.html",
+  "main": "ui/index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,13 +13,17 @@
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest --watch",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "cli:build": "chmod +x build-cli.sh && ./build-cli.sh",
+    "cli:build-windows": "build-cli.bat",
+    "cli:install": "npm run cli:build && npm run cli:copy",
+    "cli:copy": "cp bin/carto* /usr/local/bin/ 2>/dev/null || echo 'CLI built in bin/ directory'"
   },
   "dependencies": {
     "acorn": "^8.11.3",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
-    "@radix-ui/react-slot": "^2.0.2",
+    "@radix-ui/react-slot": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "d3": "^7.8.5",
@@ -28,8 +32,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.0",
-    "tailwindcss-animate": "^1.0.6",
-    "typescript": "^5.3.3"
+    "tailwindcss-animate": "^1.0.6"
   },
   "devDependencies": {
     "@rollup/rollup-win32-x64-msvc": "^4.55.1",
