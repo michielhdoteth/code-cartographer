@@ -1,6 +1,6 @@
 # Code Cartographer
 
-Fast, CLI-first codebase analyzer and visualizer. Maps code structure using AST parsing, detects patterns, and provides interactive visualization. Zero-config. Built for speed.
+A fast Go context engine that maps large repos so AI agents know where to look before spending tokens.
 
 ## Installation
 
@@ -37,11 +37,13 @@ carto serve
 
 | Command | Description |
 |---------|-------------|
-| `carto map <path>` | Scan and map a codebase |
-| `carto analyze [type]` | Analyze for dead code, complexity, circular deps, or health |
+| `carto map <path>` | Scan and map a codebase (saves commit manifest) |
+| `carto analyze [type]` | Analyze for dead code, complexity, etc. |
 | `carto find <pattern>` | Search code in mapped files |
+| `carto diff [ref]` | Show changes since last map |
+| `carto changed` | Show current uncommitted changes |
+| `carto impact <file>` | Analyze impact of changing a file |
 | `carto serve` | Start interactive web UI |
-| `carto info` | Show current map info |
 | `carto mcp` | Start MCP server for Claude integration |
 
 ### Analysis Types
@@ -77,6 +79,17 @@ carto serve --port 8080                     # Custom port
 - **MCP server** - Claude Desktop integration via Model Context Protocol
 - **JSON output** - Machine-readable results for scripting and CI/CD
 
+## Commit-Aware Mapping
+
+Carto tracks which commit your map was built from, enabling targeted context for AI agents:
+
+- **`carto map`** saves a manifest with commit SHA, branch, and timestamp
+- **`carto diff`** shows what changed since your last map
+- **`carto changed`** shows uncommitted changes grouped by status
+- **`carto impact`** analyzes dependencies and risk for a specific file
+
+This means agents can ask "what changed?" instead of rescanning everything.
+
 ## Web UI Components
 
 - **File Explorer** - Browse codebase structure with folder hierarchy
@@ -93,6 +106,12 @@ carto serve --port 8080                     # Custom port
 - **Web UI**: React + TypeScript, Vite, Tailwind CSS, D3.js, WebGL
 - **MCP**: Go SDK for Model Context Protocol
 - **Package manager**: Bun
+
+### MCP Tools
+
+- `diff_since_last_map` - Show files changed since last map
+- `get_changed_files` - Show uncommitted changes
+- `impact_analysis` - Analyze impact of changing a file
 
 ## Project Structure
 
