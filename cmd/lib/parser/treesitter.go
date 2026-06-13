@@ -1,14 +1,35 @@
+//go:build cgo
+// +build cgo
+
 package parser
 
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	sitter "github.com/smacker/go-tree-sitter"
+	"github.com/smacker/go-tree-sitter/bash"
+	"github.com/smacker/go-tree-sitter/c"
+	"github.com/smacker/go-tree-sitter/cpp"
+	"github.com/smacker/go-tree-sitter/csharp"
+	"github.com/smacker/go-tree-sitter/css"
 	"github.com/smacker/go-tree-sitter/golang"
+	"github.com/smacker/go-tree-sitter/html"
+	"github.com/smacker/go-tree-sitter/java"
 	"github.com/smacker/go-tree-sitter/javascript"
+	"github.com/smacker/go-tree-sitter/kotlin"
+	"github.com/smacker/go-tree-sitter/markdown"
+	"github.com/smacker/go-tree-sitter/php"
+	"github.com/smacker/go-tree-sitter/python"
+	"github.com/smacker/go-tree-sitter/ruby"
+	"github.com/smacker/go-tree-sitter/rust"
+	"github.com/smacker/go-tree-sitter/scala"
+	"github.com/smacker/go-tree-sitter/sql"
+	"github.com/smacker/go-tree-sitter/swift"
+	"github.com/smacker/go-tree-sitter/toml"
+	treesitter_ts "github.com/smacker/go-tree-sitter/typescript/typescript"
+	"github.com/smacker/go-tree-sitter/yaml"
 )
 
 // TreeSitterParser is a parser that uses tree-sitter for accurate AST parsing
@@ -27,13 +48,43 @@ func NewTreeSitterParser(lang Language) *TreeSitterParser {
 	case LanguageJavaScript:
 		langPtr = javascript.GetLanguage()
 	case LanguageTypeScript:
-		// TypeScript uses JavaScript grammar for now
-		// Tree-sitter TypeScript grammar is available separately
-		langPtr = javascript.GetLanguage()
+		langPtr = treesitter_ts.GetLanguage()
 	case LanguagePython:
-		// Python grammar might not be in the main package
-		// Fall back to nil and use regex parser
-		return nil
+		langPtr = python.GetLanguage()
+	case LanguageJava:
+		langPtr = java.GetLanguage()
+	case LanguageC:
+		langPtr = c.GetLanguage()
+	case LanguageCpp:
+		langPtr = cpp.GetLanguage()
+	case LanguageCSharp:
+		langPtr = csharp.GetLanguage()
+	case LanguageRuby:
+		langPtr = ruby.GetLanguage()
+	case LanguagePHP:
+		langPtr = php.GetLanguage()
+	case LanguageRust:
+		langPtr = rust.GetLanguage()
+	case LanguageSwift:
+		langPtr = swift.GetLanguage()
+	case LanguageKotlin:
+		langPtr = kotlin.GetLanguage()
+	case LanguageScala:
+		langPtr = scala.GetLanguage()
+	case LanguageHTML:
+		langPtr = html.GetLanguage()
+	case LanguageCSS:
+		langPtr = css.GetLanguage()
+	case LanguageSQL:
+		langPtr = sql.GetLanguage()
+	case LanguageShell:
+		langPtr = bash.GetLanguage()
+	case LanguageYAML:
+		langPtr = yaml.GetLanguage()
+	case LanguageTOML:
+		langPtr = toml.GetLanguage()
+	case LanguageMarkdown:
+		langPtr = markdown.GetLanguage()
 	}
 
 	if langPtr == nil {
@@ -91,6 +142,8 @@ func (p *TreeSitterParser) Parse(code string, filePath string) (*ParseResult, er
 		p.parseJavaScript(root, []byte(code), filePath, result)
 	case LanguageTypeScript:
 		p.parseTypeScript(root, []byte(code), filePath, result)
+	default:
+		p.walkGenericTree(root, []byte(code), filePath, result)
 	}
 
 	// Calculate metrics
@@ -103,8 +156,6 @@ func (p *TreeSitterParser) Parse(code string, filePath string) (*ParseResult, er
 func (p *TreeSitterParser) parseGo(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
 	cursor := sitter.NewTreeCursor(root)
 	defer cursor.Close()
-
-	// Walk the tree and extract declarations
 	p.walkGoTree(cursor, source, filePath, result)
 }
 
@@ -112,7 +163,6 @@ func (p *TreeSitterParser) parseGo(root *sitter.Node, source []byte, filePath st
 func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, filePath string, result *ParseResult) {
 	node := cursor.CurrentNode()
 
-	// Process based on node type
 	switch node.Type() {
 	case "function_declaration":
 		name := p.getNodeText(node.ChildByFieldName("name"), source)
@@ -145,7 +195,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "type_declaration":
-		// Handle type X struct {} or type X interface {}
 		for i := uint32(0); i < node.ChildCount(); i++ {
 			child := node.Child(i)
 			if child.Type() == "type_spec" {
@@ -153,7 +202,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 				if name != "" {
 					start := node.StartPoint()
 					kind := NodeTypeStruct
-					// Check if it's an interface
 					if child.ChildByFieldName("type") != nil {
 						typeNode := child.ChildByFieldName("type")
 						if typeNode != nil && typeNode.Child(0) != nil && typeNode.Child(0).Type() == "interface_type" {
@@ -183,10 +231,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "import_declaration":
-		// Handle import "path" or import (
-		//   "path1"
-		//   "path2"
-		// )
 		importSpec := node.ChildByFieldName("import")
 		if importSpec != nil {
 			path := p.extractImportPath(importSpec, source)
@@ -201,7 +245,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "const_declaration", "var_declaration":
-		// Handle const/var declarations
 		for i := uint32(0); i < node.ChildCount(); i++ {
 			child := node.Child(i)
 			if child.Type() == "const_spec" || child.Type() == "var_spec" {
@@ -223,7 +266,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 	}
 
-	// Recurse into children
 	if cursor.GoToFirstChild() {
 		p.walkGoTree(cursor, source, filePath, result)
 		for cursor.GoToNextSibling() {
@@ -235,14 +277,12 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 
 // isMethod checks if a function is a method (has a receiver)
 func (p *TreeSitterParser) isMethod(node *sitter.Node) bool {
-	// Check if first child is a parenthesized expression (receiver)
 	if node.ChildCount() > 0 && node.Child(0).Type() == "parameter_list" {
 		return false
 	}
 	if node.ChildCount() > 1 && node.Child(0).Type() == "parenthesized_expression" {
 		return true
 	}
-	// Also check for method receiver pattern: func (x Type) Name()
 	if node.ChildCount() > 0 {
 		firstChild := node.Child(0)
 		if firstChild.Type() == "parameter_list" {
@@ -323,7 +363,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "lexical_declaration", "variable_declaration":
-		// Handle: const/let/var x = ... or const/let/var x = function() {}
 		for i := uint32(0); i < node.ChildCount(); i++ {
 			child := node.Child(i)
 			if child.Type() == "variable_declarator" {
@@ -332,7 +371,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 					name := p.getNodeText(nameNode, source)
 					if name != "" {
 						start := node.StartPoint()
-						// Check if it's exported (exported declaration)
 						isExport := p.isExportedInJS(node, source)
 						if isExport {
 							result.Exports = append(result.Exports, Export{
@@ -349,15 +387,12 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "import_statement", "import_clause":
-		// Handle ES6 imports: import x from 'path' or import { x, y } from 'path'
 		sourceNode := node.ChildByFieldName("source")
 		if sourceNode != nil {
 			path := p.getNodeText(sourceNode, source)
 			path = strings.Trim(path, "'\"")
 			if path != "" {
 				start := node.StartPoint()
-				// Extract imported names
-				// For import { x, y } from 'path'
 				for i := uint32(0); i < node.ChildCount(); i++ {
 					child := node.Child(i)
 					if child.Type() == "import_specifier" ||
@@ -376,7 +411,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 						}
 					}
 				}
-				// For default import: import x from 'path'
 				if node.ChildByFieldName("default") != nil {
 					name := p.getNodeText(node.ChildByFieldName("default"), source)
 					if name != "" {
@@ -391,7 +425,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 
 	case "export_statement", "export":
-		// Handle exports
 		if node.ChildByFieldName("declaration") != nil {
 			decl := node.ChildByFieldName("declaration")
 			var name string
@@ -421,7 +454,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 		}
 	}
 
-	// Recurse into children
 	if cursor.GoToFirstChild() {
 		p.walkJSTree(cursor, source, filePath, result, isTypeScript)
 		for cursor.GoToNextSibling() {
@@ -433,16 +465,172 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 
 // isExportedInJS checks if a JS/TS declaration is exported
 func (p *TreeSitterParser) isExportedInJS(node *sitter.Node, source []byte) bool {
-	// Check if parent is export statement
 	parent := node.Parent()
 	if parent != nil && (parent.Type() == "export_statement" || parent.Type() == "export") {
 		return true
 	}
-	// Check for export keyword
 	if node.NextSibling() != nil && node.NextSibling().Type() == "export" {
 		return true
 	}
 	return false
+}
+
+// walkGenericTree is a generic tree-walker that looks for common node types across all tree-sitter grammars
+func (p *TreeSitterParser) walkGenericTree(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
+	cursor := sitter.NewTreeCursor(root)
+	defer cursor.Close()
+	p.walkGenericTreeCursor(cursor, source, filePath, result)
+}
+
+// walkGenericTreeCursor recursively walks a generic AST
+func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, source []byte, filePath string, result *ParseResult) {
+	node := cursor.CurrentNode()
+	nodeType := node.Type()
+
+	switch nodeType {
+	case "function_definition", "function_declaration", "method_declaration", "function_item":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name == "" {
+			name = p.getNodeText(node.ChildByFieldName("declarator"), source)
+		}
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			nt := NodeTypeFunction
+			if nodeType == "method_declaration" {
+				nt = NodeTypeMethod
+			}
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:func:%s", filePath, name),
+				Name:      name,
+				Type:      nt,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+
+	case "class_definition", "class_declaration", "class_specifier":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:class:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeClass,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+
+	case "struct_declaration", "struct_specifier":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:struct:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeStruct,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+
+	case "interface_declaration", "interface_type":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:interface:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeInterface,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+
+	case "enum_declaration", "enum_specifier":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:enum:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeEnum,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+
+	case "import_statement", "import_declaration", "use_declaration", "use_statement":
+		start := node.StartPoint()
+		text := p.getNodeText(node, source)
+		// Try to extract the source path
+		sourcePath := ""
+		if node.ChildByFieldName("path") != nil {
+			sourcePath = p.getNodeText(node.ChildByFieldName("path"), source)
+		}
+		if sourcePath == "" {
+			sourcePath = strings.TrimSpace(text)
+			sourcePath = strings.TrimPrefix(sourcePath, "import ")
+			sourcePath = strings.TrimPrefix(sourcePath, "use ")
+			sourcePath = strings.Trim(sourcePath, ";\n\r\t \"'")
+		}
+		if sourcePath != "" {
+			result.Imports = append(result.Imports, Import{
+				Name:   extractNameFromPath(sourcePath),
+				Source: sourcePath,
+				Line:   int(start.Row) + 1,
+			})
+		}
+
+	case "package_declaration":
+		start := node.StartPoint()
+		name := p.getNodeText(node, source)
+		name = strings.TrimPrefix(name, "package ")
+		name = strings.TrimSpace(name)
+		if name != "" {
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:module:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeModule,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(start.Row) + 1,
+			})
+		}
+
+	case "trait_declaration":
+		name := p.getNodeText(node.ChildByFieldName("name"), source)
+		if name != "" {
+			start := node.StartPoint()
+			end := node.EndPoint()
+			result.Nodes = append(result.Nodes, Node{
+				ID:        fmt.Sprintf("%s:trait:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeType,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+			})
+		}
+	}
+
+	if cursor.GoToFirstChild() {
+		p.walkGenericTreeCursor(cursor, source, filePath, result)
+		for cursor.GoToNextSibling() {
+			p.walkGenericTreeCursor(cursor, source, filePath, result)
+		}
+		cursor.GoToParent()
+	}
 }
 
 // getNodeText extracts text content from a node
@@ -458,18 +646,15 @@ func (p *TreeSitterParser) extractImportPath(node *sitter.Node, source []byte) s
 	if node == nil {
 		return ""
 	}
-	// Handle import "path" format
 	if node.Type() == "import_spec" {
 		pathNode := node.ChildByFieldName("path")
 		if pathNode != nil {
 			return p.getNodeText(pathNode, source)
 		}
 	}
-	// Handle string_literal directly
 	if node.Type() == "string_literal" {
 		return p.getNodeText(node, source)
 	}
-	// Recursively search for string_literal
 	for i := uint32(0); i < node.ChildCount(); i++ {
 		child := node.Child(i)
 		if child.Type() == "string_literal" {
@@ -491,25 +676,23 @@ func (p *TreeSitterParser) calculateNodeMetrics(node *sitter.Node, source []byte
 		Cognitive:   0,
 	}
 
-	// Count lines
 	start := node.StartPoint()
 	end := node.EndPoint()
 	metrics.LinesOfCode = int(end.Row - start.Row + 1)
 
-	// Count control flow keywords in the node's subtree
 	cursor := sitter.NewTreeCursor(node)
 	defer cursor.Close()
 
 	controlFlowKeywords := map[string]bool{
-		"if_statement":        true,
-		"else_clause":         true,
-		"for_statement":       true,
-		"while_statement":     true,
-		"do_statement":        true,
-		"switch_statement":    true,
-		"case_clause":         true,
-		"catch_clause":        true,
-		"ternary_expression":  true, // ? :
+		"if_statement":       true,
+		"else_clause":        true,
+		"for_statement":      true,
+		"while_statement":    true,
+		"do_statement":       true,
+		"switch_statement":   true,
+		"case_clause":        true,
+		"catch_clause":       true,
+		"ternary_expression": true,
 	}
 
 	if cursor.GoToFirstChild() {
@@ -529,12 +712,31 @@ func (p *TreeSitterParser) calculateNodeMetrics(node *sitter.Node, source []byte
 	return metrics
 }
 
-// RegisterTreeSitterParsers registers tree-sitter based parsers
+// RegisterTreeSitterParsers registers tree-sitter based parsers for all languages
 func RegisterTreeSitterParsers() {
 	languages := []Language{
 		LanguageGo,
 		LanguageJavaScript,
 		LanguageTypeScript,
+		LanguagePython,
+		LanguageJava,
+		LanguageC,
+		LanguageCpp,
+		LanguageCSharp,
+		LanguageRuby,
+		LanguagePHP,
+		LanguageRust,
+		LanguageSwift,
+		LanguageKotlin,
+		LanguageScala,
+		LanguageHTML,
+		LanguageCSS,
+		LanguageSQL,
+		LanguageShell,
+		LanguageYAML,
+		LanguageJSON,
+		LanguageTOML,
+		LanguageMarkdown,
 	}
 
 	for _, lang := range languages {

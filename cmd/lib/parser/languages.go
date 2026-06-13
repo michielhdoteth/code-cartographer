@@ -188,7 +188,7 @@ var LanguageConfigs = map[Language]LanguageConfig{
 		Name:        "Shell",
 		Extensions:  []string{".sh", ".bash", ".zsh"},
 		TreeSitter:  "bash",
-		Comments:    []string{"/*", "*/"},
+		Comments:    []string{},
 		LineComment: "#",
 	},
 	LanguageYAML: {
@@ -275,11 +275,22 @@ func IsInterpreted(lang Language) bool {
 		LanguageRuby:       true,
 		LanguagePHP:        true,
 		LanguageShell:      true,
+		LanguageHTML:       true,
+		LanguageCSS:        true,
+		LanguageSQL:        true,
+		LanguageYAML:       true,
+		LanguageJSON:       true,
+		LanguageTOML:       true,
+		LanguageMarkdown:   true,
 		LanguageGo:         false, // compiled
 		LanguageJava:       false, // compiled
 		LanguageC:          false, // compiled
 		LanguageCpp:        false, // compiled
+		LanguageCSharp:     false, // compiled
 		LanguageRust:       false, // compiled
+		LanguageSwift:      false, // compiled
+		LanguageKotlin:     false, // compiled
+		LanguageScala:      false, // compiled
 	}
 	return interpreted[lang]
 }

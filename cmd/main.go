@@ -11,6 +11,7 @@ import (
 
 	"carto/analyze"
 	"carto/find"
+	"carto/lib/parser"
 	"carto/mcp"
 	"carto/serve"
 
@@ -108,8 +109,8 @@ a module graph for analysis and visualization.`,
 				return nil
 			}
 
-			lang := detectLanguage(name)
-			if lang == "" { return nil }
+			lang := string(parser.DetectLanguage(name))
+			if lang == "" || lang == "unknown" { return nil }
 
 			if len(wantedLangs) > 0 {
 				found := false
@@ -127,7 +128,7 @@ a module graph for analysis and visualization.`,
 
 		byLang := map[string]int{}
 		for _, f := range files {
-			lang := detectLanguage(filepath.Ext(f))
+			lang := string(parser.DetectLanguage(filepath.Ext(f)))
 			byLang[lang]++
 		}
 
@@ -411,25 +412,4 @@ func printAnalysisResults(graph *analyze.ModuleGraph, analysisType string, elaps
 	}
 }
 
-// HELPERS
-var langExtensions = map[string][]string{
-	"typescript": {".ts", ".tsx", ".mts", ".cts"},
-	"javascript": {".js", ".jsx", ".mjs", ".cjs"},
-	"python":     {".py", ".pyi"},
-	"rust":      {".rs"},
-	"go":        {".go"},
-	"java":      {".java"},
-	"cpp":       {".cpp", ".cc", ".cxx", ".h", ".hpp"},
-	"ruby":      {".rb"},
-	"php":       {".php"},
-}
-
-func detectLanguage(filename string) string {
-	ext := strings.ToLower(filepath.Ext(filename))
-	for lang, exts := range langExtensions {
-		for _, e := range exts {
-			if ext == e { return lang }
-		}
-	}
-	return ""
-}
+// No duplicate language detection - using parser.DetectLanguage from lib/parser
