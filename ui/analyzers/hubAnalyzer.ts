@@ -179,6 +179,18 @@ export class HubAnalyzer {
       python: ['__init__.py', 'main.py', 'app.py', 'utils.py', 'config.py'],
       go: ['main.go', 'utils.go', 'config.go', 'types.go'],
       java: ['Main.java', 'Application.java', 'Config.java', 'Utils.java'],
+      rust: ['main.rs', 'lib.rs', 'mod.rs', 'utils.rs', 'config.rs'],
+      cpp: ['main.cpp', 'utils.cpp', 'config.cpp'],
+      ruby: ['application.rb', 'config.rb', 'Gemfile'],
+      php: ['index.php', 'artisan', 'config.php'],
+      c: ['main.c', 'utils.c', 'config.h'],
+      csharp: ['Program.cs', 'Startup.cs', 'Controller.cs'],
+      swift: ['AppDelegate.swift', 'ContentView.swift', 'main.swift'],
+      kotlin: ['Main.kt', 'Application.kt', 'App.kt'],
+      scala: ['Main.scala', 'App.scala', 'Application.scala'],
+      html: ['index.html', 'main.html'],
+      css: ['style.css', 'main.css', 'global.css'],
+      shell: ['main.sh', 'run.sh', 'setup.sh'],
     };
     
     const patterns = hubPatterns[language] || [];

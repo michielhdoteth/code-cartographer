@@ -26,15 +26,17 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@models/*": ["src/models/*"],
-      "@parsers/*": ["src/parsers/*"],
-      "@analyzers/*": ["src/analyzers/*"],
-      "@visualizers/*": ["src/visualizers/*"],
-      "@components/*": ["src/components/*"],
-      "@utils/*": ["src/utils/*"]
+      "@/*": ["ui/*"],
+      "@models/*": ["ui/models/*"],
+      "@parsers/*": ["ui/parsers/*"],
+      "@analyzers/*": ["ui/analyzers/*"],
+      "@engine/*": ["ui/engine/*"],
+      "@visualizers/*": ["ui/visualizers/*"],
+      "@components/*": ["ui/components/*"],
+      "@utils/*": ["ui/utils/*"],
+      "@formatters/*": ["ui/formatters/*"]
     }
   },
-  "include": ["src"],
+  "include": ["ui"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

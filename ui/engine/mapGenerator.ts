@@ -9,6 +9,19 @@ import { RustParser } from '@parsers/rust'
 import { CppParser } from '@parsers/cpp'
 import { RubyParser } from '@parsers/ruby'
 import { PhpParser } from '@parsers/php'
+import { CParser } from '@parsers/c'
+import { CSharpParser } from '@parsers/csharp'
+import { SwiftParser } from '@parsers/swift'
+import { KotlinParser } from '@parsers/kotlin'
+import { ScalaParser } from '@parsers/scala'
+import { HtmlParser } from '@parsers/html'
+import { CssParser } from '@parsers/css'
+import { SqlParser } from '@parsers/sql'
+import { ShellParser } from '@parsers/shell'
+import { YamlParser } from '@parsers/yaml'
+import { JsonParser } from '@parsers/json'
+import { TomlParser } from '@parsers/toml'
+import { MarkdownParser } from '@parsers/markdown'
 import { SecurityScanner } from '@analyzers/securityScanner'
 import { PatternDetector } from '@analyzers/patternDetector'
 import { HealthScorer } from '@analyzers/healthScorer'
@@ -79,6 +92,19 @@ export class MapGenerator {
     registry.register('cpp', new CppParser())
     registry.register('ruby', new RubyParser())
     registry.register('php', new PhpParser())
+    registry.register('c', new CParser())
+    registry.register('csharp', new CSharpParser())
+    registry.register('swift', new SwiftParser())
+    registry.register('kotlin', new KotlinParser())
+    registry.register('scala', new ScalaParser())
+    registry.register('html', new HtmlParser())
+    registry.register('css', new CssParser())
+    registry.register('sql', new SqlParser())
+    registry.register('shell', new ShellParser())
+    registry.register('yaml', new YamlParser())
+    registry.register('json', new JsonParser())
+    registry.register('toml', new TomlParser())
+    registry.register('markdown', new MarkdownParser())
     return registry
   }
 
@@ -313,17 +339,11 @@ export class MapGenerator {
     // Parse all files with caching and worker pool
     let totalCode = ''
     const languageCount: Record<Language, number> = {
-      python: 0,
-      javascript: 0,
-      typescript: 0,
-      jsx: 0,
-      tsx: 0,
-      java: 0,
-      go: 0,
-      rust: 0,
-      cpp: 0,
-      ruby: 0,
-      php: 0,
+      python: 0, javascript: 0, typescript: 0, jsx: 0, tsx: 0,
+      java: 0, go: 0, rust: 0, cpp: 0, ruby: 0, php: 0,
+      c: 0, csharp: 0, swift: 0, kotlin: 0, scala: 0,
+      html: 0, css: 0, sql: 0, shell: 0,
+      yaml: 0, json: 0, toml: 0, markdown: 0,
     }
 
     // Separate cached and uncached files

@@ -92,7 +92,20 @@ export class ASCIITreeRenderer {
     ruby: 'red',
     php: 'purple',
     jsx: 'blue',
-    tsx: 'blue'
+    tsx: 'blue',
+    c: 'white',
+    csharp: 'green',
+    swift: 'orange',
+    kotlin: 'purple',
+    scala: 'red',
+    html: 'red',
+    css: 'blue',
+    sql: 'cyan',
+    shell: 'green',
+    yaml: 'yellow',
+    json: 'white',
+    toml: 'cyan',
+    markdown: 'white',
   };
 
   /**

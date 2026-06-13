@@ -13,6 +13,19 @@ import { RustParser } from '@parsers/rust'
 import { CppParser } from '@parsers/cpp'
 import { RubyParser } from '@parsers/ruby'
 import { PhpParser } from '@parsers/php'
+import { CParser } from '@parsers/c'
+import { CSharpParser } from '@parsers/csharp'
+import { SwiftParser } from '@parsers/swift'
+import { KotlinParser } from '@parsers/kotlin'
+import { ScalaParser } from '@parsers/scala'
+import { HtmlParser } from '@parsers/html'
+import { CssParser } from '@parsers/css'
+import { SqlParser } from '@parsers/sql'
+import { ShellParser } from '@parsers/shell'
+import { YamlParser } from '@parsers/yaml'
+import { JsonParser } from '@parsers/json'
+import { TomlParser } from '@parsers/toml'
+import { MarkdownParser } from '@parsers/markdown'
 import { CodeMap } from '@models/codeMap'
 import { Language } from '@models/types'
 
@@ -43,12 +56,25 @@ const PARSER_MAP: Record<string, () => any> = {
   cpp: () => new CppParser(),
   ruby: () => new RubyParser(),
   php: () => new PhpParser(),
+  c: () => new CParser(),
+  csharp: () => new CSharpParser(),
+  swift: () => new SwiftParser(),
+  kotlin: () => new KotlinParser(),
+  scala: () => new ScalaParser(),
+  html: () => new HtmlParser(),
+  css: () => new CssParser(),
+  sql: () => new SqlParser(),
+  shell: () => new ShellParser(),
+  yaml: () => new YamlParser(),
+  json: () => new JsonParser(),
+  toml: () => new TomlParser(),
+  markdown: () => new MarkdownParser(),
 }
 
 function createRegistry(): ParserRegistry {
   const registry = new ParserRegistry()
   for (const [lang, createParser] of Object.entries(PARSER_MAP)) {
-    registry.register(lang, createParser())
+    registry.register(lang as Language, createParser())
   }
   return registry
 }

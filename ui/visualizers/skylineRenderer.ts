@@ -79,7 +79,20 @@ export class SkylineRenderer {
     ruby: '#cc342d',
     php: '#777bb4',
     jsx: '#61dafb',
-    tsx: '#61dafb'
+    tsx: '#61dafb',
+    c: '#555555',
+    csharp: '#178600',
+    swift: '#f05138',
+    kotlin: '#A97BFF',
+    scala: '#DC322F',
+    html: '#e34c26',
+    css: '#563d7c',
+    sql: '#e38c00',
+    shell: '#89e051',
+    yaml: '#cb171e',
+    json: '#292929',
+    toml: '#9c4221',
+    markdown: '#083fa1',
   };
 
   private readonly TYPE_COLORS: Record<string, string> = {

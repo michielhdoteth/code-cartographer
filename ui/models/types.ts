@@ -1,4 +1,4 @@
-export type Language = 'python' | 'javascript' | 'typescript' | 'jsx' | 'tsx' | 'java' | 'go' | 'rust' | 'cpp' | 'ruby' | 'php'
+export type Language = 'python' | 'javascript' | 'typescript' | 'jsx' | 'tsx' | 'java' | 'go' | 'rust' | 'cpp' | 'ruby' | 'php' | 'c' | 'csharp' | 'swift' | 'kotlin' | 'scala' | 'html' | 'css' | 'sql' | 'shell' | 'yaml' | 'json' | 'toml' | 'markdown'
 
 export type NodeType =
   | 'module'
