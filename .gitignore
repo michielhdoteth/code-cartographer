@@ -45,6 +45,7 @@ __pycache__/
 
 # Project-specific
 .opencode/
+.carto/
 .squish/
 .iter/
 code-map/
