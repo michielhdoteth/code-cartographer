@@ -264,6 +264,21 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 				}
 			}
 		}
+
+	case "call_expression":
+		callee := node.ChildByFieldName("function")
+		if callee != nil {
+			calleeName := p.getNodeText(callee, source)
+			if calleeName != "" {
+				start := node.StartPoint()
+				result.Edges = append(result.Edges, Edge{
+					ID:     fmt.Sprintf("%s:calls:%s:%d", filePath, calleeName, start.Row),
+					Source: filePath,
+					Target: calleeName,
+					Type:   EdgeTypeCalls,
+				})
+			}
+		}
 	}
 
 	if cursor.GoToFirstChild() {
@@ -452,6 +467,21 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 				})
 			}
 		}
+
+	case "call_expression":
+		callee := node.ChildByFieldName("function")
+		if callee != nil {
+			calleeName := p.getNodeText(callee, source)
+			if calleeName != "" && calleeName != "require" && calleeName != "import" {
+				start := node.StartPoint()
+				result.Edges = append(result.Edges, Edge{
+					ID:     fmt.Sprintf("%s:calls:%s:%d", filePath, calleeName, start.Row),
+					Source: filePath,
+					Target: calleeName,
+					Type:   EdgeTypeCalls,
+				})
+			}
+		}
 	}
 
 	if cursor.GoToFirstChild() {
@@ -621,6 +651,24 @@ func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, sour
 				StartLine: int(start.Row) + 1,
 				EndLine:   int(end.Row) + 1,
 			})
+		}
+
+	case "call_expression", "method_invocation":
+		callee := node.ChildByFieldName("function")
+		if callee == nil {
+			callee = node.ChildByFieldName("name")
+		}
+		if callee != nil {
+			calleeName := p.getNodeText(callee, source)
+			if calleeName != "" {
+				start := node.StartPoint()
+				result.Edges = append(result.Edges, Edge{
+					ID:     fmt.Sprintf("%s:calls:%s:%d", filePath, calleeName, start.Row),
+					Source: filePath,
+					Target: calleeName,
+					Type:   EdgeTypeCalls,
+				})
+			}
 		}
 	}
 

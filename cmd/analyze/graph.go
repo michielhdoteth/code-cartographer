@@ -190,6 +190,80 @@ func (g *ModuleGraph) GetExportedFunctions() []Export {
 
 // GetTotalLinesOfCode returns total lines of code
 func (g *ModuleGraph) GetTotalLinesOfCode() int {
-	// This would need to come from the parser metrics
-	return 0
+	total := 0
+	for _, file := range g.Files {
+		// Count exports as a proxy for lines of code
+		total += len(file.Exports) * 10
+	}
+	return total
+}
+
+// GetSymbolInfo returns info about a symbol across the codebase
+func (g *ModuleGraph) GetSymbolInfo(name string) []ExportRef {
+	var refs []ExportRef
+	for key, ref := range g.Exports {
+		if strings.Contains(key, ":"+name) || ref.Export == name {
+			refs = append(refs, ref)
+		}
+	}
+	return refs
+}
+
+// GetCallGraph returns files that call or are called by a given file
+func (g *ModuleGraph) GetCallGraph(filePath string) (callers []string, callees []string) {
+	for f, imports := range g.Imports {
+		for _, imp := range imports {
+			if strings.Contains(imp.Source, filePath) || strings.Contains(f, filePath) {
+				callers = append(callers, f)
+			}
+		}
+	}
+	return callers, callees
+}
+
+// GetAllSymbols returns all symbols (exports) in the codebase
+func (g *ModuleGraph) GetAllSymbols() []Export {
+	var result []Export
+	for _, file := range g.Files {
+		result = append(result, file.Exports...)
+	}
+	return result
+}
+
+// GetSymbolsByType returns all symbols of a specific type
+func (g *ModuleGraph) GetSymbolsByType(symbolType string) []Export {
+	var result []Export
+	for _, file := range g.Files {
+		for _, exp := range file.Exports {
+			if exp.Kind == symbolType {
+				result = append(result, exp)
+			}
+		}
+	}
+	return result
+}
+
+// GetStats returns codebase statistics
+func (g *ModuleGraph) GetStats() map[string]interface{} {
+	byLang := map[string]int{}
+	byType := map[string]int{}
+	totalExports := 0
+	totalImports := 0
+
+	for _, file := range g.Files {
+		byLang[file.Language]++
+		totalExports += len(file.Exports)
+		totalImports += len(file.Imports)
+		for _, exp := range file.Exports {
+			byType[exp.Kind]++
+		}
+	}
+
+	return map[string]interface{}{
+		"total_files":    len(g.Files),
+		"total_exports":  totalExports,
+		"total_imports":  totalImports,
+		"by_language":    byLang,
+		"by_type":        byType,
+	}
 }

@@ -67,22 +67,22 @@ func (r *HealthResult) collectIssues() []HealthIssue {
 	var issues []HealthIssue
 
 	// Dead code issues
-	for _, ue := range r.DeadCode.UnusedExports {
+	for _, de := range r.DeadCode.DeadExports {
 		issues = append(issues, HealthIssue{
 			Severity: "warning",
 			Category: "dead-code",
-			Message:  fmt.Sprintf("Unused export: %s", ue.Export),
-			File:     ue.File,
-			Line:     ue.Line,
+			Message:  fmt.Sprintf("Unused export: %s (%.0f%% confidence)", de.Name, de.Confidence*100),
+			File:     de.File,
+			Line:     de.Line,
 		})
 	}
 
-	for _, uf := range r.DeadCode.UnusedFiles {
+	for _, df := range r.DeadCode.DeadFiles {
 		issues = append(issues, HealthIssue{
 			Severity: "warning",
 			Category: "dead-code",
-			Message:  "Unused file: no imports reference this file",
-			File:     uf.Path,
+			Message:  "Dead file: no imports reference this file",
+			File:     df.Path,
 			Line:     0,
 		})
 	}
@@ -137,7 +137,7 @@ func (r *HealthResult) calculateScore() float64 {
 	score := 100.0
 
 	// Deduct for dead code (max 30 points)
-	deadCodePenalty := float64(r.DeadCode.TotalIssues) * 2
+	deadCodePenalty := float64(r.DeadCode.TotalDead) * 2
 	score -= math.Min(deadCodePenalty, 30)
 
 	// Deduct for complexity issues (max 40 points)
@@ -182,7 +182,7 @@ func (r *HealthResult) String() string {
 	sb.WriteString(fmt.Sprintf("  Imports: %d\n", r.Imports))
 
 	sb.WriteString("\nIssues Summary:\n")
-	sb.WriteString(fmt.Sprintf("  Dead Code: %d issues\n", r.DeadCode.TotalIssues))
+	sb.WriteString(fmt.Sprintf("  Dead Code: %d issues\n", r.DeadCode.TotalDead))
 	sb.WriteString(fmt.Sprintf("  Complexity: %d issues\n", r.Complexity.Issues))
 	sb.WriteString(fmt.Sprintf("  Circular Dependencies: %d\n", r.Circular.TotalCount))
 	sb.WriteString(fmt.Sprintf("  Total Issues: %d\n\n", len(r.Issues)))

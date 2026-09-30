@@ -88,6 +88,9 @@ func (p *UnifiedParser) Parse(code string, filePath string) (*ParseResult, error
 	// Extract imports for all languages
 	p.extractImports(code, filePath, result)
 
+	// Extract function calls for all languages
+	p.extractCalls(code, filePath, result)
+
 	// Calculate metrics
 	result.CalculateMetrics()
 
@@ -2160,6 +2163,82 @@ func (p *UnifiedParser) extractImports(code string, filePath string, result *Par
 					Source: matches[1],
 					Line:   i + 1,
 				})
+			}
+		}
+	}
+}
+
+// extractCalls extracts function/method calls from source code
+func (p *UnifiedParser) extractCalls(code string, filePath string, result *ParseResult) {
+	lines := strings.Split(code, "\n")
+
+	// Generic call pattern: identifier( - matches function calls
+	callRegex := regexp.MustCompile(`\b([a-zA-Z_]\w*)\s*\(`)
+	// Method call pattern: obj.method( or this.method(
+	methodRegex := regexp.MustCompile(`\b(\w+)\.(\w+)\s*\(`)
+
+	// Keywords to skip
+	skipCalls := map[string]bool{
+		"if": true, "for": true, "while": true, "switch": true,
+		"return": true, "func": true, "function": true, "class": true,
+		"import": true, "require": true, "use": true, "def": true,
+		"var": true, "let": true, "const": true, "type": true,
+		"struct": true, "interface": true, "enum": true, "trait": true,
+		"new": true, "make": true, "len": true, "cap": true,
+	}
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+
+		// Method calls: obj.method(
+		if matches := methodRegex.FindAllStringSubmatch(line, -1); matches != nil {
+			for _, match := range matches {
+				if len(match) > 2 {
+					obj := match[1]
+					method := match[2]
+					// Skip language keywords
+					if skipCalls[obj] || skipCalls[method] {
+						continue
+					}
+					result.Edges = append(result.Edges, Edge{
+						ID:     fmt.Sprintf("%s:calls:%s.%s:%d", filePath, obj, method, i+1),
+						Source: filePath,
+						Target: obj + "." + method,
+						Type:   EdgeTypeCalls,
+					})
+				}
+			}
+		}
+
+		// Simple calls: funcName(
+		if matches := callRegex.FindAllStringSubmatch(line, -1); matches != nil {
+			for _, match := range matches {
+				if len(match) > 1 {
+					name := match[1]
+					if skipCalls[name] {
+						continue
+					}
+					// Skip if it's part of a method call (already handled)
+					if i > 0 {
+						prevChar := ' '
+						idx := strings.Index(line, name)
+						if idx > 0 {
+							prevChar = rune(line[idx-1])
+						}
+						if prevChar == '.' {
+							continue
+						}
+					}
+					result.Edges = append(result.Edges, Edge{
+						ID:     fmt.Sprintf("%s:calls:%s:%d", filePath, name, i+1),
+						Source: filePath,
+						Target: name,
+						Type:   EdgeTypeCalls,
+					})
+				}
 			}
 		}
 	}
