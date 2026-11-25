@@ -1,0 +1,1270 @@
+﻿{
+  "root_path": "C:\\Users\\michi\\Desktop\\Command Center\\Projects OS\\code-cartographer\\test-data\\squish",
+  "token_budget_estimate": 2048,
+  "tokens_used_estimate": 2044,
+  "symbols_omitted": 3186,
+  "imports_omitted": 194,
+  "entries": [
+    {
+      "node": {
+        "id": "symbol:core/lib/utils.ts:function:now:42:0",
+        "name": "now",
+        "kind": "function",
+        "file": "core/lib/utils.ts",
+        "start_line": 42,
+        "end_line": 45,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.3584030276364128
+    },
+    {
+      "node": {
+        "id": "symbol:docs/INSTALL-QUICKSTART.md:type:text:14:0",
+        "name": "text",
+        "kind": "type",
+        "file": "docs/INSTALL-QUICKSTART.md",
+        "start_line": 14,
+        "end_line": 18,
+        "range_confidence": "estimated"
+      },
+      "score": 0.24660086219549376
+    },
+    {
+      "node": {
+        "id": "symbol:package-lock.json:property:has:0:0",
+        "name": "has",
+        "kind": "property",
+        "file": "package-lock.json",
+        "start_line": 1,
+        "end_line": 4708,
+        "range_confidence": "estimated"
+      },
+      "score": 0.15679127743135354
+    },
+    {
+      "node": {
+        "id": "symbol:core/storage/database.ts:function:createDatabaseClient:13:0",
+        "name": "createDatabaseClient",
+        "kind": "function",
+        "file": "core/storage/database.ts",
+        "start_line": 13,
+        "end_line": 24,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.15165453190901762
+    },
+    {
+      "node": {
+        "id": "symbol:package-lock.json:property:debug:0:0",
+        "name": "debug",
+        "kind": "property",
+        "file": "package-lock.json",
+        "start_line": 1,
+        "end_line": 4708,
+        "range_confidence": "estimated"
+      },
+      "score": 0.1270434419022957
+    },
+    {
+      "node": {
+        "id": "symbol:db/drizzle/migrations/meta/0000_snapshot.json:property:default:0:0",
+        "name": "default",
+        "kind": "property",
+        "file": "db/drizzle/migrations/meta/0000_snapshot.json",
+        "start_line": 1,
+        "end_line": 3451,
+        "range_confidence": "estimated"
+      },
+      "score": 0.10400134808751733
+    },
+    {
+      "node": {
+        "id": "symbol:core/context/context-window.ts:function:estimateTokens:39:0",
+        "name": "estimateTokens",
+        "kind": "function",
+        "file": "core/context/context-window.ts",
+        "start_line": 39,
+        "end_line": 56,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.08458755164711063
+    },
+    {
+      "node": {
+        "id": "symbol:core/commands/mcp-server.ts:function:safeRegisterTool:72:0",
+        "name": "safeRegisterTool",
+        "kind": "function",
+        "file": "core/commands/mcp-server.ts",
+        "start_line": 72,
+        "end_line": 87,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07968688033235262
+    },
+    {
+      "node": {
+        "id": "symbol:core/lib/utils.ts:function:normalizeTimestamp:9:0",
+        "name": "normalizeTimestamp",
+        "kind": "function",
+        "file": "core/lib/utils.ts",
+        "start_line": 9,
+        "end_line": 11,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07968513247995768
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/serialization.ts:function:deserializeMetadata:72:0",
+        "name": "deserializeMetadata",
+        "kind": "function",
+        "file": "core/memory/serialization.ts",
+        "start_line": 72,
+        "end_line": 72,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07799029226272655
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/serialization.ts:function:serializeMetadata:62:0",
+        "name": "serializeMetadata",
+        "kind": "function",
+        "file": "core/memory/serialization.ts",
+        "start_line": 62,
+        "end_line": 62,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.0777757200094169
+    },
+    {
+      "node": {
+        "id": "symbol:core/lib/utils.ts:function:isDatabaseUnavailableError:46:0",
+        "name": "isDatabaseUnavailableError",
+        "kind": "function",
+        "file": "core/lib/utils.ts",
+        "start_line": 46,
+        "end_line": 72,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07647165669152686
+    },
+    {
+      "node": {
+        "id": "symbol:config.ts:function:getConfig:33:0",
+        "name": "getConfig",
+        "kind": "function",
+        "file": "config.ts",
+        "start_line": 33,
+        "end_line": 34,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07636307508371526
+    },
+    {
+      "node": {
+        "id": "symbol:core/security/secret-detector.ts:function:detectSecrets:71:0",
+        "name": "detectSecrets",
+        "kind": "function",
+        "file": "core/security/secret-detector.ts",
+        "start_line": 71,
+        "end_line": 74,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.074412709473389
+    },
+    {
+      "node": {
+        "id": "symbol:core/lib/validation.ts:function:validateLimit:12:0",
+        "name": "validateLimit",
+        "kind": "function",
+        "file": "core/lib/validation.ts",
+        "start_line": 12,
+        "end_line": 18,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07380770717207041
+    },
+    {
+      "node": {
+        "id": "symbol:db/drizzle/schema-sqlite.ts:function:memories:39:0",
+        "name": "memories",
+        "kind": "function",
+        "file": "db/drizzle/schema-sqlite.ts",
+        "start_line": 39,
+        "end_line": 230,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07218435501826165
+    },
+    {
+      "node": {
+        "id": "symbol:core/snapshots/comparison.ts:function:calculateDiff:15:0",
+        "name": "calculateDiff",
+        "kind": "function",
+        "file": "core/snapshots/comparison.ts",
+        "start_line": 15,
+        "end_line": 24,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07200080531627832
+    },
+    {
+      "node": {
+        "id": "symbol:core/utils/content-extraction.ts:function:extractMessageContent:9:0",
+        "name": "extractMessageContent",
+        "kind": "function",
+        "file": "core/utils/content-extraction.ts",
+        "start_line": 9,
+        "end_line": 21,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07108124756762144
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/markdown/markdown-storage.ts:function:getRawPath:56:0",
+        "name": "getRawPath",
+        "kind": "function",
+        "file": "core/memory/markdown/markdown-storage.ts",
+        "start_line": 56,
+        "end_line": 62,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07087977052066631
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/trigger-detector.ts:function:detectMemorySignals:44:0",
+        "name": "detectMemorySignals",
+        "kind": "function",
+        "file": "core/memory/trigger-detector.ts",
+        "start_line": 44,
+        "end_line": 105,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07078435291085196
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/serialization.ts:function:deserializeTags:48:0",
+        "name": "deserializeTags",
+        "kind": "function",
+        "file": "core/memory/serialization.ts",
+        "start_line": 48,
+        "end_line": 48,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07055257988783359
+    },
+    {
+      "node": {
+        "id": "symbol:core/scheduler/cron-scheduler.ts:function:registerJobHandler:47:0",
+        "name": "registerJobHandler",
+        "kind": "function",
+        "file": "core/scheduler/cron-scheduler.ts",
+        "start_line": 47,
+        "end_line": 55,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.07011258976005705
+    },
+    {
+      "node": {
+        "id": "symbol:db/drizzle/migrations/meta/_journal.json:property:entries:0:0",
+        "name": "entries",
+        "kind": "property",
+        "file": "db/drizzle/migrations/meta/_journal.json",
+        "start_line": 1,
+        "end_line": 13,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06967007130399183
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/hooks.ts:function:getHooks:101:0",
+        "name": "getHooks",
+        "kind": "function",
+        "file": "core/memory/hooks.ts",
+        "start_line": 101,
+        "end_line": 107,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06960634845459113
+    },
+    {
+      "node": {
+        "id": "symbol:package-lock.json:property:uuid:0:0",
+        "name": "uuid",
+        "kind": "property",
+        "file": "package-lock.json",
+        "start_line": 1,
+        "end_line": 4708,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06931755867628744
+    },
+    {
+      "node": {
+        "id": "symbol:db/drizzle/schema.ts:function:memories:78:0",
+        "name": "memories",
+        "kind": "function",
+        "file": "db/drizzle/schema.ts",
+        "start_line": 78,
+        "end_line": 233,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06929888086799575
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/strategies/merge-strategies.ts:function:MERGE_STRATEGIES:344:0",
+        "name": "MERGE_STRATEGIES",
+        "kind": "function",
+        "file": "core/algorithms/strategies/merge-strategies.ts",
+        "start_line": 344,
+        "end_line": 353,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06916534046282757
+    },
+    {
+      "node": {
+        "id": "symbol:core/runtime/trust-state.ts:function:toProjectSummary:50:0",
+        "name": "toProjectSummary",
+        "kind": "function",
+        "file": "core/runtime/trust-state.ts",
+        "start_line": 50,
+        "end_line": 65,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06914119562410041
+    },
+    {
+      "node": {
+        "id": "symbol:packages/cli/src/commands/remember.ts:function:registerRememberCommand:13:0",
+        "name": "registerRememberCommand",
+        "kind": "function",
+        "file": "packages/cli/src/commands/remember.ts",
+        "start_line": 13,
+        "end_line": 41,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06898555224009033
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/analytics/token-estimator.ts:function:estimateTokensSimple:13:0",
+        "name": "estimateTokensSimple",
+        "kind": "function",
+        "file": "core/algorithms/analytics/token-estimator.ts",
+        "start_line": 13,
+        "end_line": 17,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06851947321778462
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/importance.ts:function:calculateImportance:41:0",
+        "name": "calculateImportance",
+        "kind": "function",
+        "file": "core/memory/importance.ts",
+        "start_line": 41,
+        "end_line": 73,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06824313760631245
+    },
+    {
+      "node": {
+        "id": "symbol:core/security/encrypt.ts:function:decrypt:41:0",
+        "name": "decrypt",
+        "kind": "function",
+        "file": "core/security/encrypt.ts",
+        "start_line": 41,
+        "end_line": 52,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06749784853118555
+    },
+    {
+      "node": {
+        "id": "symbol:core/utils/filter-builder.ts:function:buildMemoryFilters:11:0",
+        "name": "buildMemoryFilters",
+        "kind": "function",
+        "file": "core/utils/filter-builder.ts",
+        "start_line": 11,
+        "end_line": 13,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06716498291344428
+    },
+    {
+      "node": {
+        "id": "symbol:core/lib/validation.ts:function:requireUuid:122:0",
+        "name": "requireUuid",
+        "kind": "function",
+        "file": "core/lib/validation.ts",
+        "start_line": 122,
+        "end_line": 134,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06710210537938527
+    },
+    {
+      "node": {
+        "id": "symbol:core/hot-cache.ts:function:createEmptyHotCache:105:0",
+        "name": "createEmptyHotCache",
+        "kind": "function",
+        "file": "core/hot-cache.ts",
+        "start_line": 105,
+        "end_line": 117,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.0670868314300109
+    },
+    {
+      "node": {
+        "id": "symbol:core/adapters/index.ts:function:listAdapters:38:0",
+        "name": "listAdapters",
+        "kind": "function",
+        "file": "core/adapters/index.ts",
+        "start_line": 38,
+        "end_line": 69,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06686911170136159
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/detection/semantic-ranker.ts:function:calculateConfidenceFactors:52:0",
+        "name": "calculateConfidenceFactors",
+        "kind": "function",
+        "file": "core/algorithms/detection/semantic-ranker.ts",
+        "start_line": 52,
+        "end_line": 73,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06673345094087034
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/safety/safety-checks.ts:function:createBlockerCheck:23:0",
+        "name": "createBlockerCheck",
+        "kind": "function",
+        "file": "core/algorithms/safety/safety-checks.ts",
+        "start_line": 23,
+        "end_line": 38,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06670523646754586
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/strategies/merge-strategies.ts:function:getMergeStrategy:354:0",
+        "name": "getMergeStrategy",
+        "kind": "function",
+        "file": "core/algorithms/strategies/merge-strategies.ts",
+        "start_line": 354,
+        "end_line": 355,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06666217404893782
+    },
+    {
+      "node": {
+        "id": "symbol:webui/server.ts:function:changeProject:736:0",
+        "name": "changeProject",
+        "kind": "function",
+        "file": "webui/server.ts",
+        "start_line": 736,
+        "end_line": 759,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06640103500534417
+    },
+    {
+      "node": {
+        "id": "symbol:core/security/encrypt.ts:function:encrypt:31:0",
+        "name": "encrypt",
+        "kind": "function",
+        "file": "core/security/encrypt.ts",
+        "start_line": 31,
+        "end_line": 40,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06631137949084559
+    },
+    {
+      "node": {
+        "id": "symbol:webui/server.ts:function:openSettings:573:0",
+        "name": "openSettings",
+        "kind": "function",
+        "file": "webui/server.ts",
+        "start_line": 573,
+        "end_line": 616,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.0661994213601512
+    },
+    {
+      "node": {
+        "id": "symbol:core/graph/graph-traversal.ts:function:getConnectedEntities:416:0",
+        "name": "getConnectedEntities",
+        "kind": "function",
+        "file": "core/graph/graph-traversal.ts",
+        "start_line": 416,
+        "end_line": 428,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06578251293880344
+    },
+    {
+      "node": {
+        "id": "symbol:core/utils/query-operations.ts:function:MemoryRequirementError:10:0",
+        "name": "MemoryRequirementError",
+        "kind": "function",
+        "file": "core/utils/query-operations.ts",
+        "start_line": 10,
+        "end_line": 44,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06541620669388329
+    },
+    {
+      "node": {
+        "id": "symbol:core/worker.ts:function:getWorker:278:0",
+        "name": "getWorker",
+        "kind": "function",
+        "file": "core/worker.ts",
+        "start_line": 278,
+        "end_line": 278,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06540086141347054
+    },
+    {
+      "node": {
+        "id": "symbol:core/storage/cache.ts:function:initRedis:170:0",
+        "name": "initRedis",
+        "kind": "function",
+        "file": "core/storage/cache.ts",
+        "start_line": 170,
+        "end_line": 189,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06534977436553654
+    },
+    {
+      "node": {
+        "id": "symbol:core/commands/mcp-server.ts:function:createSquishServer:88:0",
+        "name": "createSquishServer",
+        "kind": "function",
+        "file": "core/commands/mcp-server.ts",
+        "start_line": 88,
+        "end_line": 144,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.0652433773141554
+    },
+    {
+      "node": {
+        "id": "symbol:db/adapter.ts:function:createSqlJsDb:161:0",
+        "name": "createSqlJsDb",
+        "kind": "function",
+        "file": "db/adapter.ts",
+        "start_line": 161,
+        "end_line": 192,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06517471466001272
+    },
+    {
+      "node": {
+        "id": "symbol:core/graph/llm-entity-extractor.ts:function:extractWithLLM:319:0",
+        "name": "extractWithLLM",
+        "kind": "function",
+        "file": "core/graph/llm-entity-extractor.ts",
+        "start_line": 319,
+        "end_line": 370,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06500395899061401
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/contradiction-resolver.ts:function:extractSubject:149:0",
+        "name": "extractSubject",
+        "kind": "function",
+        "file": "core/memory/contradiction-resolver.ts",
+        "start_line": 149,
+        "end_line": 183,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06489424650099256
+    },
+    {
+      "node": {
+        "id": "symbol:bin/detect-clients.mjs:function:detectClient:18:0",
+        "name": "detectClient",
+        "kind": "function",
+        "file": "bin/detect-clients.mjs",
+        "start_line": 18,
+        "end_line": 28,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06486054545597159
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/write-gate.ts:function:quickValidate:166:0",
+        "name": "quickValidate",
+        "kind": "function",
+        "file": "core/memory/write-gate.ts",
+        "start_line": 166,
+        "end_line": 184,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06485651153227755
+    },
+    {
+      "node": {
+        "id": "symbol:core/beliefs/extractor.ts:function:cleanStatement:4:0",
+        "name": "cleanStatement",
+        "kind": "function",
+        "file": "core/beliefs/extractor.ts",
+        "start_line": 4,
+        "end_line": 10,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06477984220555338
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/detection/semantic-ranker.ts:function:analyzePair:168:0",
+        "name": "analyzePair",
+        "kind": "function",
+        "file": "core/algorithms/detection/semantic-ranker.ts",
+        "start_line": 168,
+        "end_line": 195,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06477622238365045
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/markdown/markdown-storage.ts:function:ensureMemoryStructure:63:0",
+        "name": "ensureMemoryStructure",
+        "kind": "function",
+        "file": "core/memory/markdown/markdown-storage.ts",
+        "start_line": 63,
+        "end_line": 64,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06455596396111625
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/bridge-discovery.ts:function:findPaths:199:0",
+        "name": "findPaths",
+        "kind": "function",
+        "file": "core/memory/bridge-discovery.ts",
+        "start_line": 199,
+        "end_line": 215,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06454673202916825
+    },
+    {
+      "node": {
+        "id": "symbol:core/search/qmd-wrapper.ts:function:getStore:35:0",
+        "name": "getStore",
+        "kind": "function",
+        "file": "core/search/qmd-wrapper.ts",
+        "start_line": 35,
+        "end_line": 36,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06429675487088032
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/query-rewriter.ts:function:detectIntent:125:0",
+        "name": "detectIntent",
+        "kind": "function",
+        "file": "core/memory/query-rewriter.ts",
+        "start_line": 125,
+        "end_line": 142,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06424578476009517
+    },
+    {
+      "node": {
+        "id": "symbol:core/lib/validation.ts:function:validateDate:135:0",
+        "name": "validateDate",
+        "kind": "function",
+        "file": "core/lib/validation.ts",
+        "start_line": 135,
+        "end_line": 135,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06421448111350758
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/serialization.ts:function:normalizeTags:3:0",
+        "name": "normalizeTags",
+        "kind": "function",
+        "file": "core/memory/serialization.ts",
+        "start_line": 3,
+        "end_line": 6,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06419056986260632
+    },
+    {
+      "node": {
+        "id": "symbol:core/compression.ts:function:compressForContext:22:0",
+        "name": "compressForContext",
+        "kind": "function",
+        "file": "core/compression.ts",
+        "start_line": 22,
+        "end_line": 36,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06416747562185937
+    },
+    {
+      "node": {
+        "id": "symbol:core/integrations/obsidian-vault.ts:function:findMarkdownFiles:173:0",
+        "name": "findMarkdownFiles",
+        "kind": "function",
+        "file": "core/integrations/obsidian-vault.ts",
+        "start_line": 173,
+        "end_line": 178,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06412345640776661
+    },
+    {
+      "node": {
+        "id": "symbol:core/adapters/index.ts:function:registerAdapter:20:0",
+        "name": "registerAdapter",
+        "kind": "function",
+        "file": "core/adapters/index.ts",
+        "start_line": 20,
+        "end_line": 30,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06400095282775786
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/utils/response-builder.ts:function:buildErrorResponse:37:0",
+        "name": "buildErrorResponse",
+        "kind": "function",
+        "file": "core/algorithms/utils/response-builder.ts",
+        "start_line": 37,
+        "end_line": 62,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.0639276531509467
+    },
+    {
+      "node": {
+        "id": "symbol:bin/install-interactive.mjs:function:printHelp:73:0",
+        "name": "printHelp",
+        "kind": "function",
+        "file": "bin/install-interactive.mjs",
+        "start_line": 73,
+        "end_line": 92,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06389119580968529
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/hybrid-scorer.ts:function:calculateSemanticScore:107:0",
+        "name": "calculateSemanticScore",
+        "kind": "function",
+        "file": "core/memory/hybrid-scorer.ts",
+        "start_line": 107,
+        "end_line": 128,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06389031904911253
+    },
+    {
+      "node": {
+        "id": "symbol:core/search/folder-context.ts:function:preserveUserContent:92:0",
+        "name": "preserveUserContent",
+        "kind": "function",
+        "file": "core/search/folder-context.ts",
+        "start_line": 92,
+        "end_line": 145,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06388210088281064
+    },
+    {
+      "node": {
+        "id": "symbol:bin/dependency-manager.mjs:function:installDependency:87:0",
+        "name": "installDependency",
+        "kind": "function",
+        "file": "bin/dependency-manager.mjs",
+        "start_line": 87,
+        "end_line": 94,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06384059849592628
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/safety/safety-checks.ts:function:createWarningCheck:39:0",
+        "name": "createWarningCheck",
+        "kind": "function",
+        "file": "core/algorithms/safety/safety-checks.ts",
+        "start_line": 39,
+        "end_line": 54,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06382794505655937
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/contradiction-resolver.ts:function:calculateSimilarity:128:0",
+        "name": "calculateSimilarity",
+        "kind": "function",
+        "file": "core/memory/contradiction-resolver.ts",
+        "start_line": 128,
+        "end_line": 138,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06380568458584143
+    },
+    {
+      "node": {
+        "id": "symbol:config.ts:function:getDataDir:9:0",
+        "name": "getDataDir",
+        "kind": "function",
+        "file": "config.ts",
+        "start_line": 9,
+        "end_line": 16,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06377619717383218
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/telemetry.ts:function:calculateTelemetryBoost:363:0",
+        "name": "calculateTelemetryBoost",
+        "kind": "function",
+        "file": "core/memory/telemetry.ts",
+        "start_line": 363,
+        "end_line": 363,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06368509029897071
+    },
+    {
+      "node": {
+        "id": "symbol:core/summarization.ts:function:createIncrementalSummary:120:0",
+        "name": "createIncrementalSummary",
+        "kind": "function",
+        "file": "core/summarization.ts",
+        "start_line": 120,
+        "end_line": 131,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.06357293243718681
+    },
+    {
+      "node": {
+        "id": "symbol:config.ts:function:config:149:0",
+        "name": "config",
+        "kind": "function",
+        "file": "config.ts",
+        "start_line": 149,
+        "end_line": 285,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 0.062296055352547154
+    }
+  ],
+  "imports": [
+    {
+      "file": "db/index.ts",
+      "imports": [
+        "../config.js",
+        "../core/lib/utils.js",
+        "../core/logger.js",
+        "./adapter.js"
+      ],
+      "score": 0.16167112521420599
+    },
+    {
+      "file": "core/memory/memories.ts",
+      "imports": [
+        "../../config.js",
+        "../../core/embeddings.js",
+        "../../core/logger.js",
+        "../../core/memory/serialization.js",
+        "../../core/projects.js",
+        "../beliefs/extractor.js",
+        "../beliefs/store.js",
+        "../context/context-window.js",
+        "../lib/db-client.js",
+        "../lib/utils.js",
+        "../lib/validation.js",
+        "../security/encrypt.js",
+        "../utils/vector-operations.js",
+        "./contradiction-resolver.js",
+        "./hybrid-search.js",
+        "./importance.js",
+        "./trigger-detector.js",
+        "crypto",
+        "drizzle-orm"
+      ],
+      "score": 0.13508863034869703
+    },
+    {
+      "file": "db/bootstrap.ts",
+      "imports": [
+        "../config.js",
+        "../core/logger.js",
+        "fs"
+      ],
+      "score": 0.12017911220256872
+    },
+    {
+      "file": "db/schema.ts",
+      "imports": [
+        "../config.js"
+      ],
+      "score": 0.120100887924915
+    },
+    {
+      "file": "core/commands/mcp-server.ts",
+      "imports": [
+        "../../config.js",
+        "../../core/associations.js",
+        "../../core/embeddings/qmd-client.js",
+        "../../core/ingestion/learnings.js",
+        "../../core/lib/utils.js",
+        "../../core/logger.js",
+        "../../core/memory/hybrid-retrieval.js",
+        "../../core/memory/memories.js",
+        "../../core/memory/serialization.js",
+        "../../core/projects.js",
+        "../../core/scheduler/cron-scheduler.js",
+        "../../core/security/encrypt.js",
+        "../../core/worker.js",
+        "../../db/index.js",
+        "../../db/schema.js",
+        "@modelcontextprotocol/sdk/server/mcp.js",
+        "@modelcontextprotocol/sdk/server/stdio.js",
+        "@modelcontextprotocol/sdk/server/streamableHttp.js",
+        "drizzle-orm",
+        "express",
+        "fs",
+        "path",
+        "zod"
+      ],
+      "score": 0.11814764646110504
+    },
+    {
+      "file": "core/embeddings/embeddings.ts",
+      "imports": [
+        "../config.js",
+        "../logger.js",
+        "./google-multimodal.js"
+      ],
+      "score": 0.10878858462939427
+    },
+    {
+      "file": "core/memory/temporal-parser.ts",
+      "imports": [
+        "../../core/associations.js",
+        "../../core/logger.js",
+        "../../db/index.js",
+        "../../db/schema.js",
+        "drizzle-orm"
+      ],
+      "score": 0.1031372052126819
+    },
+    {
+      "file": "core/scheduler/cron-scheduler.ts",
+      "imports": [
+        "../../config.js",
+        "../../db/drizzle/schema-sqlite.js",
+        "../../db/index.js",
+        "../lifecycle.js",
+        "../logger.js",
+        "../session/self-iteration-job.js",
+        "drizzle-orm",
+        "node-cron"
+      ],
+      "score": 0.10306707929602263
+    },
+    {
+      "file": "webui/server.ts",
+      "imports": [
+        "../config.js",
+        "../core/ingestion/learnings.js",
+        "../core/lib/utils.js",
+        "../core/lib/validation.js",
+        "../core/logger.js",
+        "../core/memory/memories.js",
+        "../core/projects.js",
+        "../db/index.js",
+        "cors",
+        "express",
+        "express-rate-limit"
+      ],
+      "score": 0.09969101287103661
+    },
+    {
+      "file": "core/memory/contradiction-resolver.ts",
+      "imports": [
+        "../../db/index.js",
+        "../../db/schema.js",
+        "../associations.js",
+        "../logger.js",
+        "drizzle-orm"
+      ],
+      "score": 0.09879493745552985
+    },
+    {
+      "file": "core/embeddings/qmd-client.ts",
+      "imports": [
+        "../logger",
+        "@modelcontextprotocol/sdk/client/index.js",
+        "@modelcontextprotocol/sdk/client/stdio.js",
+        "child_process"
+      ],
+      "score": 0.09775368710893335
+    },
+    {
+      "file": "core/memory/temporal-facts.ts",
+      "imports": [
+        "../../db/index.js",
+        "../../db/schema.js",
+        "../associations.js",
+        "../logger.js",
+        "./temporal-parser.js",
+        "drizzle-orm"
+      ],
+      "score": 0.08498402581333361
+    },
+    {
+      "file": "core/hooks/agent-hooks.ts",
+      "imports": [
+        "../../config.js",
+        "../agent-preferences.js",
+        "../beliefs/extractor.js",
+        "../beliefs/store.js",
+        "../compression.js",
+        "../graph/graph-builder.js",
+        "../hot-cache.js",
+        "../ingestion/learnings.js",
+        "../ingestion/signal-engine.js",
+        "../lib/db-client.js",
+        "../logger.js",
+        "../memory/memories.js",
+        "../memory/serialization.js",
+        "../places/index.js",
+        "../projects.js",
+        "../session/working-set.js",
+        "./auto-tagger.js",
+        "./capture-filter.js",
+        "crypto",
+        "drizzle-orm"
+      ],
+      "score": 0.0794223599865521
+    },
+    {
+      "file": "core/algorithms/detection/two-stage-detector.ts",
+      "imports": [
+        "../../../core/embeddings.js",
+        "../../../core/lib/db-client.js",
+        "./hash-filters.js",
+        "./semantic-ranker.js",
+        "crypto",
+        "drizzle-orm"
+      ],
+      "score": 0.07889286883203717
+    },
+    {
+      "file": "core/memory/bridge-discovery.ts",
+      "imports": [
+        "../../core/logger.js",
+        "../../db/index.js",
+        "../../db/schema.js",
+        "drizzle-orm"
+      ],
+      "score": 0.07636139089552849
+    },
+    {
+      "file": "core/graph/graph-traversal.ts",
+      "imports": [
+        "../../db/index.js",
+        "../../db/schema.js",
+        "../logger.js",
+        "drizzle-orm"
+      ],
+      "score": 0.07221024174932138
+    },
+    {
+      "file": "core/memory/write-gate.ts",
+      "imports": [
+        "../logger.js",
+        "../security/secret-detector.js",
+        "./contradiction-resolver.js",
+        "./temporal-facts.js",
+        "./trigger-detector.js"
+      ],
+      "score": 0.07148639257571308
+    },
+    {
+      "file": "core/memory/hybrid-search.ts",
+      "imports": [
+        "../../config.js",
+        "../../core/embeddings.js",
+        "../../core/projects.js",
+        "../../db/index.js",
+        "../lib/utils.js",
+        "../search/graph-boost.js",
+        "../storage/database.js",
+        "../utils/vector-operations.js",
+        "./serialization.js"
+      ],
+      "score": 0.0702621887390462
+    },
+    {
+      "file": "core/memory/categorizer.ts",
+      "imports": [
+        "../../core/embeddings.js",
+        "./memories.js"
+      ],
+      "score": 0.06756611490241003
+    },
+    {
+      "file": "core/memory/retrieval-feedback.ts",
+      "imports": [
+        "../../db/index.js",
+        "../../db/schema.js",
+        "../logger.js",
+        "drizzle-orm"
+      ],
+      "score": 0.06723110281810207
+    },
+    {
+      "file": "core/consolidation.ts",
+      "imports": [
+        "../config.js",
+        "../db/index.js",
+        "../db/schema.js",
+        "./associations.js",
+        "./logger.js",
+        "./memory/consolidation.js",
+        "drizzle-orm"
+      ],
+      "score": 0.06709829578397056
+    },
+    {
+      "file": "core/memory/hybrid-scorer.ts",
+      "imports": [
+        "../../core/logger.js"
+      ],
+      "score": 0.06674221689619173
+    },
+    {
+      "file": "bin/dependency-manager.mjs",
+      "imports": [
+        "node:child_process",
+        "node:fs",
+        "node:os",
+        "node:path"
+      ],
+      "score": 0.06529561245208745
+    }
+  ],
+  "savings": {
+    "whole_repo_tokens_estimate": 466775,
+    "tokens_used_estimate": 2044,
+    "saved_tokens_estimate": 464731,
+    "saved_percent_estimate": 99.56210165497296,
+    "basis": "estimated ~4 UTF-8 bytes per token; baseline = all indexed source bytes / 4"
+  }
+}

@@ -7,16 +7,14 @@ import (
 	"strings"
 )
 
-// ModuleGraph represents the dependency graph of a codebase
 type ModuleGraph struct {
 	Files    map[string]*FileNode
 	Exports  map[string]ExportRef // "file:exportName" -> references
-	Imports  map[string][]Import  // file -> imports
+	Imports  map[string][]Import
 	Language string
 	RootPath string
 }
 
-// FileNode represents a single source file in the graph
 type FileNode struct {
 	Path    string
 	Name    string
@@ -25,7 +23,6 @@ type FileNode struct {
 	Imports  []Import
 }
 
-// Export represents an exported symbol
 type Export struct {
 	Name string
 	Kind string // "function", "class", "const", "type", "var", "interface"
@@ -33,7 +30,6 @@ type Export struct {
 	Doc  string
 }
 
-// Import represents an imported symbol
 type Import struct {
 	Name   string // imported name (may be aliased)
 	Source string // module path or relative path
@@ -41,14 +37,12 @@ type Import struct {
 	Line   int
 }
 
-// ExportRef tracks where an export is referenced
 type ExportRef struct {
 	File   string
 	Export string
 	Line   int
 }
 
-// NewModuleGraph creates a new empty module graph
 func NewModuleGraph(rootPath string, language string) *ModuleGraph {
 	return &ModuleGraph{
 		Files:    make(map[string]*FileNode),
@@ -59,17 +53,14 @@ func NewModuleGraph(rootPath string, language string) *ModuleGraph {
 	}
 }
 
-// BuildGraph scans a directory and builds the dependency graph
 func BuildGraph(rootPath string, language string) (*ModuleGraph, error) {
 	graph := NewModuleGraph(rootPath, language)
 
-	// Use the unified parser
 	codebase, err := parser.ParseDirectory(rootPath, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse directory: %w", err)
 	}
 
-	// Convert parser.ParseResult to FileNode
 	for filePath, result := range codebase.Files {
 		fileNode := &FileNode{
 			Path:    filePath,
@@ -79,7 +70,6 @@ func BuildGraph(rootPath string, language string) (*ModuleGraph, error) {
 			Imports:  []Import{},
 		}
 
-		// Convert exports
 		for _, exp := range result.Exports {
 			fileNode.Exports = append(fileNode.Exports, Export{
 				Name: exp.Name,
@@ -88,7 +78,6 @@ func BuildGraph(rootPath string, language string) (*ModuleGraph, error) {
 			})
 		}
 
-		// Convert imports
 		for _, imp := range result.Imports {
 			fileNode.Imports = append(fileNode.Imports, Import{
 				Name:   imp.Name,
@@ -100,7 +89,6 @@ func BuildGraph(rootPath string, language string) (*ModuleGraph, error) {
 
 		graph.Files[filePath] = fileNode
 
-		// Register exports
 		for _, exp := range fileNode.Exports {
 			key := filePath + ":" + exp.Name
 			graph.Exports[key] = ExportRef{
@@ -110,14 +98,13 @@ func BuildGraph(rootPath string, language string) (*ModuleGraph, error) {
 			}
 		}
 
-		// Register imports
 		graph.Imports[filePath] = fileNode.Imports
 	}
 
+	resolveGoImportSources(rootPath, graph)
 	return graph, nil
 }
 
-// BuildGraphFromCodebase builds a graph from an already-parsed codebase
 func BuildGraphFromCodebase(codebase *parser.Codebase) *ModuleGraph {
 	graph := NewModuleGraph(codebase.RootPath, string(codebase.Language))
 
@@ -164,7 +151,6 @@ func BuildGraphFromCodebase(codebase *parser.Codebase) *ModuleGraph {
 	return graph
 }
 
-// GetFilesByLanguage returns all files of a specific language
 func (g *ModuleGraph) GetFilesByLanguage(lang string) []*FileNode {
 	var result []*FileNode
 	for _, file := range g.Files {
@@ -175,7 +161,6 @@ func (g *ModuleGraph) GetFilesByLanguage(lang string) []*FileNode {
 	return result
 }
 
-// GetExportedFunctions returns all exported functions
 func (g *ModuleGraph) GetExportedFunctions() []Export {
 	var result []Export
 	for _, file := range g.Files {
@@ -188,7 +173,6 @@ func (g *ModuleGraph) GetExportedFunctions() []Export {
 	return result
 }
 
-// GetTotalLinesOfCode returns total lines of code
 func (g *ModuleGraph) GetTotalLinesOfCode() int {
 	total := 0
 	for _, file := range g.Files {
@@ -198,7 +182,6 @@ func (g *ModuleGraph) GetTotalLinesOfCode() int {
 	return total
 }
 
-// GetSymbolInfo returns info about a symbol across the codebase
 func (g *ModuleGraph) GetSymbolInfo(name string) []ExportRef {
 	var refs []ExportRef
 	for key, ref := range g.Exports {
@@ -209,7 +192,6 @@ func (g *ModuleGraph) GetSymbolInfo(name string) []ExportRef {
 	return refs
 }
 
-// GetCallGraph returns files that call or are called by a given file
 func (g *ModuleGraph) GetCallGraph(filePath string) (callers []string, callees []string) {
 	for f, imports := range g.Imports {
 		for _, imp := range imports {
@@ -221,7 +203,6 @@ func (g *ModuleGraph) GetCallGraph(filePath string) (callers []string, callees [
 	return callers, callees
 }
 
-// GetAllSymbols returns all symbols (exports) in the codebase
 func (g *ModuleGraph) GetAllSymbols() []Export {
 	var result []Export
 	for _, file := range g.Files {
@@ -230,7 +211,6 @@ func (g *ModuleGraph) GetAllSymbols() []Export {
 	return result
 }
 
-// GetSymbolsByType returns all symbols of a specific type
 func (g *ModuleGraph) GetSymbolsByType(symbolType string) []Export {
 	var result []Export
 	for _, file := range g.Files {
@@ -243,7 +223,6 @@ func (g *ModuleGraph) GetSymbolsByType(symbolType string) []Export {
 	return result
 }
 
-// GetStats returns codebase statistics
 func (g *ModuleGraph) GetStats() map[string]interface{} {
 	byLang := map[string]int{}
 	byType := map[string]int{}

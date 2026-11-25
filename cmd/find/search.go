@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-// SearchOptions defines options for search
 type SearchOptions struct {
 	CaseSensitive bool
 	UseRegex      bool
@@ -17,7 +16,6 @@ type SearchOptions struct {
 	MaxResults    int
 }
 
-// SearchResult represents a single search match
 type SearchResult struct {
 	File     string
 	Line     int
@@ -26,12 +24,10 @@ type SearchResult struct {
 	Match    string
 }
 
-// Search searches for a pattern in files within a directory
 func Search(rootPath string, pattern string, opts SearchOptions) ([]SearchResult, error) {
 	var results []SearchResult
 	var regex *regexp.Regexp
 
-	// Compile regex if needed
 	if opts.UseRegex {
 		flags := ""
 		if !opts.CaseSensitive {
@@ -44,7 +40,6 @@ func Search(rootPath string, pattern string, opts SearchOptions) ([]SearchResult
 		}
 	}
 
-	// Walk directory
 	walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -59,23 +54,19 @@ func Search(rootPath string, pattern string, opts SearchOptions) ([]SearchResult
 			return nil
 		}
 
-		// Check if it's a source file
 		ext := strings.ToLower(filepath.Ext(path))
 		if !isSourceFile(ext) {
 			return nil
 		}
 
-		// Read file
 		content, err := ioutil.ReadFile(path)
 		if err != nil {
 			return nil
 		}
 
-		// Search in file
 		fileResults := searchInContent(string(content), path, pattern, regex, opts)
 		results = append(results, fileResults...)
 
-		// Check max results
 		if opts.MaxResults > 0 && len(results) >= opts.MaxResults {
 			return filepath.SkipAll
 		}
@@ -90,7 +81,6 @@ func Search(rootPath string, pattern string, opts SearchOptions) ([]SearchResult
 	return results, nil
 }
 
-// searchInContent searches for a pattern in file content
 func searchInContent(content, filePath, pattern string, regex *regexp.Regexp, opts SearchOptions) []SearchResult {
 	var results []SearchResult
 	lines := strings.Split(content, "\n")
@@ -99,13 +89,11 @@ func searchInContent(content, filePath, pattern string, regex *regexp.Regexp, op
 		var matches []int
 
 		if regex != nil {
-			// Regex search
 			loc := regex.FindStringIndex(line)
 			if loc != nil {
 				matches = []int{loc[0], loc[1]}
 			}
 		} else {
-			// Literal search
 			idx := strings.Index(line, pattern)
 			if idx == -1 {
 				continue
@@ -134,7 +122,6 @@ func searchInContent(content, filePath, pattern string, regex *regexp.Regexp, op
 	return results
 }
 
-// isSourceFile checks if a file extension is a source file
 func isSourceFile(ext string) bool {
 	sourceExts := []string{".go", ".ts", ".tsx", ".js", ".jsx", ".py", ".rs", ".java", ".cpp", ".c", ".h", ".hpp", ".rb", ".php", ".cs", ".swift", ".kt", ".scala"}
 
@@ -146,7 +133,6 @@ func isSourceFile(ext string) bool {
 	return false
 }
 
-// min returns the minimum of two integers
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -154,7 +140,6 @@ func min(a, b int) int {
 	return b
 }
 
-// FormatResults formats search results for display
 func FormatResults(results []SearchResult, maxResults int) string {
 	if len(results) == 0 {
 		return "No matches found.\n"

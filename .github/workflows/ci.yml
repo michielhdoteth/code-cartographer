@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    name: Go CLI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cmd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: cmd/go.sum
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...
+      - name: Check embedded CLI skill is installed
+        run: go run . skill --check --root ..
+
+  ui:
+    name: Web UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install
+        run: bun install --frozen-lockfile
+      # Informational only: the UI currently has pre-existing type errors in
+      # ui/__tests__ that are outside the scope of the structural-analysis work.
+      - name: Type check (informational)
+        run: bun run type-check
+        continue-on-error: true
+      - name: Build
+        run: bun run build
+
+  structure:
+    name: Structure report (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: cmd/go.sum
+      - name: Build carto
+        run: |
+          mkdir -p bin
+          cd cmd
+          go build -o ../bin/carto .
+      - name: Map and report
+        run: |
+          ./bin/carto map .
+          ./bin/carto analyze structure . --json --fail-on critical

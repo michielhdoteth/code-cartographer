@@ -32,13 +32,11 @@ import (
 	"github.com/smacker/go-tree-sitter/yaml"
 )
 
-// TreeSitterParser is a parser that uses tree-sitter for accurate AST parsing
 type TreeSitterParser struct {
 	language Language
 	langPtr  *sitter.Language
 }
 
-// NewTreeSitterParser creates a new tree-sitter parser for the given language
 func NewTreeSitterParser(lang Language) *TreeSitterParser {
 	var langPtr *sitter.Language
 
@@ -97,17 +95,14 @@ func NewTreeSitterParser(lang Language) *TreeSitterParser {
 	}
 }
 
-// Language returns the language this parser handles
 func (p *TreeSitterParser) Language() Language {
 	return p.language
 }
 
-// SupportedExtensions returns file extensions this parser handles
 func (p *TreeSitterParser) SupportedExtensions() []string {
 	return GetLanguageConfig(p.language).Extensions
 }
 
-// Parse parses source code using tree-sitter and returns the AST
 func (p *TreeSitterParser) Parse(code string, filePath string) (*ParseResult, error) {
 	if p.langPtr == nil {
 		return nil, fmt.Errorf("language not supported for tree-sitter: %s", p.language)
@@ -146,20 +141,17 @@ func (p *TreeSitterParser) Parse(code string, filePath string) (*ParseResult, er
 		p.walkGenericTree(root, []byte(code), filePath, result)
 	}
 
-	// Calculate metrics
 	result.CalculateMetrics()
 
 	return result, nil
 }
 
-// parseGo extracts nodes from Go source code
 func (p *TreeSitterParser) parseGo(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
 	cursor := sitter.NewTreeCursor(root)
 	defer cursor.Close()
 	p.walkGoTree(cursor, source, filePath, result)
 }
 
-// walkGoTree recursively walks Go AST to find declarations
 func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, filePath string, result *ParseResult) {
 	node := cursor.CurrentNode()
 
@@ -174,14 +166,14 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 				nodeType = NodeTypeMethod
 			}
 			result.Nodes = append(result.Nodes, Node{
-				ID:         fmt.Sprintf("%s:func:%s", filePath, name),
-				Name:       name,
-				Type:       nodeType,
-				File:       filePath,
-				StartLine:  int(start.Row) + 1,
-				EndLine:    int(end.Row) + 1,
-				Exported:   isExported(name),
-				Metrics:    p.calculateNodeMetrics(node, source),
+				ID:        fmt.Sprintf("%s:func:%s", filePath, name),
+				Name:      name,
+				Type:      nodeType,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+				Exported:  isExported(name),
+				Metrics:   p.calculateNodeMetrics(node, source),
 			})
 			if isExported(name) {
 				result.Exports = append(result.Exports, Export{
@@ -209,13 +201,13 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 						}
 					}
 					result.Nodes = append(result.Nodes, Node{
-						ID:         fmt.Sprintf("%s:type:%s", filePath, name),
-						Name:       name,
-						Type:       kind,
-						File:       filePath,
-						StartLine:  int(start.Row) + 1,
-						EndLine:    int(node.EndPoint().Row) + 1,
-						Exported:   isExported(name),
+						ID:        fmt.Sprintf("%s:type:%s", filePath, name),
+						Name:      name,
+						Type:      kind,
+						File:      filePath,
+						StartLine: int(start.Row) + 1,
+						EndLine:   int(node.EndPoint().Row) + 1,
+						Exported:  isExported(name),
 					})
 					if isExported(name) {
 						result.Exports = append(result.Exports, Export{
@@ -276,6 +268,7 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 					Source: filePath,
 					Target: calleeName,
 					Type:   EdgeTypeCalls,
+					Line:   int(start.Row) + 1,
 				})
 			}
 		}
@@ -290,7 +283,6 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 	}
 }
 
-// isMethod checks if a function is a method (has a receiver)
 func (p *TreeSitterParser) isMethod(node *sitter.Node) bool {
 	if node.ChildCount() > 0 && node.Child(0).Type() == "parameter_list" {
 		return false
@@ -307,21 +299,18 @@ func (p *TreeSitterParser) isMethod(node *sitter.Node) bool {
 	return false
 }
 
-// parseJavaScript extracts nodes from JavaScript source code
 func (p *TreeSitterParser) parseJavaScript(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
 	cursor := sitter.NewTreeCursor(root)
 	defer cursor.Close()
 	p.walkJSTree(cursor, source, filePath, result, false)
 }
 
-// parseTypeScript extracts nodes from TypeScript source code
 func (p *TreeSitterParser) parseTypeScript(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
 	cursor := sitter.NewTreeCursor(root)
 	defer cursor.Close()
 	p.walkJSTree(cursor, source, filePath, result, true)
 }
 
-// walkJSTree recursively walks JS/TS AST
 func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, filePath string, result *ParseResult, isTypeScript bool) {
 	node := cursor.CurrentNode()
 
@@ -332,14 +321,14 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 			start := node.StartPoint()
 			end := node.EndPoint()
 			result.Nodes = append(result.Nodes, Node{
-				ID:         fmt.Sprintf("%s:func:%s", filePath, name),
-				Name:       name,
-				Type:       NodeTypeFunction,
-				File:       filePath,
-				StartLine:  int(start.Row) + 1,
-				EndLine:    int(end.Row) + 1,
-				Exported:   p.isExportedInJS(node, source),
-				Metrics:    p.calculateNodeMetrics(node, source),
+				ID:        fmt.Sprintf("%s:func:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeFunction,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+				Exported:  p.isExportedInJS(node, source),
+				Metrics:   p.calculateNodeMetrics(node, source),
 			})
 			if p.isExportedInJS(node, source) {
 				result.Exports = append(result.Exports, Export{
@@ -358,13 +347,13 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 			start := node.StartPoint()
 			end := node.EndPoint()
 			result.Nodes = append(result.Nodes, Node{
-				ID:         fmt.Sprintf("%s:class:%s", filePath, name),
-				Name:       name,
-				Type:       NodeTypeClass,
-				File:       filePath,
-				StartLine:  int(start.Row) + 1,
-				EndLine:    int(end.Row) + 1,
-				Exported:   p.isExportedInJS(node, source),
+				ID:        fmt.Sprintf("%s:class:%s", filePath, name),
+				Name:      name,
+				Type:      NodeTypeClass,
+				File:      filePath,
+				StartLine: int(start.Row) + 1,
+				EndLine:   int(end.Row) + 1,
+				Exported:  p.isExportedInJS(node, source),
 			})
 			if p.isExportedInJS(node, source) {
 				result.Exports = append(result.Exports, Export{
@@ -479,6 +468,7 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 					Source: filePath,
 					Target: calleeName,
 					Type:   EdgeTypeCalls,
+					Line:   int(start.Row) + 1,
 				})
 			}
 		}
@@ -493,7 +483,6 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 	}
 }
 
-// isExportedInJS checks if a JS/TS declaration is exported
 func (p *TreeSitterParser) isExportedInJS(node *sitter.Node, source []byte) bool {
 	parent := node.Parent()
 	if parent != nil && (parent.Type() == "export_statement" || parent.Type() == "export") {
@@ -505,14 +494,12 @@ func (p *TreeSitterParser) isExportedInJS(node *sitter.Node, source []byte) bool
 	return false
 }
 
-// walkGenericTree is a generic tree-walker that looks for common node types across all tree-sitter grammars
 func (p *TreeSitterParser) walkGenericTree(root *sitter.Node, source []byte, filePath string, result *ParseResult) {
 	cursor := sitter.NewTreeCursor(root)
 	defer cursor.Close()
 	p.walkGenericTreeCursor(cursor, source, filePath, result)
 }
 
-// walkGenericTreeCursor recursively walks a generic AST
 func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, source []byte, filePath string, result *ParseResult) {
 	node := cursor.CurrentNode()
 	nodeType := node.Type()
@@ -603,7 +590,6 @@ func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, sour
 	case "import_statement", "import_declaration", "use_declaration", "use_statement":
 		start := node.StartPoint()
 		text := p.getNodeText(node, source)
-		// Try to extract the source path
 		sourcePath := ""
 		if node.ChildByFieldName("path") != nil {
 			sourcePath = p.getNodeText(node.ChildByFieldName("path"), source)
@@ -667,6 +653,7 @@ func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, sour
 					Source: filePath,
 					Target: calleeName,
 					Type:   EdgeTypeCalls,
+					Line:   int(start.Row) + 1,
 				})
 			}
 		}
@@ -681,7 +668,6 @@ func (p *TreeSitterParser) walkGenericTreeCursor(cursor *sitter.TreeCursor, sour
 	}
 }
 
-// getNodeText extracts text content from a node
 func (p *TreeSitterParser) getNodeText(node *sitter.Node, source []byte) string {
 	if node == nil {
 		return ""
@@ -689,7 +675,6 @@ func (p *TreeSitterParser) getNodeText(node *sitter.Node, source []byte) string 
 	return string(node.Content(source))
 }
 
-// extractImportPath extracts the import path from an import spec node
 func (p *TreeSitterParser) extractImportPath(node *sitter.Node, source []byte) string {
 	if node == nil {
 		return ""
@@ -716,7 +701,6 @@ func (p *TreeSitterParser) extractImportPath(node *sitter.Node, source []byte) s
 	return ""
 }
 
-// calculateNodeMetrics calculates metrics for a node
 func (p *TreeSitterParser) calculateNodeMetrics(node *sitter.Node, source []byte) Metrics {
 	metrics := Metrics{
 		LinesOfCode: 1,
@@ -760,7 +744,6 @@ func (p *TreeSitterParser) calculateNodeMetrics(node *sitter.Node, source []byte
 	return metrics
 }
 
-// RegisterTreeSitterParsers registers tree-sitter based parsers for all languages
 func RegisterTreeSitterParsers() {
 	languages := []Language{
 		LanguageGo,

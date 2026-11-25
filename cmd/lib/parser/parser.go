@@ -7,27 +7,20 @@ import (
 	"strings"
 )
 
-// Parser is the unified parser interface
 type Parser interface {
-	// Parse parses source code and returns the AST
 	Parse(code string, filePath string) (*ParseResult, error)
 
-	// Language returns the language this parser handles
 	Language() Language
 
-	// SupportedExtensions returns file extensions this parser handles
 	SupportedExtensions() []string
 }
 
-// parserRegistry stores all registered parsers
 var parserRegistry = make(map[Language]Parser)
 
-// RegisterParser registers a parser for a language
 func RegisterParser(p Parser) {
 	parserRegistry[p.Language()] = p
 }
 
-// GetParser returns a parser for the given language
 func GetParser(lang Language) Parser {
 	if p, ok := parserRegistry[lang]; ok {
 		return p
@@ -35,7 +28,6 @@ func GetParser(lang Language) Parser {
 	return nil
 }
 
-// GetSupportedLanguages returns all languages with registered parsers
 func GetSupportedLanguages() []Language {
 	languages := make([]Language, 0, len(parserRegistry))
 	for lang := range parserRegistry {
@@ -44,7 +36,6 @@ func GetSupportedLanguages() []Language {
 	return languages
 }
 
-// ParseFile parses a single file
 func ParseFile(filePath string) (*ParseResult, error) {
 	lang := DetectLanguage(filePath)
 	p := GetParser(lang)
@@ -65,7 +56,6 @@ func ParseFile(filePath string) (*ParseResult, error) {
 	return result, nil
 }
 
-// ParseDirectory recursively parses all files in a directory
 func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 	codebase := &Codebase{
 		RootPath: dirPath,
@@ -76,7 +66,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 		},
 	}
 
-	// Count files by language
 	langCounts := make(map[string]int)
 
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
@@ -84,7 +73,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 			return err
 		}
 
-		// Skip directories
 		if info.IsDir() {
 			name := info.Name()
 			if name == "node_modules" || name == ".git" || name == "vendor" ||
@@ -95,13 +83,11 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 			return nil
 		}
 
-		// Detect language
 		lang := DetectLanguage(path)
 		if lang == LanguageUnknown {
 			return nil
 		}
 
-		// Apply language filter
 		if len(langFilter) > 0 {
 			found := false
 			for _, f := range langFilter {
@@ -115,7 +101,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 			}
 		}
 
-		// Parse the file
 		relPath, _ := filepath.Rel(dirPath, path)
 		result, err := ParseFile(path)
 		if err != nil {
@@ -128,7 +113,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 		codebase.Language = lang
 		langCounts[string(lang)]++
 
-		// Add to dependency graph
 		node := &GraphNode{
 			ID:      relPath,
 			File:    relPath,
@@ -144,7 +128,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 		}
 		codebase.Graph.Nodes[relPath] = node
 
-		// Add edges
 		for _, edge := range result.Edges {
 			codebase.Graph.Edges = append(codebase.Graph.Edges, GraphEdge{
 				Source: edge.Source,
@@ -160,7 +143,6 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 		return nil, fmt.Errorf("failed to walk directory: %w", err)
 	}
 
-	// Calculate stats
 	codebase.Stats.TotalFiles = len(codebase.Files)
 	codebase.Stats.LanguageCounts = langCounts
 
@@ -175,14 +157,12 @@ func ParseDirectory(dirPath string, langFilter []Language) (*Codebase, error) {
 	return codebase, nil
 }
 
-// BuildGraph builds a dependency graph from a codebase
 func BuildGraph(codebase *Codebase) *DependencyGraph {
 	graph := &DependencyGraph{
 		Nodes: make(map[string]*GraphNode),
 		Edges: []GraphEdge{},
 	}
 
-	// Add all files as nodes
 	for path, file := range codebase.Files {
 		node := &GraphNode{
 			ID:      path,
@@ -192,12 +172,10 @@ func BuildGraph(codebase *Codebase) *DependencyGraph {
 			Metrics: file.Metrics,
 		}
 
-		// Collect exports
 		for _, exp := range file.Exports {
 			node.Exports = append(node.Exports, exp.Name)
 		}
 
-		// Collect imports
 		for _, imp := range file.Imports {
 			node.Imports = append(node.Imports, imp.Source)
 		}
@@ -205,10 +183,8 @@ func BuildGraph(codebase *Codebase) *DependencyGraph {
 		graph.Nodes[path] = node
 	}
 
-	// Build edges from imports
 	for path, file := range codebase.Files {
 		for _, imp := range file.Imports {
-			// Find the file that provides this import
 			for otherPath, otherFile := range codebase.Files {
 				if path == otherPath {
 					continue

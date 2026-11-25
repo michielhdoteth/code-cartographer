@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -11,7 +12,6 @@ func setupTestRepo(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 
-	// Init repo
 	run := func(args ...string) {
 		cmd := exec.Command("git", args...)
 		cmd.Dir = dir
@@ -24,7 +24,6 @@ func setupTestRepo(t *testing.T) string {
 	run("config", "user.email", "test@test.com")
 	run("config", "user.name", "Test")
 
-	// Create initial commit
 	os.WriteFile(filepath.Join(dir, "test.txt"), []byte("hello"), 0644)
 	run("add", ".")
 	run("commit", "-m", "initial")
@@ -69,7 +68,6 @@ func TestIsRepo(t *testing.T) {
 func TestGetStatus(t *testing.T) {
 	dir := setupTestRepo(t)
 
-	// Clean repo
 	statuses, err := GetStatus(dir)
 	if err != nil {
 		t.Fatalf("GetStatus failed: %v", err)
@@ -78,7 +76,6 @@ func TestGetStatus(t *testing.T) {
 		t.Errorf("expected 0 changes, got %d", len(statuses))
 	}
 
-	// Add a file
 	os.WriteFile(filepath.Join(dir, "new.txt"), []byte("world"), 0644)
 	statuses, err = GetStatus(dir)
 	if err != nil {
@@ -91,32 +88,51 @@ func TestGetStatus(t *testing.T) {
 
 func TestGetLastCommitSHA(t *testing.T) {
 	dir := setupTestRepo(t)
+	initialSHA, err := GetHeadSHA(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	// Make a second commit
-	os.WriteFile(filepath.Join(dir, "test2.txt"), []byte("world"), 0644)
-	cmd := exec.Command("git", "add", ".")
-	cmd.Dir = dir
-	cmd.Run()
-	cmd = exec.Command("git", "commit", "-m", "second")
-	cmd.Dir = dir
-	cmd.Run()
+	if err := os.WriteFile(filepath.Join(dir, "test2.txt"), []byte("world"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	runGit := func(args ...string) {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = dir
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v failed: %v\n%s", args, err, out)
+		}
+	}
+	runGit("add", ".")
+	runGit("commit", "-m", "second")
 
 	sha, err := GetLastCommitSHA(dir)
 	if err != nil {
 		t.Fatalf("GetLastCommitSHA failed: %v", err)
 	}
 	if len(sha) != 40 {
-		t.Errorf("expected 40-char SHA, got %d chars", len(sha))
+		t.Fatalf("expected 40-char SHA, got %d chars", len(sha))
+	}
+	if sha != initialSHA {
+		t.Fatalf("GetLastCommitSHA should return HEAD~1 (%s), got %s", initialSHA, sha)
+	}
+	headSHA, err := GetHeadSHA(dir)
+	if err != nil || headSHA == initialSHA {
+		t.Fatalf("HEAD did not advance past the initial commit: %q (%v)", headSHA, err)
+	}
+	logCmd := exec.Command("git", "log", "-1", "--format=%s")
+	logCmd.Dir = dir
+	out, err := logCmd.Output()
+	if err != nil || !strings.Contains(string(out), "second") {
+		t.Fatalf("HEAD is not the second commit: %q (%v)", out, err)
 	}
 }
 
 func TestGetChangedFiles(t *testing.T) {
 	dir := setupTestRepo(t)
 
-	// Get initial SHA
 	sha1, _ := GetHeadSHA(dir)
 
-	// Make a change
 	os.WriteFile(filepath.Join(dir, "new.txt"), []byte("world"), 0644)
 	cmd := exec.Command("git", "add", ".")
 	cmd.Dir = dir

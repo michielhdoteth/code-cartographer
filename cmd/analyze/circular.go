@@ -5,20 +5,17 @@ import (
 	"strings"
 )
 
-// CircularDepsResult contains the results of circular dependency analysis
 type CircularDepsResult struct {
 	Cycles     []DependencyCycle
 	TotalCount int
 }
 
-// DependencyCycle represents a circular dependency path
 type DependencyCycle struct {
-	Files []string // Files in the cycle
+	Files []string
 	Length int
 	Type   string // "import", "export", "type"
 }
 
-// AnalyzeCircularDeps detects circular dependencies in the module graph
 func AnalyzeCircularDeps(graph *ModuleGraph) *CircularDepsResult {
 	result := &CircularDepsResult{
 		Cycles: []DependencyCycle{},
@@ -28,14 +25,11 @@ func AnalyzeCircularDeps(graph *ModuleGraph) *CircularDepsResult {
 		return result
 	}
 
-	// Build adjacency list for imports
 	adjacency := make(map[string][]string)
 	for filePath, imports := range graph.Imports {
 		var deps []string
 		for _, imp := range imports {
-			// Try to find which files this import refers to
 			for otherFile := range graph.Files {
-				// Check if the import matches this file
 				if matchesImportToFile(imp, otherFile) {
 					deps = append(deps, otherFile)
 				}
@@ -44,7 +38,6 @@ func AnalyzeCircularDeps(graph *ModuleGraph) *CircularDepsResult {
 		adjacency[filePath] = deps
 	}
 
-	// Find cycles using DFS
 	visited := make(map[string]bool)
 	recursionStack := make(map[string]bool)
 	path := []string{}
@@ -61,7 +54,6 @@ func AnalyzeCircularDeps(graph *ModuleGraph) *CircularDepsResult {
 					return true
 				}
 			} else if recursionStack[neighbor] {
-				// Found a cycle
 				cycle := extractCycle(path, neighbor)
 				if cycle.Length > 1 { // Ignore self-loops
 					result.Cycles = append(result.Cycles, cycle)
@@ -75,31 +67,26 @@ func AnalyzeCircularDeps(graph *ModuleGraph) *CircularDepsResult {
 		return false
 	}
 
-	// Run DFS from each node
 	for filePath := range graph.Files {
 		if !visited[filePath] {
 			dfs(filePath)
 		}
 	}
 
-	// Remove duplicate cycles
 	result.Cycles = deduplicateCycles(result.Cycles)
 	result.TotalCount = len(result.Cycles)
 
 	return result
 }
 
-// matchesImportToFile checks if an import could refer to a specific file
 func matchesImportToFile(imp Import, filePath string) bool {
 	impSource := strings.Trim(imp.Source, `"`)
 	fileName := strings.TrimSuffix(filePath, ".go")
 
-	// Direct match
 	if impSource == filePath || impSource == fileName {
 		return true
 	}
 
-	// Check if import source ends with the file name
 	if strings.HasSuffix(impSource, "/"+fileName) || strings.HasSuffix(impSource, fileName) {
 		return true
 	}
@@ -107,7 +94,6 @@ func matchesImportToFile(imp Import, filePath string) bool {
 	return false
 }
 
-// extractCycle extracts the cycle from the current path
 func extractCycle(path []string, start string) DependencyCycle {
 	var cycleFiles []string
 	found := false
@@ -121,7 +107,6 @@ func extractCycle(path []string, start string) DependencyCycle {
 		}
 	}
 
-	// Add the starting node to complete the cycle
 	cycleFiles = append(cycleFiles, start)
 
 	return DependencyCycle{
@@ -131,13 +116,11 @@ func extractCycle(path []string, start string) DependencyCycle {
 	}
 }
 
-// deduplicateCycles removes duplicate cycles
 func deduplicateCycles(cycles []DependencyCycle) []DependencyCycle {
 	seen := make(map[string]bool)
 	var result []DependencyCycle
 
 	for _, cycle := range cycles {
-		// Create a canonical representation of the cycle
 		canonical := canonicalizeCycle(cycle.Files)
 		if !seen[canonical] {
 			seen[canonical] = true
@@ -148,13 +131,11 @@ func deduplicateCycles(cycles []DependencyCycle) []DependencyCycle {
 	return result
 }
 
-// canonicalizeCycle creates a canonical string representation of a cycle
 func canonicalizeCycle(files []string) string {
 	if len(files) == 0 {
 		return ""
 	}
 
-	// Find the minimum element to normalize the cycle
 	minIdx := 0
 	for i := 1; i < len(files); i++ {
 		if files[i] < files[minIdx] {
@@ -162,7 +143,6 @@ func canonicalizeCycle(files []string) string {
 		}
 	}
 
-	// Rotate the cycle to start from the minimum
 	var canonical []string
 	canonical = append(canonical, files[minIdx:]...)
 	canonical = append(canonical, files[:minIdx]...)
@@ -170,7 +150,6 @@ func canonicalizeCycle(files []string) string {
 	return strings.Join(canonical, " -> ")
 }
 
-// String returns a human-readable summary of circular dependency analysis
 func (r *CircularDepsResult) String() string {
 	var sb strings.Builder
 
@@ -198,7 +177,6 @@ func (r *CircularDepsResult) String() string {
 	return sb.String()
 }
 
-// GetSummary returns a brief summary for CLI output
 func (r *CircularDepsResult) GetSummary() string {
 	if r.TotalCount == 0 {
 		return "No circular dependencies"

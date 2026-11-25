@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
+
+	"carto/retrieval"
 )
 
-// Index represents a search index for a codebase
 type Index struct {
 	RootPath    string              `json:"root_path"`
 	BuiltAt     time.Time           `json:"built_at"`
@@ -20,7 +20,6 @@ type Index struct {
 	TotalTerms  int                 `json:"total_terms"`
 }
 
-// Entry is a single occurrence of a term in a file
 type Entry struct {
 	File    string `json:"file"`
 	Line    int    `json:"line"`
@@ -28,7 +27,6 @@ type Entry struct {
 	Context string `json:"context"` // surrounding line
 }
 
-// FileInfo stores metadata about a indexed file
 type FileInfo struct {
 	Path     string `json:"path"`
 	Lines    int    `json:"lines"`
@@ -36,7 +34,6 @@ type FileInfo struct {
 	ModTime  time.Time `json:"mod_time"`
 }
 
-// SearchResult is a single search result
 type SearchResult struct {
 	File    string  `json:"file"`
 	Line    int     `json:"line"`
@@ -44,7 +41,6 @@ type SearchResult struct {
 	Score   float64 `json:"score"`
 }
 
-// BuildIndex creates a search index for the given directory
 func BuildIndex(rootPath string) (*Index, error) {
 	absPath, err := filepath.Abs(rootPath)
 	if err != nil {
@@ -73,7 +69,6 @@ func BuildIndex(rootPath string) (*Index, error) {
 			return nil
 		}
 
-		// Only index source files
 		ext := filepath.Ext(path)
 		if !isSourceFile(ext) {
 			return nil
@@ -94,7 +89,6 @@ func BuildIndex(rootPath string) (*Index, error) {
 	return index, nil
 }
 
-// indexFile adds a file's content to the index
 func indexFile(absPath, relPath string, index *Index) {
 	code, err := os.ReadFile(absPath)
 	if err != nil {
@@ -112,14 +106,12 @@ func indexFile(absPath, relPath string, index *Index) {
 	}
 	index.Files[relPath] = fileInfo
 
-	// Index each line
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
 
-		// Extract words from the line
 		words := extractWords(line)
 		for _, word := range words {
 			if len(word) < 2 {
@@ -135,16 +127,10 @@ func indexFile(absPath, relPath string, index *Index) {
 	}
 }
 
-// extractWords splits a line into indexable words
 func extractWords(line string) []string {
-	// Split on non-alphanumeric characters
-	words := strings.FieldsFunc(line, func(r rune) bool {
-		return !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_')
-	})
-	return words
+	return retrieval.Tokenize(line)
 }
 
-// isSourceFile checks if a file extension is a source file
 func isSourceFile(ext string) bool {
 	sourceExts := map[string]bool{
 		".go": true, ".js": true, ".ts": true, ".tsx": true, ".jsx": true,
@@ -157,65 +143,10 @@ func isSourceFile(ext string) bool {
 	return sourceExts[ext]
 }
 
-// Search searches the index for a query
 func (idx *Index) Search(query string, maxResults int) []SearchResult {
-	query = strings.ToLower(query)
-	queryWords := strings.Fields(query)
-
-	if len(queryWords) == 0 {
-		return nil
-	}
-
-	// Score each file based on matching terms
-	scores := make(map[string]float64)
-	bestLines := make(map[string]int)
-	bestContexts := make(map[string]string)
-
-	for _, word := range queryWords {
-		for term, entries := range idx.Terms {
-			if strings.Contains(strings.ToLower(term), word) {
-				for _, entry := range entries {
-					scores[entry.File] += 1.0
-					if bestLines[entry.File] == 0 || entry.Line < bestLines[entry.File] {
-						bestLines[entry.File] = entry.Line
-						bestContexts[entry.File] = entry.Context
-					}
-				}
-			}
-		}
-	}
-
-	// Sort by score
-	type scored struct {
-		file  string
-		score float64
-	}
-	var sorted []scored
-	for file, score := range scores {
-		sorted = append(sorted, scored{file, score})
-	}
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].score > sorted[j].score
-	})
-
-	// Build results
-	var results []SearchResult
-	for i, s := range sorted {
-		if i >= maxResults {
-			break
-		}
-		results = append(results, SearchResult{
-			File:    s.file,
-			Line:    bestLines[s.file],
-			Context: bestContexts[s.file],
-			Score:   s.score,
-		})
-	}
-
-	return results
+	return idx.rank(query, maxResults)
 }
 
-// Save saves the index to a file
 func (idx *Index) Save(rootPath string) error {
 	indexPathDir := filepath.Join(rootPath, ".carto")
 	os.MkdirAll(indexPathDir, 0755)
@@ -228,7 +159,6 @@ func (idx *Index) Save(rootPath string) error {
 	return os.WriteFile(indexPathFile, data, 0644)
 }
 
-// LoadIndex loads an index from disk
 func LoadIndex(rootPath string) (*Index, error) {
 	indexPathFile := filepath.Join(rootPath, ".carto", "search-index.json")
 	data, err := os.ReadFile(indexPathFile)
@@ -243,7 +173,6 @@ func LoadIndex(rootPath string) (*Index, error) {
 	return &index, nil
 }
 
-// FormatResults formats search results for display
 func FormatResults(results []SearchResult, query string) string {
 	if len(results) == 0 {
 		return fmt.Sprintf("No results for \"%s\"", query)

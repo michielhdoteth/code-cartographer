@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// ComplexityResult contains the results of complexity analysis
 type ComplexityResult struct {
 	Functions     []FunctionComplexity
 	TotalFiles    int
@@ -14,19 +13,17 @@ type ComplexityResult struct {
 	Issues        int
 }
 
-// FunctionComplexity represents the complexity of a single function
 type FunctionComplexity struct {
 	Name       string
 	File       string
 	Line       int
-	Cyclomatic int // Cyclomatic complexity
-	Cognitive  int // Cognitive complexity
-	Lines      int // Lines of code
-	Params     int // Number of parameters
-	Nesting    int // Max nesting depth
+	Cyclomatic int
+	Cognitive  int
+	Lines      int
+	Params     int
+	Nesting    int
 }
 
-// Thresholds for complexity metrics
 const (
 	MaxCyclomatic = 10
 	MaxCognitive  = 15
@@ -35,7 +32,6 @@ const (
 	MaxNesting    = 4
 )
 
-// AnalyzeComplexity performs complexity analysis on the module graph
 func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 	result := &ComplexityResult{
 		Functions: []FunctionComplexity{},
@@ -51,7 +47,6 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 	// we estimate complexity based on the number of functions
 	// In a full implementation, we would parse each file to get detailed metrics
 
-	// For now, just count functions and estimate complexity
 	for _, file := range graph.Files {
 		for _, exp := range file.Exports {
 			if exp.Kind == "function" {
@@ -59,9 +54,9 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 					Name:       exp.Name,
 					File:       file.Path,
 					Line:       exp.Line,
-					Cyclomatic: 1, // Default complexity
+					Cyclomatic: 1,
 					Cognitive:  1,
-					Lines:      10, // Estimated
+					Lines:      10,
 					Params:     0,
 					Nesting:    1,
 				})
@@ -69,7 +64,6 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 		}
 	}
 
-	// Calculate average complexity
 	if len(result.Functions) > 0 {
 		total := 0
 		for _, fn := range result.Functions {
@@ -78,7 +72,6 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 		result.AvgComplexity = float64(total) / float64(len(result.Functions))
 	}
 
-	// Count issues (functions exceeding thresholds)
 	for _, fn := range result.Functions {
 		if fn.Cyclomatic > MaxCyclomatic || fn.Cognitive > MaxCognitive ||
 			fn.Lines > MaxLinesPerFn || fn.Params > MaxParams || fn.Nesting > MaxNesting {
@@ -86,7 +79,6 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 		}
 	}
 
-	// Sort by cyclomatic complexity (highest first)
 	sort.Slice(result.Functions, func(i, j int) bool {
 		return result.Functions[i].Cyclomatic > result.Functions[j].Cyclomatic
 	})
@@ -94,7 +86,6 @@ func AnalyzeComplexity(graph *ModuleGraph) *ComplexityResult {
 	return result
 }
 
-// String returns a human-readable summary of complexity analysis
 func (r *ComplexityResult) String() string {
 	var sb strings.Builder
 
@@ -128,7 +119,6 @@ func (r *ComplexityResult) String() string {
 	return sb.String()
 }
 
-// GetSummary returns a brief summary for CLI output
 func (r *ComplexityResult) GetSummary() string {
 	if len(r.Functions) == 0 {
 		return "No functions analyzed"
@@ -143,7 +133,6 @@ func (r *ComplexityResult) GetSummary() string {
 	return strings.Join(parts, ", ")
 }
 
-// GetTopFunctions returns the N most complex functions
 func (r *ComplexityResult) GetTopFunctions(n int) []FunctionComplexity {
 	if n > len(r.Functions) {
 		n = len(r.Functions)

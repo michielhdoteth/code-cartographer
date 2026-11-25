@@ -6,22 +6,21 @@ import (
 	"strings"
 )
 
-// HealthResult contains overall code health metrics
 type HealthResult struct {
 	Score           float64         // Overall health score (0-100)
 	Grade           string          // Letter grade (A-F)
-	Files           int             // Total files analyzed
-	Lines           int             // Total lines of code
-	Functions       int             // Total functions
-	Exports         int             // Total exports
-	Imports         int             // Total imports
-	DeadCode        *DeadCodeResult // Dead code analysis
-	Complexity      *ComplexityResult // Complexity analysis
-	Circular        *CircularDepsResult // Circular deps
-	Issues          []HealthIssue   // All identified issues
+	Files           int
+	Lines           int
+	Functions       int
+	Exports         int
+	Imports         int
+	DeadCode        *DeadCodeResult
+	Complexity      *ComplexityResult
+	Circular        *CircularDepsResult
+	Structure       *StructureReport    // Optional structural analysis (opt-in)
+	Issues          []HealthIssue
 }
 
-// HealthIssue represents a single health issue
 type HealthIssue struct {
 	Severity string // "error", "warning", "info"
 	Category string // "dead-code", "complexity", "circular"
@@ -30,8 +29,13 @@ type HealthIssue struct {
 	Line     int
 }
 
-// CalculateHealth calculates overall health metrics from all analyses
 func CalculateHealth(graph *ModuleGraph) *HealthResult {
+	return CalculateHealthWithStructure(graph, nil)
+}
+
+// CalculateHealthWithStructure includes structural findings when a report is
+// supplied. Callers opt in explicitly so the existing health score stays stable.
+func CalculateHealthWithStructure(graph *ModuleGraph, structure *StructureReport) *HealthResult {
 	result := &HealthResult{
 		Files:     len(graph.Files),
 		Functions: 0,
@@ -40,33 +44,28 @@ func CalculateHealth(graph *ModuleGraph) *HealthResult {
 		Lines:     0,
 	}
 
-	// Run all analyses
 	result.DeadCode = AnalyzeDeadCode(graph)
 	result.Complexity = AnalyzeComplexity(graph)
 	result.Circular = AnalyzeCircularDeps(graph)
+	result.Structure = structure
 
-	// Count functions, exports, imports
 	for _, fileNode := range graph.Files {
 		result.Functions += len(fileNode.Exports) // Approximation
 		result.Exports += len(fileNode.Exports)
 		result.Imports += len(fileNode.Imports)
 	}
 
-	// Collect all issues
 	result.Issues = result.collectIssues()
 
-	// Calculate health score
 	result.Score = result.calculateScore()
 	result.Grade = result.calculateGrade()
 
 	return result
 }
 
-// collectIssues gathers all issues from analyses
 func (r *HealthResult) collectIssues() []HealthIssue {
 	var issues []HealthIssue
 
-	// Dead code issues
 	for _, de := range r.DeadCode.DeadExports {
 		issues = append(issues, HealthIssue{
 			Severity: "warning",
@@ -87,7 +86,6 @@ func (r *HealthResult) collectIssues() []HealthIssue {
 		})
 	}
 
-	// Complexity issues
 	for _, fn := range r.Complexity.Functions {
 		if fn.Cyclomatic > MaxCyclomatic {
 			issues = append(issues, HealthIssue{
@@ -118,7 +116,6 @@ func (r *HealthResult) collectIssues() []HealthIssue {
 		}
 	}
 
-	// Circular dependency issues
 	for _, cycle := range r.Circular.Cycles {
 		issues = append(issues, HealthIssue{
 			Severity: "error",
@@ -129,10 +126,30 @@ func (r *HealthResult) collectIssues() []HealthIssue {
 		})
 	}
 
+	if r.Structure != nil {
+		for _, f := range r.Structure.Findings {
+			severity := "warning"
+			if f.Severity == "critical" {
+				severity = "error"
+			} else if f.Severity == "info" {
+				severity = "info"
+			}
+			file := ""
+			if len(f.Files) > 0 {
+				file = f.Files[0]
+			}
+			issues = append(issues, HealthIssue{
+				Severity: severity,
+				Category: "structure",
+				Message:  fmt.Sprintf("%s: %s", f.Rule, f.Message),
+				File:     file,
+			})
+		}
+	}
+
 	return issues
 }
 
-// calculateScore calculates the overall health score (0-100)
 func (r *HealthResult) calculateScore() float64 {
 	score := 100.0
 
@@ -148,11 +165,15 @@ func (r *HealthResult) calculateScore() float64 {
 	circularPenalty := float64(r.Circular.TotalCount) * 10
 	score -= math.Min(circularPenalty, 30)
 
-	// Ensure score is within bounds
+	// Deduct for structural findings (max 15 points, opt-in only)
+	if r.Structure != nil {
+		structurePenalty := float64(r.Structure.Summary.Critical)*5 + float64(r.Structure.Summary.Warning)*2
+		score -= math.Min(structurePenalty, 15)
+	}
+
 	return math.Max(0, math.Min(100, score))
 }
 
-// calculateGrade calculates letter grade from score
 func (r *HealthResult) calculateGrade() string {
 	switch {
 	case r.Score >= 90:
@@ -168,7 +189,6 @@ func (r *HealthResult) calculateGrade() string {
 	}
 }
 
-// String returns a human-readable summary of health analysis
 func (r *HealthResult) String() string {
 	var sb strings.Builder
 
@@ -187,7 +207,6 @@ func (r *HealthResult) String() string {
 	sb.WriteString(fmt.Sprintf("  Circular Dependencies: %d\n", r.Circular.TotalCount))
 	sb.WriteString(fmt.Sprintf("  Total Issues: %d\n\n", len(r.Issues)))
 
-	// Show top issues
 	if len(r.Issues) > 0 {
 		sb.WriteString("Top Issues:\n")
 		for i, issue := range r.Issues {
@@ -208,7 +227,6 @@ func (r *HealthResult) String() string {
 	return sb.String()
 }
 
-// GetSummary returns a brief summary for CLI output
 func (r *HealthResult) GetSummary() string {
 	return fmt.Sprintf("Score: %.0f/100 (Grade: %s) - %d issues found",
 		r.Score, r.Grade, len(r.Issues))

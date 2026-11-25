@@ -45,6 +45,7 @@ export const ForceDirectedGraph: React.FC<ForceDirectedGraphProps> = ({ codeMap,
         source: e.data.source,
         target: e.data.target,
         type: e.data.type,
+        confidence: e.data.metadata?.confidence,
       }))
 
     // Clear previous
@@ -126,7 +127,7 @@ export const ForceDirectedGraph: React.FC<ForceDirectedGraphProps> = ({ codeMap,
         })
         .attr('stroke-opacity', 0.4)
         .attr('stroke-width', 1.5)
-        .attr('stroke-dasharray', (d: any) => d.type === 'imports' ? '3,3' : 'none')
+        .attr('stroke-dasharray', (d: any) => d.confidence && d.confidence !== 'exact' ? '5,4' : d.type === 'imports' ? '3,3' : 'none')
         .attr('marker-end', 'url(#arrowhead)')
 
       // Add nodes

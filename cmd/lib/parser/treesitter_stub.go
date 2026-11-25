@@ -13,7 +13,6 @@ func NewTreeSitterParser(lang Language) *TreeSitterParser {
 	return nil
 }
 
-// Language returns the language this parser handles
 func (p *TreeSitterParser) Language() Language {
 	if p == nil {
 		return LanguageUnknown
@@ -21,7 +20,6 @@ func (p *TreeSitterParser) Language() Language {
 	return p.language
 }
 
-// SupportedExtensions returns file extensions this parser handles
 func (p *TreeSitterParser) SupportedExtensions() []string {
 	if p == nil {
 		return nil

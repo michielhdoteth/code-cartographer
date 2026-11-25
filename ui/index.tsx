@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import { CodeMap } from '@models/codeMap'
-import { VisualizationConfig } from '@models/types'
+import { CodeMap, CodeNode, CodeEdge, CodeFile } from '@models/codeMap'
+import { VisualizationConfig, Language, NodeType, EdgeType } from '@models/types'
 import { ParserRegistry } from '@parsers/base'
 import { JavaScriptParser } from '@parsers/javascript'
 import { TypeScriptParser } from '@parsers/typescript'
@@ -56,6 +56,9 @@ interface AppState {
 }
 
 const App: React.FC = () => {
+  const [repositoryPath, setRepositoryPath] = useState('.')
+  const [repositoryError, setRepositoryError] = useState('')
+  const [repositoryLoading, setRepositoryLoading] = useState(false)
   const [state, setState] = useState<AppState>({
     codeMap: null,
     selectedNodeId: null,
@@ -382,6 +385,45 @@ describe('Helpers', () => {
     }
   }
 
+  const handleLoadRepository = async () => {
+    setRepositoryLoading(true)
+    setRepositoryError('')
+    try {
+      const response = await fetch(`/api/symbol-graph?path=${encodeURIComponent(repositoryPath)}`)
+      if (!response.ok) throw new Error((await response.text()) || `Request failed (${response.status})`)
+      const graph = await response.json()
+      const codeMap = new CodeMap(`repo_${Date.now()}`, graph.root_path.split(/[\\/]/).pop() || 'Repository', graph.root_path)
+      for (const [path, file] of Object.entries<any>(graph.files || {})) {
+        const language = file.language as Language
+        codeMap.addFile(new CodeFile({ id: `file:${path}`, path, language, size: file.size, lines: file.lines, checksum: file.hash }))
+      }
+      for (const node of graph.nodes || []) {
+        if (node.kind === 'file') continue
+        codeMap.addNode(new CodeNode({
+          id: node.id,
+          name: node.name,
+          type: node.kind as NodeType,
+          language: (graph.files?.[node.file]?.language || 'javascript') as Language,
+          range: { start: { line: node.start_line || 1, column: 1 }, end: { line: node.end_line || node.start_line || 1, column: 1 } },
+          file: node.file,
+          metrics: { cyclomatic: 0, cognitive: 0, linesOfCode: Math.max(1, (node.end_line || node.start_line || 1) - (node.start_line || 1) + 1), nestedDepth: 0, numberOfParameters: 0 },
+          isExported: node.exported,
+          tags: node.range_confidence === 'estimated' ? ['estimated source range'] : [],
+        }))
+      }
+      const nodeIds = new Set((graph.nodes || []).map((node: any) => node.id))
+      for (const edge of graph.edges || []) {
+        if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) continue
+        codeMap.addEdge(new CodeEdge({ id: edge.id, source: edge.source, target: edge.target, type: edge.type as EdgeType, metadata: { confidence: edge.confidence, line: edge.line } }))
+      }
+      setState((prev) => ({ ...prev, codeMap, selectedNodeId: null }))
+    } catch (error) {
+      setRepositoryError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setRepositoryLoading(false)
+    }
+  }
+
   // Auto-load example on mount
   useEffect(() => {
     handleLoadExample()
@@ -539,6 +581,13 @@ describe('Helpers', () => {
           </div>
 
           <div className='main-content'>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)' }}>
+              <label htmlFor='repository-path' style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Local repository</label>
+              <input id='repository-path' value={repositoryPath} onChange={(event) => setRepositoryPath(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void handleLoadRepository() }} placeholder='Path available to the carto server' style={{ minWidth: '16rem', padding: '0.45rem 0.6rem', border: '1px solid var(--border)', borderRadius: '4px', background: 'var(--bg)', color: 'var(--text-primary)' }} />
+              <button className='viz-tab' onClick={() => void handleLoadRepository()} disabled={repositoryLoading}>{repositoryLoading ? 'Mapping…' : 'Load symbol graph'}</button>
+              <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Solid links: exact · dashed links: name match</span>
+              {repositoryError && <span role='alert' style={{ color: '#ef4444', fontSize: '0.8rem' }}>{repositoryError}</span>}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.75rem 1rem', backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button

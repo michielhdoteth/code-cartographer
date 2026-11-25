@@ -6,10 +6,8 @@ import (
 	"strings"
 )
 
-// NodeType represents the type of a code node
 type NodeType string
 
-// Node types
 const (
 	NodeTypeFunction  NodeType = "function"
 	NodeTypeMethod    NodeType = "method"
@@ -30,10 +28,8 @@ const (
 	NodeTypeUnknown   NodeType = "unknown"
 )
 
-// EdgeType represents the type of relationship between nodes
 type EdgeType string
 
-// Edge types
 const (
 	EdgeTypeImports    EdgeType = "imports"
 	EdgeTypeCalls      EdgeType = "calls"
@@ -44,35 +40,33 @@ const (
 	EdgeTypeDecorates  EdgeType = "decorates"
 )
 
-// Node represents a code element (function, class, etc.)
 type Node struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        NodeType  `json:"type"`
-	File        string    `json:"file"`
-	StartLine   int       `json:"start_line"`
-	StartCol    int       `json:"start_col"`
-	EndLine     int       `json:"end_line"`
-	EndCol      int       `json:"end_col"`
-	ParentID    string    `json:"parent_id,omitempty"`
-	Exported    bool      `json:"exported"`
-	Metrics     Metrics   `json:"metrics"`
-	Decorators  []string  `json:"decorators,omitempty"`
-	Annotations []string  `json:"annotations,omitempty"`
-	Signature   string    `json:"signature,omitempty"`
-	DocComment  string    `json:"doc_comment,omitempty"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Type        NodeType `json:"type"`
+	File        string   `json:"file"`
+	StartLine   int      `json:"start_line"`
+	StartCol    int      `json:"start_col"`
+	EndLine     int      `json:"end_line"`
+	EndCol      int      `json:"end_col"`
+	ParentID    string   `json:"parent_id,omitempty"`
+	Exported    bool     `json:"exported"`
+	Metrics     Metrics  `json:"metrics"`
+	Decorators  []string `json:"decorators,omitempty"`
+	Annotations []string `json:"annotations,omitempty"`
+	Signature   string   `json:"signature,omitempty"`
+	DocComment  string   `json:"doc_comment,omitempty"`
 }
 
-// Edge represents a relationship between nodes
 type Edge struct {
 	ID     string   `json:"id"`
 	Source string   `json:"source"` // Node ID or file path
 	Target string   `json:"target"` // Node ID or file path
 	Type   EdgeType `json:"type"`
+	Line   int      `json:"line,omitempty"`
 	Weight float64  `json:"weight,omitempty"`
 }
 
-// Metrics contains code metrics for a node
 type Metrics struct {
 	LinesOfCode    int `json:"lines_of_code"`
 	Cyclomatic     int `json:"cyclomatic"`
@@ -82,16 +76,14 @@ type Metrics struct {
 	ReturnCount    int `json:"return_count"`
 }
 
-// Export represents an exported symbol
 type Export struct {
-	Name    string   `json:"name"`
-	File    string   `json:"file"`
-	Type    NodeType `json:"type"`
-	Line    int      `json:"line"`
-	Exported bool    `json:"exported"`
+	Name     string   `json:"name"`
+	File     string   `json:"file"`
+	Type     NodeType `json:"type"`
+	Line     int      `json:"line"`
+	Exported bool     `json:"exported"`
 }
 
-// Import represents an imported symbol
 type Import struct {
 	Name   string `json:"name"`
 	Source string `json:"source"` // module path or file path
@@ -100,7 +92,6 @@ type Import struct {
 	Used   bool   `json:"used"`
 }
 
-// ParseError represents a parsing error
 type ParseError struct {
 	File    string `json:"file"`
 	Line    int    `json:"line"`
@@ -108,20 +99,18 @@ type ParseError struct {
 	Message string `json:"message"`
 }
 
-// ParseResult contains the result of parsing a file
 type ParseResult struct {
-	FilePath string   `json:"file_path"`
-	Language Language `json:"language"`
-	AST      interface{} `json:"ast,omitempty"` // Raw AST, language-specific
-	Nodes    []Node   `json:"nodes"`
-	Edges    []Edge   `json:"edges"`
-	Exports  []Export `json:"exports"`
-	Imports  []Import `json:"imports"`
-	Metrics  Metrics  `json:"metrics"`
+	FilePath string       `json:"file_path"`
+	Language Language     `json:"language"`
+	AST      interface{}  `json:"ast,omitempty"` // Raw AST, language-specific
+	Nodes    []Node       `json:"nodes"`
+	Edges    []Edge       `json:"edges"`
+	Exports  []Export     `json:"exports"`
+	Imports  []Import     `json:"imports"`
+	Metrics  Metrics      `json:"metrics"`
 	Errors   []ParseError `json:"errors,omitempty"`
 }
 
-// Codebase represents a parsed codebase
 type Codebase struct {
 	RootPath string                  `json:"root_path"`
 	Language Language                `json:"language"`
@@ -130,7 +119,6 @@ type Codebase struct {
 	Stats    CodebaseStats           `json:"stats"`
 }
 
-// CodebaseStats contains statistics about the codebase
 type CodebaseStats struct {
 	TotalFiles     int            `json:"total_files"`
 	TotalNodes     int            `json:"total_nodes"`
@@ -141,29 +129,25 @@ type CodebaseStats struct {
 	LanguageCounts map[string]int `json:"language_counts"`
 }
 
-// DependencyGraph represents the dependency graph
 type DependencyGraph struct {
 	Nodes map[string]*GraphNode `json:"nodes"`
 	Edges []GraphEdge           `json:"edges"`
 }
 
-// GraphNode represents a node in the dependency graph
 type GraphNode struct {
-	ID       string   `json:"id"`
-	File     string   `json:"file"`
-	Exports  []string `json:"exports"`
-	Imports  []string `json:"imports"`
-	Metrics  Metrics  `json:"metrics"`
+	ID      string   `json:"id"`
+	File    string   `json:"file"`
+	Exports []string `json:"exports"`
+	Imports []string `json:"imports"`
+	Metrics Metrics  `json:"metrics"`
 }
 
-// GraphEdge represents an edge in the dependency graph
 type GraphEdge struct {
 	Source string   `json:"source"`
 	Target string   `json:"target"`
 	Type   EdgeType `json:"type"`
 }
 
-// String returns a human-readable summary
 func (r *ParseResult) String() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("File: %s (%s)\n", r.FilePath, r.Language))
@@ -175,7 +159,6 @@ func (r *ParseResult) String() string {
 	return sb.String()
 }
 
-// GetNodeByID returns a node by its ID
 func (r *ParseResult) GetNodeByID(id string) *Node {
 	for i := range r.Nodes {
 		if r.Nodes[i].ID == id {
@@ -185,7 +168,6 @@ func (r *ParseResult) GetNodeByID(id string) *Node {
 	return nil
 }
 
-// GetNodesByType returns all nodes of a specific type
 func (r *ParseResult) GetNodesByType(nodeType NodeType) []Node {
 	var result []Node
 	for _, n := range r.Nodes {
@@ -196,7 +178,6 @@ func (r *ParseResult) GetNodesByType(nodeType NodeType) []Node {
 	return result
 }
 
-// GetExportedNodes returns all exported nodes
 func (r *ParseResult) GetExportedNodes() []Node {
 	var result []Node
 	for _, n := range r.Nodes {
@@ -207,7 +188,6 @@ func (r *ParseResult) GetExportedNodes() []Node {
 	return result
 }
 
-// CalculateMetrics calculates overall metrics for the parse result
 func (r *ParseResult) CalculateMetrics() {
 	r.Metrics.LinesOfCode = 0
 	r.Metrics.Cyclomatic = 0
@@ -223,7 +203,6 @@ func (r *ParseResult) CalculateMetrics() {
 	}
 }
 
-// SortNodes sorts nodes by line number
 func (r *ParseResult) SortNodes() {
 	sort.Slice(r.Nodes, func(i, j int) bool {
 		if r.Nodes[i].File != r.Nodes[j].File {
@@ -233,7 +212,6 @@ func (r *ParseResult) SortNodes() {
 	})
 }
 
-// SortEdges sorts edges by source
 func (r *ParseResult) SortEdges() {
 	sort.Slice(r.Edges, func(i, j int) bool {
 		if r.Edges[i].Source != r.Edges[j].Source {

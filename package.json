@@ -1,6 +1,6 @@
 {
   "name": "code-cartographer",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Map codebases with AST parsing, interactive visualization, security scanning, and pattern detection",
   "type": "module",
   "main": "ui/index.tsx",

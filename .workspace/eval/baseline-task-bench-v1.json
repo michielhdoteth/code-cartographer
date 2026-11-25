@@ -1,0 +1,55 @@
+﻿{
+  "schema_version": 1,
+  "suite_version": 1,
+  "cases": [
+    {
+      "id": "agent-benchmark",
+      "query": "RunAgentBenchmark",
+      "tokens_used_estimate": 1308,
+      "whole_repo_tokens_estimate": 862353,
+      "saved_tokens_estimate": 861045,
+      "saved_percent_estimate": 99.84832197487572,
+      "recall": 1,
+      "relevant": 2,
+      "returned": 8
+    },
+    {
+      "id": "blast-radius",
+      "query": "AnalyzeBlastRadius",
+      "tokens_used_estimate": 1170,
+      "whole_repo_tokens_estimate": 862353,
+      "saved_tokens_estimate": 861183,
+      "saved_percent_estimate": 99.8643247022971,
+      "recall": 1,
+      "relevant": 2,
+      "returned": 8
+    },
+    {
+      "id": "context-assembly",
+      "query": "Generate context",
+      "tokens_used_estimate": 1110,
+      "whole_repo_tokens_estimate": 862353,
+      "saved_tokens_estimate": 861243,
+      "saved_percent_estimate": 99.8712824098716,
+      "recall": 1,
+      "relevant": 2,
+      "returned": 8
+    },
+    {
+      "id": "structure-rules",
+      "query": "AnalyzeStructure",
+      "tokens_used_estimate": 1446,
+      "whole_repo_tokens_estimate": 862353,
+      "saved_tokens_estimate": 860907,
+      "saved_percent_estimate": 99.83231924745435,
+      "recall": 1,
+      "relevant": 2,
+      "returned": 8
+    }
+  ],
+  "mean_tokens": 1258.5,
+  "whole_repo_tokens_estimate": 862353,
+  "mean_saved_percent": 99.85406208362468,
+  "mean_recall": 1,
+  "deterministic": true
+}

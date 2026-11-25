@@ -1,0 +1,1422 @@
+{
+    "version":  2,
+    "cases":  [
+                  {
+                      "id":  "sym-analyze-structure",
+                      "query":  "AnalyzeStructure",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "AnalyzeStructure"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/structure.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Exported func; deep-module rules.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "sym-analyze-blast-radius",
+                      "query":  "AnalyzeBlastRadius",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "AnalyzeBlastRadius"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/blastradius.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Blast radius entry point.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "sym-generate-repo-map",
+                      "query":  "GenerateRepoMap",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GenerateRepoMap"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/repo_context.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Ranked signature map.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "sym-run-task-bench",
+                      "query":  "RunTaskBenchmark",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "RunTaskBenchmark"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/task_bench.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Task retrieval eval.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "sym-generate-prompt",
+                      "query":  "GeneratePrompt",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GeneratePrompt"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/fix/fix.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Refactor prompt generation.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "sym-detect-language",
+                      "query":  "DetectLanguage",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "DetectLanguage"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/languages.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Extension to language mapping.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "sym-check-freshness",
+                      "query":  "CheckFreshness",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "CheckFreshness"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/index.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "Cache freshness check.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "sym-health-with-structure",
+                      "query":  "CalculateHealthWithStructure",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "CalculateHealthWithStructure"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/health.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Opt-in structure penalty.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "ni-freshness-check",
+                      "query":  "where does carto check whether the graph matches the working tree",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "CheckFreshness"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/index.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Primary is CheckFreshness.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "ni-exit-code-mapping",
+                      "query":  "where is a CLI error turned into a stable process exit code",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "Code"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/exitcode/exitcode.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Error classification.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "ni-token-budget-config",
+                      "query":  "where are per-command token budgets read from .carto config",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "tokenBudgetFor"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/main.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Config defaults.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "ni-callers-traversal",
+                      "query":  "where are callers of a symbol found through resolved call edges",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "TraceDepth"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/query.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Call graph traversal.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "ni-cohesion-score",
+                      "query":  "where is the structural cohesion score computed",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "calculateCohesion"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/context/cohesion.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Unexported helper.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "ni-dead-confidence",
+                      "query":  "where does carto decide how confident it is that an export is dead",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "calculateDeadConfidence"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/deadcode.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Dead-code confidence.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "ni-cycle-dedup",
+                      "query":  "where are duplicate import cycles collapsed",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "deduplicateCycles"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/circular.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Cycle canonicalization.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "ni-centrality",
+                      "query":  "where are symbols ranked by call graph importance for the repo map",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "centrality"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/repo_context.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "PageRank-like scoring.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "ni-shallow-module",
+                      "query":  "where is the rule that callers use few of a module\u0027s exports implemented",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "detectShallowModules"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/structure.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Shallow module rule.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "ni-skill-drift",
+                      "query":  "where does carto verify that installed CLI guidance is current",
+                      "query_type":  "nl-intent",
+                      "expected_symbols":  [
+                                               "Check"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/skill/skill.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Name collision with other Check funcs.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "fp-graph-cache",
+                      "query":  "code graph build and cache persistence",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "Build"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/index.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Graph cache.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "fp-search-index",
+                      "query":  "full-text term occurrence index for fast search",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "indexFile",
+                                               "BuildIndex"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/search/index.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Search index.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "fp-git-status",
+                      "query":  "git working tree status handling",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "GetStatus"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/git/git.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Git status.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "fp-task-bench",
+                      "query":  "offline task suite and token savings report",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "RunTaskBenchmark"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/task_bench.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Task eval.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "fp-repo-map-render",
+                      "query":  "markdown rendering of the ranked repository map",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "RenderMarkdown"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/repo_context.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Repo map rendering.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "fp-parser-registry",
+                      "query":  "where parser implementations are registered and retrieved",
+                      "query_type":  "file-path-intent",
+                      "expected_symbols":  [
+                                               "RegisterParser",
+                                               "GetParser"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/parser.go"
+                                         ],
+                      "difficulty":  "medium",
+                      "notes":  "Parser registry.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "mf-blast-radius",
+                      "query":  "explain the impact analysis: BFS over importers, hub detection, and critical symbols",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "AnalyzeBlastRadius",
+                                               "detectHubs",
+                                               "analyzeConcentratedRisk"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/blastradius.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Blast radius pipeline.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "mf-dead-code",
+                      "query":  "find unused exports, orphan files, and duplicate blocks",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "AnalyzeDeadCodeEnhanced",
+                                               "findDeadExports",
+                                               "findOrphanFiles",
+                                               "findDuplicates"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/deadcode.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Dead-code suite.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "mf-structure-rules",
+                      "query":  "which rules detect module cycles, tangles, shallow and broad modules",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "AnalyzeStructure",
+                                               "detectModuleCycles",
+                                               "detectTangles",
+                                               "detectShallowModules",
+                                               "detectBroadInterfaces"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/structure.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Structure rules.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "mf-repo-context",
+                      "query":  "how does carto pack repository context and omit implementation bodies",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "GeneratePack",
+                                               "compressedFile",
+                                               "GenerateRepoMap"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/repo_context.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Context packing.",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "mf-offline-bench",
+                      "query":  "compare both offline retrieval benchmarks carto ships",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "RunBenchmark",
+                                               "RunTaskBenchmark"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/benchmark.go",
+                                             "cmd/codegraph/task_bench.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Two benchmarks.",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "mf-context-assembly",
+                      "query":  "assemble token-budgeted context with imports and callers",
+                      "query_type":  "multi-symbol-feature",
+                      "expected_symbols":  [
+                                               "Generate",
+                                               "addImportContext",
+                                               "addCallerContext"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/context/context.go"
+                                         ],
+                      "difficulty":  "hard",
+                      "notes":  "Context assembly.",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-001",
+                      "query":  "now",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "now"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/lib/utils.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-002",
+                      "query":  "split",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "split"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/tasks.json"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-003",
+                      "query":  "has",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "has"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/package-lock.json"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-004",
+                      "query":  "B",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "B"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/integration/e2e-visualization.test.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-005",
+                      "query":  "min",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "min"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/find/search.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-006",
+                      "query":  "createDatabaseClient",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "createDatabaseClient"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/storage/database.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-007",
+                      "query":  "TypeScriptParser",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "TypeScriptParser"
+                                           ],
+                      "expected_files":  [
+                                             "ui/parsers/typescript.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-008",
+                      "query":  "uuid",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "uuid"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/package-lock.json"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-009",
+                      "query":  "entries",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "entries"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/db/drizzle/migrations/meta/_journal.json"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-010",
+                      "query":  "measurePerformance",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "measurePerformance"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/helpers/index.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-011",
+                      "query":  "NewUnifiedParser",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "NewUnifiedParser"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/unified.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-012",
+                      "query":  "CodeMap",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "CodeMap"
+                                           ],
+                      "expected_files":  [
+                                             "ui/models/codeMap.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-013",
+                      "query":  "JavaScriptParser",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "JavaScriptParser"
+                                           ],
+                      "expected_files":  [
+                                             "ui/parsers/javascript.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-014",
+                      "query":  "safeRegisterTool",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "safeRegisterTool"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/commands/mcp-server.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-015",
+                      "query":  "normalizeTimestamp",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "normalizeTimestamp"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/lib/utils.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-016",
+                      "query":  "Parse",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Parse"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/unified.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-017",
+                      "query":  "isarray",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "isarray"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/package-lock.json"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-018",
+                      "query":  "Score",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Score"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/retrieval/bm25f.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-019",
+                      "query":  "GetNodesByType",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GetNodesByType"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/ast.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-020",
+                      "query":  "detectMemorySignals",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "detectMemorySignals"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/trigger-detector.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-021",
+                      "query":  "deserializeMetadata",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "deserializeMetadata"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/serialization.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-022",
+                      "query":  "serializeMetadata",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "serializeMetadata"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/serialization.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-023",
+                      "query":  "Tokenize",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Tokenize"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/retrieval/tokenize.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-024",
+                      "query":  "isDatabaseUnavailableError",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "isDatabaseUnavailableError"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/lib/utils.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-025",
+                      "query":  "getConfig",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "getConfig"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/config.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-026",
+                      "query":  "createTestNode",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "createTestNode"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/fixtures/index.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-027",
+                      "query":  "calculateDiff",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "calculateDiff"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/snapshots/comparison.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-028",
+                      "query":  "validateLimit",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "validateLimit"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/lib/validation.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-029",
+                      "query":  "GenerateSkeleton",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GenerateSkeleton"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/skeleton.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-030",
+                      "query":  "Server",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Server"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/serve/http.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-031",
+                      "query":  "detectSecrets",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "detectSecrets"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/security/secret-detector.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-032",
+                      "query":  "generateCacheKeySync",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "generateCacheKeySync"
+                                           ],
+                      "expected_files":  [
+                                             "ui/utils/hashUtils.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-033",
+                      "query":  "extractMessageContent",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "extractMessageContent"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/utils/content-extraction.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-034",
+                      "query":  "expectPerformanceWithin",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "expectPerformanceWithin"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/helpers/index.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-035",
+                      "query":  "BuildChunkManifest",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "BuildChunkManifest"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/chunk.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-036",
+                      "query":  "deserializeTags",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "deserializeTags"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/serialization.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-037",
+                      "query":  "File",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "File"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/index.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-038",
+                      "query":  "registerJobHandler",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "registerJobHandler"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/scheduler/cron-scheduler.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-039",
+                      "query":  "GenerateChunk",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GenerateChunk"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/codegraph/chunk.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-040",
+                      "query":  "Class_",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Class_"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/performance/phase1.bench.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-041",
+                      "query":  "CodeFile",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "CodeFile"
+                                           ],
+                      "expected_files":  [
+                                             "ui/models/codeMap.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-042",
+                      "query":  "Execute",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Execute"
+                                           ],
+                      "expected_files":  [
+                                             "archive/cli-tool/cmd/root.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-043",
+                      "query":  "getHooks",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "getHooks"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/hooks.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-044",
+                      "query":  "CalculateHealth",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "CalculateHealth"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/health.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-045",
+                      "query":  "render",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "render"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/integration/e2e-large-codebase.test.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-046",
+                      "query":  "MERGE_STRATEGIES",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "MERGE_STRATEGIES"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/algorithms/strategies/merge-strategies.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-047",
+                      "query":  "calculateImportance",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "calculateImportance"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/importance.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-048",
+                      "query":  "getRawPath",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "getRawPath"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/memory/markdown/markdown-storage.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-049",
+                      "query":  "toProjectSummary",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "toProjectSummary"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/runtime/trust-state.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-050",
+                      "query":  "GetLanguageConfig",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "GetLanguageConfig"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/lib/parser/languages.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-051",
+                      "query":  "registerRememberCommand",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "registerRememberCommand"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/packages/cli/src/commands/remember.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-052",
+                      "query":  "calculateConfidenceFactors",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "calculateConfidenceFactors"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/algorithms/detection/semantic-ranker.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-053",
+                      "query":  "requireUuid",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "requireUuid"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/lib/validation.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-054",
+                      "query":  "PythonParser",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "PythonParser"
+                                           ],
+                      "expected_files":  [
+                                             "ui/parsers/python.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-055",
+                      "query":  "DefaultSettings",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "DefaultSettings"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/retrieval/settings.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-056",
+                      "query":  "estimateTokensSimple",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "estimateTokensSimple"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/algorithms/analytics/token-estimator.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-057",
+                      "query":  "showHelp",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "showHelp"
+                                           ],
+                      "expected_files":  [
+                                             "bin/carto.cjs"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-058",
+                      "query":  "AnalyzeCircularDeps",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "AnalyzeCircularDeps"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/circular.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-059",
+                      "query":  "Run",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "Run"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/doctor/doctor.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-060",
+                      "query":  "decrypt",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "decrypt"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/security/encrypt.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-061",
+                      "query":  "DefaultStructureConfig",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "DefaultStructureConfig"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/analyze/structure.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-062",
+                      "query":  "buildMemoryFilters",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "buildMemoryFilters"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/utils/filter-builder.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-063",
+                      "query":  "createBlockerCheck",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "createBlockerCheck"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/algorithms/safety/safety-checks.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-064",
+                      "query":  "createSimulationNodes",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "createSimulationNodes"
+                                           ],
+                      "expected_files":  [
+                                             "ui/__tests__/fixtures/index.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-065",
+                      "query":  "createEmptyHotCache",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "createEmptyHotCache"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/hot-cache.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-066",
+                      "query":  "List",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "List"
+                                           ],
+                      "expected_files":  [
+                                             "cmd/schema/schema.go"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-067",
+                      "query":  "listAdapters",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "listAdapters"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/adapters/index.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  },
+                  {
+                      "id":  "gen-068",
+                      "query":  "extractWithLLM",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "extractWithLLM"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/graph/llm-entity-extractor.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "dev"
+                  },
+                  {
+                      "id":  "gen-069",
+                      "query":  "changeProject",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "changeProject"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/webui/server.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "test"
+                  },
+                  {
+                      "id":  "gen-070",
+                      "query":  "getMergeStrategy",
+                      "query_type":  "symbol-lookup",
+                      "expected_symbols":  [
+                                               "getMergeStrategy"
+                                           ],
+                      "expected_files":  [
+                                             "test-data/squish/core/algorithms/strategies/merge-strategies.ts"
+                                         ],
+                      "difficulty":  "easy",
+                      "notes":  "generated from graph index",
+                      "split":  "train"
+                  }
+              ]
+}

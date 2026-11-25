@@ -1,0 +1,121 @@
+﻿{
+  "hits": [
+    {
+      "node": {
+        "id": "symbol:docs/PLUGIN-ARCHITECTURE.md:constant:Manifest Structure:129:0",
+        "name": "Manifest Structure",
+        "kind": "constant",
+        "file": "docs/PLUGIN-ARCHITECTURE.md",
+        "start_line": 129,
+        "end_line": 129,
+        "range_confidence": "estimated"
+      },
+      "score": 9.713341352772913,
+      "snippet": "### Manifest Structure\r"
+    },
+    {
+      "node": {
+        "id": "symbol:docs/map.md:constant:≡ƒº¬ **Testing Structure**:248:0",
+        "name": "≡ƒº¬ **Testing Structure**",
+        "kind": "constant",
+        "file": "docs/map.md",
+        "start_line": 248,
+        "end_line": 254,
+        "range_confidence": "estimated"
+      },
+      "score": 9.536539762068507,
+      "snippet": "## ≡ƒº¬ **Testing Structure**\r\n\r\n```\r\n≡ƒôü tests/\r\nΓööΓöÇΓöÇ ≡ƒôä merge/integration.test.ts  # Merge system tests\r\n```\r\n\r"
+    },
+    {
+      "node": {
+        "id": "symbol:docs/map.md:constant:≡ƒôü **Project Structure Overview**:3:0",
+        "name": "≡ƒôü **Project Structure Overview**",
+        "kind": "constant",
+        "file": "docs/map.md",
+        "start_line": 3,
+        "end_line": 24,
+        "range_confidence": "estimated"
+      },
+      "score": 9.430480647682904,
+      "snippet": "## ≡ƒôü **Project Structure Overview**\r\n\r\n```\r\nsquish/\r\nΓö£ΓöÇΓöÇ ≡ƒôü core/                          # Core business logic\r\nΓö£ΓöÇΓöÇ ≡ƒôü db/                           # Database layer\r\nΓö£ΓöÇΓöÇ ≡ƒôü docs/                         # Documentation\r\nΓö£ΓöÇΓöÇ ≡ƒôü features/                     # Feature modules\r\nΓöé   Γö£ΓöÇΓöÇ ≡ƒôü memory/                   # Memory management\r\nΓöé   Γö£ΓöÇΓöÇ ≡ƒôü merge/                    # Memory deduplication\r\nΓöé   Γö£ΓöÇΓöÇ ≡ƒôü plugin/                   # Claude Code integration\r\nΓöé   Γö£ΓöÇΓöÇ ≡ƒôü search/                   # Search functionality\r\nΓöé   ΓööΓöÇΓöÇ ≡ƒôü web/                      # Web dashboard\r\nΓö£ΓöÇΓöÇ ≡ƒôü infra/                        # Infrastructure (Docker)\r\nΓö£ΓöÇΓöÇ ≡ƒôü scripts/                      # Build/deployment scripts\r\nΓö£ΓöÇΓöÇ ≡ƒôü tests/                        # Test files\r\nΓö£ΓöÇΓöÇ ≡ƒôä index.ts                      # Main MCP server entry\r\nΓö£ΓöÇΓöÇ ≡ƒôä plugin.json                   # Plugin configuration\r\nΓö£ΓöÇΓöÇ ≡ƒôä package.json                  # Project configuration\r\nΓööΓöÇΓöÇ ≡ƒôä tsconfig.json                 # TypeScript configuration\r\n```\r\n\r"
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/markdown/markdown-storage.ts:function:ensureMemoryStructure:63:0",
+        "name": "ensureMemoryStructure",
+        "kind": "function",
+        "file": "core/memory/markdown/markdown-storage.ts",
+        "start_line": 63,
+        "end_line": 64,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 9.35957770730248,
+      "snippet": "function ensureMemoryStructure(): void {\r\n  const dirs = [getMemoryPath(), getRawPath()];\r"
+    },
+    {
+      "node": {
+        "id": "symbol:docs/ARCHITECTURE.md:constant:Mono-Repo Structure:21:0",
+        "name": "Mono-Repo Structure",
+        "kind": "constant",
+        "file": "docs/ARCHITECTURE.md",
+        "start_line": 21,
+        "end_line": 52,
+        "range_confidence": "estimated"
+      },
+      "score": 9.352179565005267,
+      "snippet": "## Mono-Repo Structure\r\n\r\nThe repository is organized as a Bun workspace:\r\n\r\n```\r\nsquish/\r\nΓö£ΓöÇΓöÇ packages/\r\nΓöé   Γö£ΓöÇΓöÇ server/              # Core MCP server\r\nΓöé   Γöé   Γö£ΓöÇΓöÇ src/\r\nΓöé   Γöé   Γöé   Γö£ΓöÇΓöÇ index.ts            # Main MCP entry point\r\nΓöé   Γöé   Γöé   Γö£ΓöÇΓöÇ config.ts           # Configuration management\r\nΓöé   Γöé   Γöé   Γö£ΓöÇΓöÇ web.ts             # Web UI server\r\nΓöé   Γöé   Γöé   Γö£ΓöÇΓöÇ db/                # Database layer\r\nΓöé   Γöé   Γöé   Γö£ΓöÇΓöÇ services/          # Business logic services\r\nΓöé   Γöé   Γöé   ΓööΓöÇΓöÇ plugin/            # Claude Code plugin hooks\r\nΓöé   Γöé   Γö£ΓöÇΓöÇ drizzle/               # Database schemas\r\nΓöé   Γöé   Γö£ΓöÇΓöÇ package.json           # Published on npm as \"squish\"\r\nΓöé   Γöé   ΓööΓöÇΓöÇ README.md\r\nΓöé   ΓööΓöÇΓöÇ installer/           # Installation scripts\r\nΓöé       Γö£ΓöÇΓöÇ get-squish.sh\r\nΓöé       Γö£ΓöÇΓöÇ get-squish-server.js\r\nΓöé       Γö£ΓöÇΓöÇ netlify.toml\r\nΓöé       ΓööΓöÇΓöÇ package.json\r\nΓö£ΓöÇΓöÇ infra/                   # Infrastructure\r\nΓöé   Γö£ΓöÇΓöÇ docker-compose.yml\r"
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/temporal-parser.ts:function:analyzeTemporalRelation:258:0",
+        "name": "analyzeTemporalRelation",
+        "kind": "function",
+        "file": "core/memory/temporal-parser.ts",
+        "start_line": 258,
+        "end_line": 269,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 9.191487316391058,
+      "snippet": "function analyzeTemporalRelation(\r\n  fact: TemporalFact,\r\n  targetMemory: any,\r\n  otherMemory: any\r\n): TemporalRelation | null {\r\n  if (!fact.parsed.start || !otherMemory.validFrom) return null;\r\n\r\n  const factDate = fact.parsed.start;\r\n  const otherStart = new Date(otherMemory.validFrom);\r\n  const otherEnd = otherMemory.validTo ? new Date(otherMemory.validTo) : otherStart;\r\n\r\n  // Determine temporal relationship\r"
+    },
+    {
+      "node": {
+        "id": "symbol:core/algorithms/detection/semantic-ranker.ts:function:analyzePair:168:0",
+        "name": "analyzePair",
+        "kind": "function",
+        "file": "core/algorithms/detection/semantic-ranker.ts",
+        "start_line": 168,
+        "end_line": 195,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 9.156463696174358,
+      "snippet": "export function analyzePair(\r\n  memory1: Memory,\r\n  memory2: Memory,\r\n  embedding1: number[],\r\n  embedding2: number[]\r\n): {\r\n  cosineSimilarity: number;\r\n  confidenceLevel: 'high' | 'medium' | 'low';\r\n  mergeReason: string;\r\n  factors: {\r\n    sameType: boolean;\r\n    tagOverlap: number;\r\n    contentLengthSimilarity: number;\r\n  };\r\n} {\r\n  const similarity = cosineSimilarity(embedding1, embedding2);\r\n  const confidence = calculateConfidence(memory1, memory2, similarity);\r\n  const mergeReason = generateMergeReason(memory1, memory2, similarity, confidence);\r\n  const factors = calculateConfidenceFactors(memory1, memory2);\r\n\r\n  return {\r\n    cosineSimilarity: similarity,\r\n    confidenceLevel: confidence,\r\n    mergeReason,\r\n    factors,\r"
+    },
+    {
+      "node": {
+        "id": "symbol:core/memory/response-analyzer.ts:function:analyzeResponseForMemoryReferences:19:0",
+        "name": "analyzeResponseForMemoryReferences",
+        "kind": "function",
+        "file": "core/memory/response-analyzer.ts",
+        "start_line": 19,
+        "end_line": 26,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 8.992970538455404,
+      "snippet": "export function analyzeResponseForMemoryReferences(\r\n  responseText: string,\r\n  injectedMemoryIds: string[],\r\n  injectedMemoryContent: Map\u003cstring, string\u003e\r\n): AnalysisResult {\r\n  const referencedMemoryIds: string[] = [];\r\n  const responseLower = responseText.toLowerCase();\r\n\r"
+    }
+  ],
+  "query": "AnalyzeStructure",
+  "savings": {
+    "whole_repo_tokens_estimate": 466775,
+    "tokens_used_estimate": 981,
+    "saved_tokens_estimate": 465794,
+    "saved_percent_estimate": 99.78983450270474,
+    "basis": "estimated ~4 UTF-8 bytes per token; baseline = all indexed source bytes / 4"
+  },
+  "warnings": []
+}

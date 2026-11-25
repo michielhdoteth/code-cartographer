@@ -1,0 +1,44 @@
+﻿{
+  "schema_version": 1,
+  "root_path": "C:\\Users\\michi\\Desktop\\Command Center\\Projects OS\\code-cartographer",
+  "status": "warn",
+  "checks": [
+    {
+      "name": "config",
+      "status": "ok",
+      "detail": "no config problems"
+    },
+    {
+      "name": "cache",
+      "status": "ok",
+      "detail": "graph cache present (27716818 bytes)"
+    },
+    {
+      "name": "freshness",
+      "status": "ok",
+      "detail": "graph matches working tree"
+    },
+    {
+      "name": "parser_coverage",
+      "status": "ok",
+      "detail": "450/526 files produced symbols"
+    },
+    {
+      "name": "retrieval_cache",
+      "status": "ok",
+      "detail": "5990 tokenized documents"
+    },
+    {
+      "name": "git",
+      "status": "warn",
+      "detail": "working tree has 83 uncommitted file(s)"
+    },
+    {
+      "name": "agent_skill",
+      "status": "ok",
+      "detail": "installed skill and AGENTS.md are current"
+    }
+  ],
+  "files_in_graph": 526,
+  "symbols_in_graph": 5990
+}

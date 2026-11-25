@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-// DeadCodeResult contains the enhanced dead code analysis
 type DeadCodeResult struct {
 	DeadExports     []DeadExport     `json:"dead_exports"`
 	DeadFiles       []DeadFile       `json:"dead_files"`
@@ -22,7 +21,6 @@ type DeadCodeResult struct {
 	RemovalScore    float64          `json:"removal_score"` // 0-100, higher = more can be safely removed
 }
 
-// DeadExport is an unused export with confidence scoring
 type DeadExport struct {
 	Name       string  `json:"name"`
 	File       string  `json:"file"`
@@ -32,10 +30,9 @@ type DeadExport struct {
 	Reasons    []string `json:"reasons"`
 	DaysSinceLastChange int `json:"days_since_last_change"`
 	IsPublic   bool    `json:"is_public"`
-	References int     `json:"references"` // how many other files reference this
+	References int     `json:"references"`
 }
 
-// DeadFile is a file with no incoming edges (orphan)
 type DeadFile struct {
 	Path          string  `json:"path"`
 	Exports       int     `json:"exports"`
@@ -44,7 +41,6 @@ type DeadFile struct {
 	Reason        string  `json:"reason"`
 }
 
-// DuplicateGroup is a set of near-identical code blocks
 type DuplicateGroup struct {
 	ID          int              `json:"id"`
 	Files       []DuplicateEntry `json:"files"`
@@ -53,7 +49,6 @@ type DuplicateGroup struct {
 	Removeable  bool             `json:"removable"`
 }
 
-// DuplicateEntry is a single duplicate occurrence
 type DuplicateEntry struct {
 	File     string `json:"file"`
 	Line     int    `json:"line"`
@@ -62,7 +57,6 @@ type DuplicateEntry struct {
 	Kind     string `json:"kind"`
 }
 
-// AnalyzeDeadCodeEnhanced performs git-aware dead code analysis
 func AnalyzeDeadCodeEnhanced(graph *ModuleGraph, rootPath string) *DeadCodeResult {
 	result := &DeadCodeResult{
 		DeadExports: []DeadExport{},
@@ -70,18 +64,14 @@ func AnalyzeDeadCodeEnhanced(graph *ModuleGraph, rootPath string) *DeadCodeResul
 		Duplicates:  []DuplicateGroup{},
 	}
 
-	// Count total exports
 	for _, file := range graph.Files {
 		result.TotalExports += len(file.Exports)
 	}
 
-	// Find dead exports
 	result.DeadExports = findDeadExports(graph, rootPath)
 
-	// Find orphan files
 	result.DeadFiles = findOrphanFiles(graph, rootPath)
 
-	// Find duplicates
 	result.Duplicates = findDuplicates(graph, rootPath)
 
 	result.TotalDead = len(result.DeadExports) + len(result.DeadFiles)
@@ -90,7 +80,6 @@ func AnalyzeDeadCodeEnhanced(graph *ModuleGraph, rootPath string) *DeadCodeResul
 	return result
 }
 
-// findDeadExports finds exports that are not referenced by any other file
 func findDeadExports(graph *ModuleGraph, rootPath string) []DeadExport {
 	var dead []DeadExport
 
@@ -117,7 +106,6 @@ func findDeadExports(graph *ModuleGraph, rootPath string) []DeadExport {
 		}
 	}
 
-	// Sort by confidence descending
 	sort.Slice(dead, func(i, j int) bool {
 		return dead[i].Confidence > dead[j].Confidence
 	})
@@ -125,11 +113,9 @@ func findDeadExports(graph *ModuleGraph, rootPath string) []DeadExport {
 	return dead
 }
 
-// findOrphanFiles finds files that nothing imports
 func findOrphanFiles(graph *ModuleGraph, rootPath string) []DeadFile {
 	var orphans []DeadFile
 
-	// Build reverse graph
 	importedBy := make(map[string]int)
 	for _, file := range graph.Files {
 		for _, imp := range file.Imports {
@@ -142,18 +128,15 @@ func findOrphanFiles(graph *ModuleGraph, rootPath string) []DeadFile {
 
 	for filePath, file := range graph.Files {
 		if importedBy[filePath] == 0 {
-			// This file is not imported by anything
 			daysSince := getDaysSinceLastChange(filePath, rootPath)
 			confidence := 0.5 // base confidence for orphan files
 
-			// Boost confidence if old and has no exports
 			if daysSince > 90 && len(file.Exports) == 0 {
 				confidence = 0.8
 			} else if daysSince > 30 {
 				confidence = 0.6
 			}
 
-			// Check if it's an entry point (main, index, etc.)
 			base := filepath.Base(filePath)
 			if isEntryPoint(base) {
 				confidence *= 0.3 // Much less likely to be dead
@@ -176,7 +159,6 @@ func findOrphanFiles(graph *ModuleGraph, rootPath string) []DeadFile {
 	return orphans
 }
 
-// findDuplicates finds near-identical code blocks via content hashing
 func findDuplicates(graph *ModuleGraph, rootPath string) []DuplicateGroup {
 	type fileContent struct {
 		path    string
@@ -196,7 +178,6 @@ func findDuplicates(graph *ModuleGraph, rootPath string) []DuplicateGroup {
 		files = append(files, fileContent{path: filePath, content: content, lines: lines})
 	}
 
-	// Normalize and hash each function/block
 	type blockHash struct {
 		hash    string
 		entry   DuplicateEntry
@@ -208,7 +189,6 @@ func findDuplicates(graph *ModuleGraph, rootPath string) []DuplicateGroup {
 	for _, fc := range files {
 		functions := extractFunctionBlocks(fc.path, fc.lines)
 		for _, fn := range functions {
-			// Extract content from source lines
 			content := ""
 			if fn.EndLine <= len(fc.lines) && fn.Line > 0 {
 				content = strings.Join(fc.lines[fn.Line-1:fn.EndLine], "\n")
@@ -252,7 +232,6 @@ func findDuplicates(graph *ModuleGraph, rootPath string) []DuplicateGroup {
 	return groups
 }
 
-// extractFunctionBlocks extracts function/method blocks from source
 func extractFunctionBlocks(filePath string, lines []string) []DuplicateEntry {
 	var entries []DuplicateEntry
 	inFunction := false
@@ -264,13 +243,11 @@ func extractFunctionBlocks(filePath string, lines []string) []DuplicateEntry {
 		trimmed := strings.TrimSpace(line)
 
 		if !inFunction {
-			// Look for function declarations
 			if strings.HasPrefix(trimmed, "func ") || strings.HasPrefix(trimmed, "function ") ||
 				strings.HasPrefix(trimmed, "def ") || strings.HasPrefix(trimmed, "fn ") {
 				inFunction = true
 				startLine = i + 1
 				braceCount = 0
-				// Extract name
 				parts := strings.Fields(trimmed)
 				if len(parts) >= 2 {
 					funcName = parts[1]
@@ -299,22 +276,15 @@ func extractFunctionBlocks(filePath string, lines []string) []DuplicateEntry {
 	return entries
 }
 
-// normalizeCode normalizes code for comparison (strip names, comments, whitespace)
 func normalizeCode(code string) string {
 	lines := strings.Split(code, "\n")
 	var normalized []string
 
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		// Skip empty lines and comments
 		if trimmed == "" || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
-		// Skip doc strings
-		if strings.HasPrefix(trimmed, "///") || strings.HasPrefix(trimmed, "//!") {
-			continue
-		}
-		// Normalize whitespace
 		trimmed = strings.Join(strings.Fields(trimmed), " ")
 		normalized = append(normalized, trimmed)
 	}
@@ -322,7 +292,6 @@ func normalizeCode(code string) string {
 	return strings.Join(normalized, "\n")
 }
 
-// countReferences counts how many files reference a given symbol
 func countReferences(graph *ModuleGraph, filePath string, symbolName string) int {
 	count := 0
 	for otherFile, otherNode := range graph.Files {
@@ -339,30 +308,31 @@ func countReferences(graph *ModuleGraph, filePath string, symbolName string) int
 	return count
 }
 
-// getDaysSinceLastChange returns days since file was last modified via git
+// unknownChangeAgeDays is treated as "old" by the confidence calculation when
+// git history is unavailable (no repo, untracked file, or malformed timestamp).
+const unknownChangeAgeDays = 999
+
 func getDaysSinceLastChange(filePath string, rootPath string) int {
 	absPath := filepath.Join(rootPath, filePath)
 	cmd := exec.Command("git", "log", "-1", "--format=%at", "--", absPath)
 	cmd.Dir = rootPath
 	out, err := cmd.Output()
 	if err != nil {
-		return 999 // default to old if git fails
+		return unknownChangeAgeDays
 	}
 
 	timestamp, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64)
 	if err != nil {
-		return 999
+		return unknownChangeAgeDays
 	}
 
 	lastChange := time.Unix(timestamp, 0)
 	return int(time.Since(lastChange).Hours() / 24)
 }
 
-// calculateDeadConfidence calculates confidence that a symbol is truly dead
 func calculateDeadConfidence(kind string, daysSince int, isPublic bool, refs int) float64 {
-	confidence := 0.5 // base
+	confidence := 0.5
 
-	// Time factor: older = more confident
 	switch {
 	case daysSince > 180:
 		confidence += 0.25
@@ -374,14 +344,12 @@ func calculateDeadConfidence(kind string, daysSince int, isPublic bool, refs int
 		confidence -= 0.2 // recently changed, might be WIP
 	}
 
-	// Scope factor: private = more confident
 	if !isPublic {
 		confidence += 0.1
 	} else {
 		confidence -= 0.1 // public APIs might be used externally
 	}
 
-	// Kind factor
 	switch kind {
 	case "function", "method":
 		confidence += 0.05
@@ -389,7 +357,6 @@ func calculateDeadConfidence(kind string, daysSince int, isPublic bool, refs int
 		confidence -= 0.05 // types might be used in type assertions
 	}
 
-	// Clamp to [0, 1]
 	if confidence < 0 {
 		confidence = 0
 	}
@@ -400,7 +367,6 @@ func calculateDeadConfidence(kind string, daysSince int, isPublic bool, refs int
 	return confidence
 }
 
-// buildReasons builds human-readable reasons for dead code classification
 func buildReasons(kind string, daysSince int, isPublic bool) []string {
 	var reasons []string
 
@@ -415,7 +381,6 @@ func buildReasons(kind string, daysSince int, isPublic bool) []string {
 	return reasons
 }
 
-// isExportedName checks if a name is exported (starts with uppercase)
 func isExportedName(name string) bool {
 	if len(name) == 0 {
 		return false
@@ -423,7 +388,6 @@ func isExportedName(name string) bool {
 	return name[0] >= 'A' && name[0] <= 'Z'
 }
 
-// isEntryPoint checks if a filename looks like an entry point
 func isEntryPoint(name string) bool {
 	entryPoints := []string{
 		"main.go", "main.ts", "main.js", "main.py", "main.rs",
@@ -441,7 +405,6 @@ func isEntryPoint(name string) bool {
 	return false
 }
 
-// resolveImportFile resolves an import to a file path (simplified)
 func resolveImportFile(source string, graph *ModuleGraph) string {
 	for filePath := range graph.Files {
 		if strings.HasSuffix(filePath, "/"+source) || strings.HasSuffix(filePath, "\\"+source) {
@@ -454,7 +417,6 @@ func resolveImportFile(source string, graph *ModuleGraph) string {
 	return ""
 }
 
-// calculateRemovalScore calculates a score for how much dead code can be safely removed
 func calculateRemovalScore(result *DeadCodeResult) float64 {
 	if result.TotalExports == 0 {
 		return 0
@@ -468,7 +430,6 @@ func calculateRemovalScore(result *DeadCodeResult) float64 {
 		score += df.Confidence
 	}
 
-	// Normalize to 0-100
 	maxScore := float64(len(result.DeadExports) + len(result.DeadFiles))
 	if maxScore == 0 {
 		return 0
@@ -476,7 +437,6 @@ func calculateRemovalScore(result *DeadCodeResult) float64 {
 	return (score / maxScore) * 100
 }
 
-// FormatDeadCodeResult formats the result for display
 func FormatDeadCodeResult(result *DeadCodeResult) string {
 	var sb strings.Builder
 
@@ -487,7 +447,6 @@ func FormatDeadCodeResult(result *DeadCodeResult) string {
 	sb.WriteString(fmt.Sprintf("Duplicates:    %d groups\n", len(result.Duplicates)))
 	sb.WriteString(fmt.Sprintf("Removal score: %.0f/100\n\n", result.RemovalScore))
 
-	// Top dead exports
 	if len(result.DeadExports) > 0 {
 		sb.WriteString("Dead Exports (by confidence):\n")
 	shown := 0
@@ -511,7 +470,6 @@ func FormatDeadCodeResult(result *DeadCodeResult) string {
 		sb.WriteString("\n")
 	}
 
-	// Duplicates
 	if len(result.Duplicates) > 0 {
 		sb.WriteString("Duplicate Code Groups:\n")
 		for _, dup := range result.Duplicates {

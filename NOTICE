@@ -1,0 +1,17 @@
+Code Cartographer — notices and attribution
+
+Structural analysis ("deep modules, narrow interfaces" rules) was inspired by:
+
+- deslop-please by deterministic-machines (MIT license),
+  https://github.com/deterministic-machines/deslop-please
+- untangle-codebase by caldoai/skills,
+  https://github.com/caldoai/skills/tree/main/skills/untangle-codebase
+- zvec-grep by zvec-ai (Apache-2.0), https://github.com/zvec-ai/zvec-grep
+  (RRF fusion, adaptive recall, symbol-anchored routing, and bounded evidence
+  concepts only; no source code or engine was used)
+
+No source code was copied from either project. The rules, thresholds, output
+format, and refactor prompt in Code Cartographer are independent implementations
+adapted to carto's multi-language file graph.
+
+Code Cartographer itself is released under the MIT license (see README.md).

@@ -5,10 +5,8 @@ import (
 	"strings"
 )
 
-// Language represents a supported programming language
 type Language string
 
-// Supported languages
 const (
 	LanguageGo          Language = "go"
 	LanguageJavaScript  Language = "javascript"
@@ -35,7 +33,6 @@ const (
 	LanguageUnknown     Language = "unknown"
 )
 
-// LanguageConfig holds configuration for a language
 type LanguageConfig struct {
 	Language    Language
 	Name        string
@@ -45,7 +42,6 @@ type LanguageConfig struct {
 	LineComment string
 }
 
-// LanguageConfigs maps language to its configuration
 var LanguageConfigs = map[Language]LanguageConfig{
 	LanguageGo: {
 		Language:    LanguageGo,
@@ -225,11 +221,9 @@ var LanguageConfigs = map[Language]LanguageConfig{
 	},
 }
 
-// DetectLanguage detects the language from a file path
 func DetectLanguage(filePath string) Language {
 	ext := strings.ToLower(filepath.Ext(filePath))
 
-	// Special cases
 	baseName := strings.ToLower(filepath.Base(filePath))
 	if baseName == "makefile" || baseName == "makefile.inc" {
 		return LanguageShell
@@ -249,7 +243,6 @@ func DetectLanguage(filePath string) Language {
 	return LanguageUnknown
 }
 
-// GetLanguageConfig returns the configuration for a language
 func GetLanguageConfig(lang Language) LanguageConfig {
 	if config, ok := LanguageConfigs[lang]; ok {
 		return config
@@ -257,7 +250,6 @@ func GetLanguageConfig(lang Language) LanguageConfig {
 	return LanguageConfig{Language: lang, Name: string(lang)}
 }
 
-// GetAllLanguages returns all supported languages
 func GetAllLanguages() []Language {
 	languages := make([]Language, 0, len(LanguageConfigs))
 	for lang := range LanguageConfigs {
@@ -266,7 +258,6 @@ func GetAllLanguages() []Language {
 	return languages
 }
 
-// IsInterpreted returns true if the language is typically interpreted
 func IsInterpreted(lang Language) bool {
 	interpreted := map[Language]bool{
 		LanguageJavaScript: true,

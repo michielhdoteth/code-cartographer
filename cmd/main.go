@@ -10,24 +10,27 @@ import (
 
 	"carto/analyze"
 	"carto/context"
+	"carto/exitcode"
 	"carto/find"
 	"carto/git"
 	"carto/lib/parser"
 	"carto/manifest"
-	"carto/search"
 	"carto/serve"
 
 	"github.com/spf13/cobra"
 )
 
-var verbose bool
 var jsonOut bool
+var jsonLines bool
 var langFilter string
 var analyzeType string
 var caseSensitive bool
 var useRegex bool
 var servePort string
-var serveOpen bool
+var includeStructure bool
+var structureFailOn string
+var structureAllowPath string
+var packFailOnOverBudget bool
 
 func main() {
 	rootCmd := &cobra.Command{
@@ -43,11 +46,11 @@ Examples:
   carto analyze               # Analyze mapped codebase
   carto find "function_name"  # Search code
   carto serve                 # Start web UI`,
-		Version: "0.1.0",
+		Version: "1.0.0",
 	}
 
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "JSON output")
+	rootCmd.PersistentFlags().BoolVar(&jsonLines, "jsonl", false, "Stream JSON Lines events")
 
 	rootCmd.AddCommand(mapCmd)
 	rootCmd.AddCommand(analyzeCmd)
@@ -61,14 +64,27 @@ Examples:
 	rootCmd.AddCommand(symbolsCmd)
 	rootCmd.AddCommand(statsCmd)
 	rootCmd.AddCommand(indexCmd)
+	rootCmd.AddCommand(askCmd)
+	rootCmd.AddCommand(traceCmd)
+	rootCmd.AddCommand(outlineCmd)
+	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(repoMapCmd)
+	rootCmd.AddCommand(packCmd)
+	rootCmd.AddCommand(searchCmd)
+	rootCmd.AddCommand(fixCmd)
+	rootCmd.AddCommand(briefCmd)
+	rootCmd.AddCommand(chunkCmd)
+	rootCmd.AddCommand(skillCmd)
+	rootCmd.AddCommand(doctorCmd)
+	rootCmd.AddCommand(schemaCmd)
+	rootCmd.AddCommand(initCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		os.Exit(exitcode.Code(err))
 	}
 }
 
-// MAP COMMAND
 var mapCmd = &cobra.Command{
 	Use:   "map <path>",
 	Short: "Map a codebase - scan files and structure",
@@ -95,6 +111,7 @@ a module graph for analysis and visualization.`,
 
 		absPath, _ := filepath.Abs(path)
 		fmt.Printf("Scanning %s...\n", absPath)
+		start := time.Now()
 
 		var wantedLangs []string
 		if langFilter != "" {
@@ -102,9 +119,8 @@ a module graph for analysis and visualization.`,
 		}
 
 		files := []string{}
-		count := 0
 
-		filepath.Walk(absPath, func(p string, info os.FileInfo, err error) error {
+		if err := filepath.Walk(absPath, func(p string, info os.FileInfo, err error) error {
 			if err != nil { return err }
 			
 			name := info.Name()
@@ -130,9 +146,10 @@ a module graph for analysis and visualization.`,
 
 			relPath, _ := filepath.Rel(absPath, p)
 			files = append(files, relPath)
-			count++
 			return nil
-		})
+		}); err != nil {
+			return fmt.Errorf("walk project: %w", err)
+		}
 
 		byLang := map[string]int{}
 		for _, f := range files {
@@ -140,13 +157,12 @@ a module graph for analysis and visualization.`,
 			byLang[lang]++
 		}
 
-		fmt.Printf("\nScanned %d files in %.0fms\n", count, 0.0)
+		fmt.Printf("\nScanned %d files in %dms\n", len(files), time.Since(start).Milliseconds())
 		fmt.Println("\nLanguages:")
 		for lang, c := range byLang {
 			fmt.Printf("  %s: %d files\n", lang, c)
 		}
 
-		// Save commit-aware manifest if in a git repo
 		if git.IsRepo(absPath) {
 			sha, _ := git.GetHeadSHA(absPath)
 			branch, _ := git.GetBranch(absPath)
@@ -155,7 +171,7 @@ a module graph for analysis and visualization.`,
 				Commit:    sha,
 				Branch:    branch,
 				MappedAt:  time.Now(),
-				FileCount: count,
+				FileCount: len(files),
 				Languages: byLang,
 			}
 			if err := manifest.Save(absPath, m); err == nil {
@@ -171,7 +187,6 @@ func init() {
 	mapCmd.Flags().StringVar(&langFilter, "lang", "", "Languages to scan (comma-separated)")
 }
 
-// ANALYZE COMMAND
 var analyzeCmd = &cobra.Command{
 	Use:   "analyze [type] [path]",
 	Short: "Analyze mapped codebase",
@@ -181,21 +196,20 @@ Analysis types:
   dead-code   - Unused files, exports, and dependencies
   complexity - Functions with high cyclomatic complexity
   circular   - Circular dependencies
+  structure  - Deep modules, narrow interfaces, and context scatter
   health     - Overall code health metrics
   all        - Run all analyses (default)`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path := "."
 		if len(args) > 1 {
 			path = args[1]
-		} else if len(args) > 0 && args[0] != "all" && args[0] != "dead-code" && args[0] != "complexity" && args[0] != "circular" && args[0] != "health" {
+		} else if len(args) > 0 && !isAnalysisType(args[0]) {
 			path = args[0]
 		}
 
 		analysisType := analyzeType
-		if len(args) > 0 {
-			if args[0] == "dead-code" || args[0] == "complexity" || args[0] == "circular" || args[0] == "health" || args[0] == "all" {
-				analysisType = args[0]
-			}
+		if len(args) > 0 && isAnalysisType(args[0]) {
+			analysisType = args[0]
 		}
 
 		absPath, err := filepath.Abs(path)
@@ -214,10 +228,11 @@ Analysis types:
 			return fmt.Errorf("path is not a directory: %s", absPath)
 		}
 
-		fmt.Printf("Analyzing %s...\n", absPath)
+		if !jsonOut {
+			fmt.Printf("Analyzing %s...\n", absPath)
+		}
 		start := time.Now()
 
-		// Build the module graph
 		graph, err := analyze.BuildGraph(absPath, "go")
 		if err != nil {
 			return fmt.Errorf("failed to build graph: %w", err)
@@ -225,9 +240,13 @@ Analysis types:
 
 		elapsed := time.Since(start).Milliseconds()
 
-		// Run the requested analysis
+		var structureReport *analyze.StructureReport
+		if analysisType == "structure" || analysisType == "all" || includeStructure {
+			structureReport = analyze.AnalyzeStructure(graph, currentStructureConfig(absPath))
+		}
+
 		if jsonOut {
-			result := runAnalysis(graph, analysisType)
+			result := runAnalysis(graph, analysisType, structureReport)
 			output := map[string]interface{}{
 				"type":     analysisType,
 				"path":     absPath,
@@ -237,7 +256,16 @@ Analysis types:
 			jsonBytes, _ := json.MarshalIndent(output, "", "  ")
 			fmt.Println(string(jsonBytes))
 		} else {
-			printAnalysisResults(graph, analysisType, elapsed)
+			printAnalysisResults(graph, analysisType, elapsed, structureReport)
+		}
+		if structureReport != nil && structureFailOn != "never" {
+			count := structureReport.Summary.Critical
+			if structureFailOn == "warning" {
+				count += structureReport.Summary.Warning
+			}
+			if count > 0 {
+				return fmt.Errorf("%w: structure analysis found %d issue(s) at or above '%s'", exitcode.ErrFindings, count, structureFailOn)
+			}
 		}
 		return nil
 	},
@@ -245,9 +273,11 @@ Analysis types:
 
 func init() {
 	analyzeCmd.Flags().StringVar(&analyzeType, "type", "all", "Analysis type")
+	analyzeCmd.Flags().StringVar(&structureFailOn, "fail-on", "never", "Exit non-zero when structure findings reach this tier")
+	analyzeCmd.Flags().StringVar(&structureAllowPath, "allow", "", "Path to a structure allowlist")
+	analyzeCmd.Flags().BoolVar(&includeStructure, "include-structure", false, "Include structural findings in the health score")
 }
 
-// FIND COMMAND
 var findCmd = &cobra.Command{
 	Use:   "find <pattern> [path]",
 	Short: "Search code in mapped files",
@@ -320,7 +350,6 @@ func init() {
 	findCmd.Flags().BoolVar(&useRegex, "regex", false, "Use regex pattern")
 }
 
-// SERVE COMMAND
 var serveCmd = &cobra.Command{
 	Use:   "serve [path]",
 	Short: "Start interactive web UI",
@@ -339,16 +368,14 @@ var serveCmd = &cobra.Command{
 
 func init() {
 	serveCmd.Flags().StringVarP(&servePort, "port", "p", "3000", "Port to serve on")
-	serveCmd.Flags().BoolVar(&serveOpen, "open", true, "Open browser automatically")
 }
 
-// INFO COMMAND
 var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Show current map info",
 	Long: `Show information about the current mapped codebase.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Code Cartographer v2.0.0")
+		fmt.Println("Code Cartographer v1.0.0")
 		fmt.Println("")
 		fmt.Println("Commands:")
 		fmt.Println("  carto map <path>       - Scan and map a codebase")
@@ -364,7 +391,6 @@ var infoCmd = &cobra.Command{
 	},
 }
 
-// DIFF COMMAND
 var diffCmd = &cobra.Command{
 	Use:   "diff [ref]",
 	Short: "Show changes since last map",
@@ -402,7 +428,6 @@ Shows which files have changed and groups them by language.`,
 			return nil
 		}
 
-		// Group by language
 		byLang := map[string][]string{}
 		for _, f := range files {
 			lang := string(parser.DetectLanguage(filepath.Ext(f)))
@@ -423,7 +448,6 @@ Shows which files have changed and groups them by language.`,
 	},
 }
 
-// CHANGED COMMAND
 var changedCmd = &cobra.Command{
 	Use:   "changed",
 	Short: "Show current uncommitted changes",
@@ -493,7 +517,6 @@ but not yet committed.`,
 	},
 }
 
-// IMPACT COMMAND
 var impactCmd = &cobra.Command{
 	Use:   "impact <file>",
 	Short: "Analyze blast radius of changing a file",
@@ -509,25 +532,23 @@ and concentrated risk analysis for the seed file.`,
 
 		absPath, _ := filepath.Abs(path)
 
-		// Try to find the file in the graph
 		graph, err := analyze.BuildGraph(absPath, "")
 		if err != nil {
 			return fmt.Errorf("failed to build graph: %w", err)
 		}
 
-		// Find the file in the graph (try both relative and absolute)
 		var seedFile string
+		wanted := filepath.ToSlash(relFile)
 		for filePath := range graph.Files {
-			if filePath == relFile || strings.HasSuffix(filePath, "/"+relFile) || strings.HasSuffix(filePath, "\\"+relFile) {
+			normalized := filepath.ToSlash(filePath)
+			if normalized == wanted || strings.HasSuffix(normalized, "/"+wanted) {
 				seedFile = filePath
 				break
 			}
 		}
 
 		if seedFile == "" {
-			// Try absolute path
 			if _, err := os.Stat(relFile); err == nil {
-				// File exists, use it directly
 				seedFile = relFile
 			} else {
 				return fmt.Errorf("file not found in codebase: %s", relFile)
@@ -547,79 +568,10 @@ and concentrated risk analysis for the seed file.`,
 	},
 }
 
-// HELPER FUNCTIONS
 
-func runAnalysis(graph *analyze.ModuleGraph, analysisType string) interface{} {
-	switch analysisType {
-	case "dead-code":
-		return analyze.AnalyzeDeadCode(graph)
-	case "complexity":
-		return analyze.AnalyzeComplexity(graph)
-	case "circular":
-		return analyze.AnalyzeCircularDeps(graph)
-	case "health":
-		return analyze.CalculateHealth(graph)
-	case "all":
-		return map[string]interface{}{
-			"dead-code":  analyze.AnalyzeDeadCode(graph),
-			"complexity": analyze.AnalyzeComplexity(graph),
-			"circular":   analyze.AnalyzeCircularDeps(graph),
-			"health":     analyze.CalculateHealth(graph),
-		}
-	default:
-		return analyze.AnalyzeDeadCode(graph)
-	}
-}
-
-func printAnalysisResults(graph *analyze.ModuleGraph, analysisType string, elapsed int64) {
-	fmt.Printf("\nAnalysis completed in %dms\n\n", elapsed)
-
-	switch analysisType {
-	case "dead-code":
-		result := analyze.AnalyzeDeadCode(graph)
-		if jsonOut {
-			output, _ := json.MarshalIndent(result, "", "  ")
-			fmt.Println(string(output))
-		} else {
-			fmt.Print(analyze.FormatDeadCodeResult(result))
-		}
-	case "complexity":
-		result := analyze.AnalyzeComplexity(graph)
-		fmt.Print(result.String())
-	case "circular":
-		result := analyze.AnalyzeCircularDeps(graph)
-		fmt.Print(result.String())
-	case "health":
-		result := analyze.CalculateHealth(graph)
-		fmt.Print(result.String())
-	case "all":
-		fmt.Println("=== Dead Code Analysis (Git-Aware) ===")
-		deadResult := analyze.AnalyzeDeadCode(graph)
-		if jsonOut {
-			output, _ := json.MarshalIndent(deadResult, "", "  ")
-			fmt.Println(string(output))
-		} else {
-			fmt.Print(analyze.FormatDeadCodeResult(deadResult))
-		}
-
-		fmt.Println("\n=== Complexity Analysis ===")
-		compResult := analyze.AnalyzeComplexity(graph)
-		fmt.Print(compResult.String())
-
-		fmt.Println("\n=== Circular Dependencies ===")
-		circResult := analyze.AnalyzeCircularDeps(graph)
-		fmt.Print(circResult.String())
-
-		fmt.Println("\n=== Overall Health ===")
-		healthResult := analyze.CalculateHealth(graph)
-		fmt.Print(healthResult.String())
-	}
-}
-
-// CONTEXT COMMAND
 var contextCmd = &cobra.Command{
 	Use:   "context <file>",
-	Short: "Get token-budgeted code context for AI agents",
+	Short: "Get token-budgeted code context",
 	Long: `Generate code context within a token budget.
 
 Reads the specified file and optionally includes imports and callers,
@@ -629,20 +581,36 @@ AI agents without exceeding token limits.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path := args[0]
 		tokens, _ := cmd.Flags().GetInt("tokens")
+		rootPath, _ := cmd.Flags().GetString("root")
+		tokens = tokenBudgetFor(cmd, rootPath, tokens)
 		includeImports, _ := cmd.Flags().GetBool("imports")
 		includeCallers, _ := cmd.Flags().GetBool("callers")
+		includeCohesion, _ := cmd.Flags().GetBool("cohesion")
+		outline, _ := cmd.Flags().GetBool("outline")
+		skeletonAlias, _ := cmd.Flags().GetBool("skeleton")
+		symbols, _ := cmd.Flags().GetStringArray("symbols")
+		lines, _ := cmd.Flags().GetStringArray("lines")
+		chunkIndex, _ := cmd.Flags().GetInt("chunk")
+		chunkBudget, _ := cmd.Flags().GetInt("chunk-budget")
 
 		absPath, _ := filepath.Abs(path)
 		if _, err := os.Stat(absPath); err != nil {
 			return fmt.Errorf("file not found: %s", path)
 		}
 
+		absRoot, _ := filepath.Abs(rootPath)
 		opts := context.Options{
-			FilePath:       absPath,
-			TokenBudget:    tokens,
-			IncludeImports: includeImports,
-			IncludeCallers: includeCallers,
-			RootPath:       filepath.Dir(absPath),
+			FilePath:        absPath,
+			TokenBudget:     tokens,
+			IncludeImports:  includeImports,
+			IncludeCallers:  includeCallers,
+			IncludeCohesion: includeCohesion,
+			RootPath:        absRoot,
+			Outline:         outline || skeletonAlias,
+			Symbols:         symbols,
+			Lines:           lines,
+			ChunkIndex:      chunkIndex,
+			ChunkBudget:     chunkBudget,
 		}
 
 		result, err := context.Generate(opts)
@@ -650,9 +618,17 @@ AI agents without exceeding token limits.`,
 			return fmt.Errorf("failed to generate context: %w", err)
 		}
 
-		if jsonOut {
+		if jsonLines {
+			emitJSONL("begin", map[string]interface{}{"file": result.FilePath, "tokens": result.TokensUsed})
+			for _, block := range result.Blocks {
+				emitJSONL("block", map[string]interface{}{"file": block.FilePath, "type": block.Type, "tokens": block.Tokens, "content": block.Content})
+			}
+			emitJSONL("summary", map[string]interface{}{"tokens": result.TokensUsed, "savings": result.Savings})
+		} else if jsonOut {
 			output, _ := json.MarshalIndent(result, "", "  ")
 			fmt.Println(string(output))
+		} else if result.View != "" {
+			fmt.Print(context.FormatView(result))
 		} else {
 			fmt.Print(context.FormatResult(result))
 		}
@@ -664,9 +640,17 @@ func init() {
 	contextCmd.Flags().IntP("tokens", "t", 8000, "Token budget")
 	contextCmd.Flags().Bool("imports", false, "Include imported files")
 	contextCmd.Flags().Bool("callers", false, "Include files that call this file's symbols")
+	contextCmd.Flags().Bool("cohesion", false, "Report a structural cohesion score")
+	contextCmd.Flags().String("root", ".", "Project root used to resolve imports and callers")
+	contextCmd.Flags().Bool("outline", false, "Emit a budgeted AST skeleton")
+	contextCmd.Flags().Bool("skeleton", false, "Alias for --outline")
+	contextCmd.Flags().StringArray("symbols", nil, "Include only these symbol ranges")
+	contextCmd.Flags().StringArray("lines", nil, "Include line range a-b; repeatable")
+	contextCmd.Flags().Int("chunk", -1, "Fetch one AST-aligned chunk by index")
+	contextCmd.Flags().Int("chunk-budget", 400, "Token budget per chunk")
+	contextCmd.MarkFlagsMutuallyExclusive("outline", "skeleton", "chunk")
 }
 
-// SYMBOLS COMMAND
 var symbolsCmd = &cobra.Command{
 	Use:   "symbols <path>",
 	Short: "List all symbols in a file or directory",
@@ -683,12 +667,10 @@ Use --type to filter by symbol type (function, class, struct, etc.)`,
 			return fmt.Errorf("path not found: %s", path)
 		}
 
-		// Determine if path is a file or directory
 		info, _ := os.Stat(absPath)
 		var symbols []analyze.Export
 
 		if !info.IsDir() {
-			// Single file: parse just this file
 			code, err := os.ReadFile(absPath)
 			if err != nil {
 				return fmt.Errorf("failed to read file: %w", err)
@@ -713,7 +695,6 @@ Use --type to filter by symbol type (function, class, struct, etc.)`,
 				}
 			}
 		} else {
-			// Directory: build full graph
 			graph, err := analyze.BuildGraph(absPath, "")
 			if err != nil {
 				return fmt.Errorf("failed to build graph: %w", err)
@@ -744,107 +725,6 @@ Use --type to filter by symbol type (function, class, struct, etc.)`,
 
 func init() {
 	symbolsCmd.Flags().StringP("type", "t", "", "Filter by type (function, class, struct, method, etc.)")
-}
-
-// STATS COMMAND
-var statsCmd = &cobra.Command{
-	Use:   "stats [path]",
-	Short: "Show codebase statistics",
-	Long: `Display quick statistics about a codebase including file counts,
-language distribution, and symbol counts.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		path := "."
-		if len(args) > 0 {
-			path = args[0]
-		}
-
-		absPath, _ := filepath.Abs(path)
-		if _, err := os.Stat(absPath); err != nil {
-			return fmt.Errorf("path not found: %s", path)
-		}
-
-		start := time.Now()
-		graph, err := analyze.BuildGraph(absPath, "")
-		if err != nil {
-			return fmt.Errorf("failed to build graph: %w", err)
-		}
-		elapsed := time.Since(start).Milliseconds()
-
-		stats := graph.GetStats()
-
-		if jsonOut {
-			output, _ := json.MarshalIndent(stats, "", "  ")
-			fmt.Println(string(output))
-		} else {
-			fmt.Printf("Codebase Stats (%s)\n", absPath)
-			fmt.Printf("Scan time: %dms\n\n", elapsed)
-
-			if totalFiles, ok := stats["total_files"].(int); ok {
-				fmt.Printf("Files:     %d\n", totalFiles)
-			}
-			if totalExports, ok := stats["total_exports"].(int); ok {
-				fmt.Printf("Symbols:   %d\n", totalExports)
-			}
-			if totalImports, ok := stats["total_imports"].(int); ok {
-				fmt.Printf("Imports:   %d\n", totalImports)
-			}
-
-			if byLang, ok := stats["by_language"].(map[string]int); ok {
-				fmt.Println("\nLanguages:")
-				for lang, count := range byLang {
-					fmt.Printf("  %-15s %d files\n", lang, count)
-				}
-			}
-
-			if byType, ok := stats["by_type"].(map[string]int); ok {
-				fmt.Println("\nSymbols by type:")
-				for symType, count := range byType {
-					fmt.Printf("  %-15s %d\n", symType, count)
-				}
-			}
-		}
-		return nil
-	},
-}
-
-// INDEX COMMAND
-var indexCmd = &cobra.Command{
-	Use:   "index [path]",
-	Short: "Build search index for fast full-text search",
-	Long: `Build a search index for the codebase.
-
-The index enables instant search across all source files.
-Run this after significant changes to refresh the index.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		path := "."
-		if len(args) > 0 {
-			path = args[0]
-		}
-
-		absPath, _ := filepath.Abs(path)
-		if _, err := os.Stat(absPath); err != nil {
-			return fmt.Errorf("path not found: %s", path)
-		}
-
-		fmt.Printf("Building search index for %s...\n", absPath)
-		start := time.Now()
-
-		index, err := search.BuildIndex(absPath)
-		if err != nil {
-			return fmt.Errorf("failed to build index: %w", err)
-		}
-
-		if err := index.Save(absPath); err != nil {
-			return fmt.Errorf("failed to save index: %w", err)
-		}
-
-		elapsed := time.Since(start).Milliseconds()
-		fmt.Printf("Indexed %d files with %d unique terms in %dms\n",
-			index.TotalFiles, index.TotalTerms, elapsed)
-		fmt.Printf("Index saved to .carto/search-index.json\n")
-
-		return nil
-	},
 }
 
 // No duplicate language detection - using parser.DetectLanguage from lib/parser

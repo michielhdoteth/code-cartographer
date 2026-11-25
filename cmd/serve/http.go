@@ -9,24 +9,22 @@ import (
 	"strings"
 
 	"carto/analyze"
+	"carto/codegraph"
 	"carto/find"
 )
 
-// Server handles serving the web UI and API
 type Server struct {
-	Port    string
+	Port     string
 	BuildDir string
 }
 
-// NewServer creates a new server instance
 func NewServer(port string, buildDir string) *Server {
 	return &Server{
-		Port:    port,
+		Port:     port,
 		BuildDir: buildDir,
 	}
 }
 
-// Run starts the HTTP server
 func (s *Server) Run() error {
 	addr := fmt.Sprintf(":%s", s.Port)
 	fmt.Printf("Starting Code Cartographer UI...\n")
@@ -34,19 +32,17 @@ func (s *Server) Run() error {
 
 	mux := http.NewServeMux()
 
-	// API endpoints
 	mux.HandleFunc("/api/health", s.handleHealth)
 	mux.HandleFunc("/api/map", s.handleMap)
 	mux.HandleFunc("/api/analyze", s.handleAnalyze)
 	mux.HandleFunc("/api/search", s.handleSearch)
 	mux.HandleFunc("/api/files/", s.handleFile)
 	mux.HandleFunc("/api/graph", s.handleGraph)
+	mux.HandleFunc("/api/symbol-graph", s.handleSymbolGraph)
 
-	// Serve static files from build directory
 	if s.BuildDir != "" && dirExists(s.BuildDir) {
 		mux.Handle("/", http.FileServer(http.Dir(s.BuildDir)))
 	} else {
-		// Fallback to simple message
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			w.Write([]byte(htmlIndex))
@@ -57,7 +53,6 @@ func (s *Server) Run() error {
 	return http.ListenAndServe(addr, mux)
 }
 
-// dirExists checks if a directory exists
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -66,13 +61,11 @@ func dirExists(path string) bool {
 	return info.IsDir()
 }
 
-// handleHealth returns server health status
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "version": "2.0.0"})
 }
 
-// handleMap handles map API requests - returns file structure
 func (s *Server) handleMap(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -102,7 +95,6 @@ func (s *Server) handleMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build graph and return structure
 	lang := r.URL.Query().Get("language")
 	if lang == "" {
 		lang = "auto"
@@ -113,7 +105,6 @@ func (s *Server) handleMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert to serializable format
 	result := map[string]interface{}{
 		"path":      absPath,
 		"fileCount": len(graph.Files),
@@ -123,7 +114,6 @@ func (s *Server) handleMap(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleAnalyze handles analyze API requests
 func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -143,7 +133,6 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build graph
 	lang := r.URL.Query().Get("language")
 	if lang == "" {
 		lang = "auto"
@@ -154,7 +143,6 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Run analysis
 	var result interface{}
 	switch analysisType {
 	case "dead-code":
@@ -163,6 +151,8 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		result = analyze.AnalyzeComplexity(graph)
 	case "circular":
 		result = analyze.AnalyzeCircularDeps(graph)
+	case "structure":
+		result = analyze.AnalyzeStructure(graph, analyze.DefaultStructureConfig())
 	case "health":
 		result = analyze.CalculateHealth(graph)
 	default:
@@ -170,6 +160,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 			"dead-code":  analyze.AnalyzeDeadCode(graph),
 			"complexity": analyze.AnalyzeComplexity(graph),
 			"circular":   analyze.AnalyzeCircularDeps(graph),
+			"structure":  analyze.AnalyzeStructure(graph, analyze.DefaultStructureConfig()),
 			"health":     analyze.CalculateHealth(graph),
 		}
 	}
@@ -184,7 +175,6 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// handleSearch handles search API requests
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 	if query == "" {
@@ -225,7 +215,6 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleFile serves individual file contents
 func (s *Server) handleFile(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/files/")
 	if path == "" {
@@ -243,7 +232,6 @@ func (s *Server) handleFile(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-// handleGraph returns the full dependency graph
 func (s *Server) handleGraph(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -264,19 +252,38 @@ func (s *Server) handleGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert graph to serializable format
 	result := map[string]interface{}{
-		"path":        absPath,
-		"fileCount":   len(graph.Files),
-		"exportCount": len(graph.Exports),
-		"files":       getFileList(graph),
+		"path":         absPath,
+		"fileCount":    len(graph.Files),
+		"exportCount":  len(graph.Exports),
+		"files":        getFileList(graph),
 		"dependencies": getDependencies(graph),
 	}
 
 	json.NewEncoder(w).Encode(result)
 }
 
-// getFileList returns a list of files with their exports
+func (s *Server) handleSymbolGraph(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		path = "."
+	}
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		http.Error(w, `{"error":"invalid repository path"}`, http.StatusBadRequest)
+		return
+	}
+	graph, err := codegraph.Build(absPath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(graph); err != nil {
+		fmt.Fprintf(os.Stderr, "write graph response: %v\n", err)
+	}
+}
+
 func getFileList(graph *analyze.ModuleGraph) []map[string]interface{} {
 	var files []map[string]interface{}
 	for path, node := range graph.Files {
@@ -295,7 +302,6 @@ func getFileList(graph *analyze.ModuleGraph) []map[string]interface{} {
 	return files
 }
 
-// getDependencies returns the import dependencies
 func getDependencies(graph *analyze.ModuleGraph) []map[string]interface{} {
 	var deps []map[string]interface{}
 	for file, imports := range graph.Imports {

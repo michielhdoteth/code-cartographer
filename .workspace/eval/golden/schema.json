@@ -1,0 +1,16 @@
+﻿{
+  "commands": [
+    "agent-bench",
+    "analyze",
+    "ask",
+    "context",
+    "doctor",
+    "fix",
+    "impact",
+    "pack",
+    "repo-map",
+    "search",
+    "structure"
+  ],
+  "schema_version": 1
+}

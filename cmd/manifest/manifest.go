@@ -23,7 +23,6 @@ func savePath(dir string) string {
 	return filepath.Join(dir, manifestDir, manifestFile)
 }
 
-// Save writes the manifest to .carto/manifest.json
 func Save(dir string, manifest *Manifest) error {
 	path := savePath(dir)
 	os.MkdirAll(filepath.Dir(path), 0755)
@@ -34,7 +33,6 @@ func Save(dir string, manifest *Manifest) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// Load reads the manifest from .carto/manifest.json
 func Load(dir string) (*Manifest, error) {
 	path := savePath(dir)
 	data, err := os.ReadFile(path)
@@ -48,7 +46,6 @@ func Load(dir string) (*Manifest, error) {
 	return &m, nil
 }
 
-// Exists checks if a manifest file exists
 func Exists(dir string) bool {
 	_, err := os.Stat(savePath(dir))
 	return err == nil

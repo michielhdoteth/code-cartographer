@@ -1,0 +1,121 @@
+﻿{
+  "hits": [
+    {
+      "node": {
+        "id": "symbol:cmd/analyze/blastradius.go:function:AnalyzeBlastRadius:60:0",
+        "name": "AnalyzeBlastRadius",
+        "kind": "function",
+        "file": "cmd/analyze/blastradius.go",
+        "start_line": 60,
+        "end_line": 151,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 17.5,
+      "snippet": "func AnalyzeBlastRadius(graph *ModuleGraph, seedFile string) *BlastRadiusResult {\n\tresult := \u0026BlastRadiusResult{\n\t\tSeedFile:      seedFile,\n\t\tTotalFiles:    len(graph.Files),\n\t\tAffectedFiles: []AffectedFile{},\n\t\tHubs:          []Hub{},\n\t}\n\n\t// Build reverse adjacency (who imports what)\n\treverseGraph := buildReverseGraph(graph)\n\tresult.TotalEdges = countEdges(graph)\n\n\t// BFS from seed file through reverse graph\n\taffected := make(map[string]*AffectedFile)\n\tqueue := []BFSNode{{File: seedFile, Depth: 0, ViaSymbol: \"\"}}\n\tvisited := make(map[string]bool)\n\tmaxDepth := 0\n\n\tfor len(queue) \u003e 0 {\n\t\tcurrent := queue[0]\n\t\tqueue = queue[1:]\n\n\t\tif visited[current.File] {\n\t\t\t// Update existing entry with shorter path if found\n\t\t\tif existing, ok := affected[current.File]; ok {"
+    },
+    {
+      "node": {
+        "id": "symbol:cmd/analyze/blastradius.go:struct:SymbolRisk:51:0",
+        "name": "SymbolRisk",
+        "kind": "struct",
+        "file": "cmd/analyze/blastradius.go",
+        "start_line": 51,
+        "end_line": 59,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "type SymbolRisk struct {\n\tName     string  `json:\"name\"`\n\tKind     string  `json:\"kind\"`\n\tLine     int     `json:\"line\"`\n\tScore    float64 `json:\"score\"`\n\tReach    int     `json:\"reach\"` // number of files this symbol affects\n}\n\n// AnalyzeBlastRadius performs a full blast radius analysis for a seed file"
+    },
+    {
+      "node": {
+        "id": "symbol:cmd/retrieval/retrieval_test.go:function:TestTokenizeSplitsIdentifiers:8:0",
+        "name": "TestTokenizeSplitsIdentifiers",
+        "kind": "function",
+        "file": "cmd/retrieval/retrieval_test.go",
+        "start_line": 8,
+        "end_line": 29,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "func TestTokenizeSplitsIdentifiers(t *testing.T) {\n\tcases := map[string][]string{\n\t\t\"AnalyzeBlastRadius\": {\"analyze\", \"blast\", \"radius\"},\n\t\t\"HTTPServer\":         {\"http\", \"server\"},\n\t\t\"sha256_hash\":        {\"sha\", \"256\", \"hash\"},\n\t}\n\tfor input, want := range cases {\n\t\tgot := Tokenize(input)\n\t\tif len(got) != len(want) {\n\t\t\tt.Fatalf(\"Tokenize(%q) = %v, want %v\", input, got, want)\n\t\t}\n\t\tfor i := range want {\n\t\t\tif got[i] != want[i] {\n\t\t\t\tt.Fatalf(\"Tokenize(%q) = %v, want %v\", input, got, want)\n\t\t\t}\n\t\t}\n\t}\n\tif tokens := Tokenize(\"return the error\"); len(tokens) != 1 || tokens[0] != \"error\" {\n\t\tt.Fatalf(\"stopwords not removed: %v\", tokens)\n\t}\n}\n"
+    },
+    {
+      "node": {
+        "id": "symbol:cmd/retrieval/tokenize.go:function:IsStopword:24:0",
+        "name": "IsStopword",
+        "kind": "function",
+        "file": "cmd/retrieval/tokenize.go",
+        "start_line": 24,
+        "end_line": 28,
+        "exported": true,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "func IsStopword(token string) bool { return codeStopwords[token] }\n\n// SplitIdentifier splits one identifier span into meaningful subtokens.\n// HTTPServer -\u003e [http server], AnalyzeBlastRadius -\u003e [analyze blast radius],\n// sha256_hash -\u003e [sha 256 hash]."
+    },
+    {
+      "node": {
+        "id": "symbol:test-data/agent-tasks.json:property:cases:0:0",
+        "name": "cases",
+        "kind": "property",
+        "file": "test-data/agent-tasks.json",
+        "start_line": 1,
+        "end_line": 30,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "{\n  \"version\": 1,\n  \"cases\": [\n    {\n      \"id\": \"structure-rules\",\n      \"query\": \"AnalyzeStructure\",\n      \"expected\": [\"AnalyzeStructure\", \"cmd/analyze/structure.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"blast-radius\",\n      \"query\": \"AnalyzeBlastRadius\",\n      \"expected\": [\"AnalyzeBlastRadius\", \"cmd/analyze/blastradius.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"context-assembly\",\n      \"query\": \"Generate context\",\n      \"expected\": [\"Generate\", \"cmd/context/context.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"agent-benchmark\",\n      \"query\": \"RunAgentBenchmark\",\n      \"expected\": [\"RunAgentBenchmark\", \"cmd/codegraph/agent_bench.go\"],"
+    },
+    {
+      "node": {
+        "id": "symbol:test-data/agent-tasks.json:property:expected:0:0",
+        "name": "expected",
+        "kind": "property",
+        "file": "test-data/agent-tasks.json",
+        "start_line": 1,
+        "end_line": 30,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "{\n  \"version\": 1,\n  \"cases\": [\n    {\n      \"id\": \"structure-rules\",\n      \"query\": \"AnalyzeStructure\",\n      \"expected\": [\"AnalyzeStructure\", \"cmd/analyze/structure.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"blast-radius\",\n      \"query\": \"AnalyzeBlastRadius\",\n      \"expected\": [\"AnalyzeBlastRadius\", \"cmd/analyze/blastradius.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"context-assembly\",\n      \"query\": \"Generate context\",\n      \"expected\": [\"Generate\", \"cmd/context/context.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"agent-benchmark\",\n      \"query\": \"RunAgentBenchmark\",\n      \"expected\": [\"RunAgentBenchmark\", \"cmd/codegraph/agent_bench.go\"],"
+    },
+    {
+      "node": {
+        "id": "symbol:test-data/agent-tasks.json:property:id:0:0",
+        "name": "id",
+        "kind": "property",
+        "file": "test-data/agent-tasks.json",
+        "start_line": 1,
+        "end_line": 30,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "{\n  \"version\": 1,\n  \"cases\": [\n    {\n      \"id\": \"structure-rules\",\n      \"query\": \"AnalyzeStructure\",\n      \"expected\": [\"AnalyzeStructure\", \"cmd/analyze/structure.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"blast-radius\",\n      \"query\": \"AnalyzeBlastRadius\",\n      \"expected\": [\"AnalyzeBlastRadius\", \"cmd/analyze/blastradius.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"context-assembly\",\n      \"query\": \"Generate context\",\n      \"expected\": [\"Generate\", \"cmd/context/context.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"agent-benchmark\",\n      \"query\": \"RunAgentBenchmark\",\n      \"expected\": [\"RunAgentBenchmark\", \"cmd/codegraph/agent_bench.go\"],"
+    },
+    {
+      "node": {
+        "id": "symbol:test-data/agent-tasks.json:property:query:0:0",
+        "name": "query",
+        "kind": "property",
+        "file": "test-data/agent-tasks.json",
+        "start_line": 1,
+        "end_line": 30,
+        "range_confidence": "estimated"
+      },
+      "score": 1,
+      "snippet": "{\n  \"version\": 1,\n  \"cases\": [\n    {\n      \"id\": \"structure-rules\",\n      \"query\": \"AnalyzeStructure\",\n      \"expected\": [\"AnalyzeStructure\", \"cmd/analyze/structure.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"blast-radius\",\n      \"query\": \"AnalyzeBlastRadius\",\n      \"expected\": [\"AnalyzeBlastRadius\", \"cmd/analyze/blastradius.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"context-assembly\",\n      \"query\": \"Generate context\",\n      \"expected\": [\"Generate\", \"cmd/context/context.go\"],\n      \"tokens\": 4000\n    },\n    {\n      \"id\": \"agent-benchmark\",\n      \"query\": \"RunAgentBenchmark\",\n      \"expected\": [\"RunAgentBenchmark\", \"cmd/codegraph/agent_bench.go\"],"
+    }
+  ],
+  "query": "AnalyzeBlastRadius",
+  "savings": {
+    "whole_repo_tokens_estimate": 862353,
+    "tokens_used_estimate": 1170,
+    "saved_tokens_estimate": 861183,
+    "saved_percent_estimate": 99.8643247022971,
+    "basis": "estimated ~4 UTF-8 bytes per token; baseline = all indexed source bytes / 4"
+  },
+  "warnings": []
+}

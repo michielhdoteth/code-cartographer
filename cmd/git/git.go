@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-// GetHeadSHA returns the current HEAD commit SHA
 func GetHeadSHA(dir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "HEAD")
 	cmd.Dir = dir
@@ -16,7 +15,6 @@ func GetHeadSHA(dir string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// GetBranch returns the current branch name
 func GetBranch(dir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
 	cmd.Dir = dir
@@ -27,7 +25,6 @@ func GetBranch(dir string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// GetChangedFiles returns files changed between two commits
 func GetChangedFiles(dir string, fromSHA, toSHA string) ([]string, error) {
 	cmd := exec.Command("git", "diff", "--name-only", fromSHA+".."+toSHA)
 	cmd.Dir = dir
@@ -46,7 +43,6 @@ func GetChangedFiles(dir string, fromSHA, toSHA string) ([]string, error) {
 	return files, nil
 }
 
-// GetStatus returns files with git status (short format)
 func GetStatus(dir string) ([]string, error) {
 	cmd := exec.Command("git", "status", "--short")
 	cmd.Dir = dir
@@ -65,7 +61,6 @@ func GetStatus(dir string) ([]string, error) {
 	return files, nil
 }
 
-// GetLastCommitSHA returns the parent commit SHA (HEAD~1)
 func GetLastCommitSHA(dir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "HEAD~1")
 	cmd.Dir = dir
@@ -76,7 +71,6 @@ func GetLastCommitSHA(dir string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// IsRepo checks if the given directory is inside a git repository
 func IsRepo(dir string) bool {
 	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
 	cmd.Dir = dir

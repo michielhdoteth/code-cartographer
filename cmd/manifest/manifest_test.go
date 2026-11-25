@@ -23,12 +23,10 @@ func TestSaveAndLoad(t *testing.T) {
 		t.Fatalf("Save failed: %v", err)
 	}
 
-	// Verify file exists
 	if !Exists(dir) {
 		t.Fatal("manifest should exist after save")
 	}
 
-	// Load and compare
 	loaded, err := Load(dir)
 	if err != nil {
 		t.Fatalf("Load failed: %v", err)
@@ -58,7 +56,6 @@ func TestExists(t *testing.T) {
 		t.Error("manifest should not exist in empty dir")
 	}
 
-	// Create .carto/manifest.json
 	os.MkdirAll(filepath.Join(dir, ".carto"), 0755)
 	os.WriteFile(filepath.Join(dir, ".carto", "manifest.json"), []byte(`{}`), 0644)
 
