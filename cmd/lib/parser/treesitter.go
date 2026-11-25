@@ -19,7 +19,6 @@ import (
 	"github.com/smacker/go-tree-sitter/java"
 	"github.com/smacker/go-tree-sitter/javascript"
 	"github.com/smacker/go-tree-sitter/kotlin"
-	"github.com/smacker/go-tree-sitter/markdown"
 	"github.com/smacker/go-tree-sitter/php"
 	"github.com/smacker/go-tree-sitter/python"
 	"github.com/smacker/go-tree-sitter/ruby"
@@ -81,8 +80,6 @@ func NewTreeSitterParser(lang Language) *TreeSitterParser {
 		langPtr = yaml.GetLanguage()
 	case LanguageTOML:
 		langPtr = toml.GetLanguage()
-	case LanguageMarkdown:
-		langPtr = markdown.GetLanguage()
 	}
 
 	if langPtr == nil {
@@ -188,7 +185,7 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 
 	case "type_declaration":
 		for i := uint32(0); i < node.ChildCount(); i++ {
-			child := node.Child(i)
+			child := node.Child(int(i))
 			if child.Type() == "type_spec" {
 				name := p.getNodeText(child.ChildByFieldName("name"), source)
 				if name != "" {
@@ -238,7 +235,7 @@ func (p *TreeSitterParser) walkGoTree(cursor *sitter.TreeCursor, source []byte, 
 
 	case "const_declaration", "var_declaration":
 		for i := uint32(0); i < node.ChildCount(); i++ {
-			child := node.Child(i)
+			child := node.Child(int(i))
 			if child.Type() == "const_spec" || child.Type() == "var_spec" {
 				nameNode := child.ChildByFieldName("name")
 				if nameNode != nil {
@@ -368,7 +365,7 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 
 	case "lexical_declaration", "variable_declaration":
 		for i := uint32(0); i < node.ChildCount(); i++ {
-			child := node.Child(i)
+			child := node.Child(int(i))
 			if child.Type() == "variable_declarator" {
 				nameNode := child.ChildByFieldName("name")
 				if nameNode != nil {
@@ -398,7 +395,7 @@ func (p *TreeSitterParser) walkJSTree(cursor *sitter.TreeCursor, source []byte, 
 			if path != "" {
 				start := node.StartPoint()
 				for i := uint32(0); i < node.ChildCount(); i++ {
-					child := node.Child(i)
+					child := node.Child(int(i))
 					if child.Type() == "import_specifier" ||
 						child.Type() == "named_imports" ||
 						child.Type() == "identifier" {
@@ -689,7 +686,7 @@ func (p *TreeSitterParser) extractImportPath(node *sitter.Node, source []byte) s
 		return p.getNodeText(node, source)
 	}
 	for i := uint32(0); i < node.ChildCount(); i++ {
-		child := node.Child(i)
+		child := node.Child(int(i))
 		if child.Type() == "string_literal" {
 			return p.getNodeText(child, source)
 		}
